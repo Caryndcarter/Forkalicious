@@ -147,12 +147,11 @@ export default function DesktopNavbar({
             }`}
             title="Account Settings"
           >
-            {loggedIn ? (
-              <Home className="w-5 h-5" />
-            ) : (
-              <User className="w-5 h-5" />
-            )}
-            <span className="text-xs mt-1">Account Settings</span>
+            <User className="w-5 h-5" />
+
+            <span className="text-xs mt-1">
+              {loggedIn ? "Account Settings" : "Log in"}
+            </span>
           </Link>
         </div>
       </nav>
