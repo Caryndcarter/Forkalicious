@@ -23,7 +23,7 @@ export class CdkStack extends cdk.Stack {
     // The code that defines your stack goes here
     // 1. S3 Bucket
     const destinationBucket = new s3.Bucket(this, "DestinationBucket", {
-      accessControl: s3.BucketAccessControl.PRIVATE,
+      accessControl: s3.BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
       //autoDeleteObjects: true,
       //blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
       publicReadAccess: false,
@@ -43,6 +43,7 @@ export class CdkStack extends cdk.Stack {
       validation: acm.CertificateValidation.fromDns(hostedZone),
     });
 
+    /*
     // 3. CloudFront Origin Access Control (OAC)
     const oac = new cloudfront.CfnOriginAccessControl(this, "OAC", {
       originAccessControlConfig: {
@@ -51,7 +52,7 @@ export class CdkStack extends cdk.Stack {
         signingBehavior: "always",
         signingProtocol: "sigv4",
       },
-    });
+    });*/
 
   const oai = new OriginAccessIdentity(this, "OAI");
 
