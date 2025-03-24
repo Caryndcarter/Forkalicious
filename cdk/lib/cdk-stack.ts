@@ -25,8 +25,8 @@ export class CdkStack extends cdk.Stack {
     const destinationBucket = new s3.Bucket(this, "DestinationBucket", {
       accessControl: s3.BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
       //autoDeleteObjects: true,
-      //blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
-      publicReadAccess: false,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
+      publicReadAccess: true,
       // removalPolicy: cdk.RemovalPolicy.DESTROY,
       // versioned: false,
       websiteErrorDocument: "index.html",
@@ -67,6 +67,7 @@ export class CdkStack extends cdk.Stack {
 
    const distribution = new cloudfront.Distribution(this, "CloudFrontDist", {
       defaultBehavior: {
+        cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
         origin: new origins.S3Origin(destinationBucket, { originAccessIdentity: oai }),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       },
