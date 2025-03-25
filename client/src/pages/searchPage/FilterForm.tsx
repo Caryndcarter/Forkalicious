@@ -4,37 +4,7 @@ import {
   DropDownSelection,
   InputMultiSelect,
 } from "@/components/forms";
-import { dietOptions, intoleranceOptions } from "@/types";
-
-const cuisineOptions = [
-  "African",
-  "Asian",
-  "American",
-  "British",
-  "Cajun",
-  "Caribbean",
-  "Chinese",
-  "Eastern European",
-  "European",
-  "French",
-  "German",
-  "Greek",
-  "Indian",
-  "Irish",
-  "Italian",
-  "Japanese",
-  "Jewish",
-  "Korean",
-  "Latin American",
-  "Mediterranean",
-  "Mexican",
-  "Middle Eastern",
-  "Nordic",
-  "Southern",
-  "Spanish",
-  "Thai",
-  "Vietnamese",
-];
+import { cuisineOptions, dietOptions, intoleranceOptions } from "@/types";
 
 interface filterFormProps {
   filterValue: filterInfo;
