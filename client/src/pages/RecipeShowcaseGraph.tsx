@@ -16,7 +16,7 @@ import {
 } from "../utils_graphQL/mutations";
 import { GET_SPECIFIC_RECIPE_ID } from "../utils_graphQL/queries";
 import Auth from "../utils_graphQL/auth";
-//import RecipeDetails from "../interfaces/recipeDetails.ts";
+//import RecipeDetails from "../types/recipeDetails.ts";
 import { Review } from "../components/Review";
 import SavedReview from "../components/SavedReview";
 import AverageRating from "../components/AverageRating";

@@ -1,74 +1,74 @@
-import { useState, useCallback, useEffect } from "react"
-import "../index.css"
-import RecipeCard from "../components/RecipeCard"
-import type Recipe from "../interfaces/recipe"
-import { authService } from "../api/authentication"
-import apiService from "../api/apiService"
-import SearchCard from "../components/SearchCard"
-import RecipeBookCard from "../components/RecipeBookCard"
-import RecipeMakerCard from "../components/RecipeMakerCard"
-import { Button } from "@/components/ui/button"
-import { RefreshCw } from "lucide-react"
+import { useState, useCallback, useEffect } from "react";
+import "../index.css";
+import RecipeCard from "../components/RecipeCard";
+import type Recipe from "../types/recipe";
+import { authService } from "../api/authentication";
+import apiService from "../api/apiService";
+import SearchCard from "../components/SearchCard";
+import RecipeBookCard from "../components/RecipeBookCard";
+import RecipeMakerCard from "../components/RecipeMakerCard";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 
 // Storage keys
 const STORAGE_KEYS = {
   RECIPES: "saved_recipes",
   TIMESTAMP: "recipes_timestamp",
-}
+};
 
 const HomePage = () => {
-  const [loginCheck, setLoginCheck] = useState(false)
-  const [recipes, setRecipes] = useState<Recipe[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [loginCheck, setLoginCheck] = useState(false);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Load recipes from localStorage or fetch new ones
   const loadRecipes = useCallback(async () => {
     // Try to get recipes from localStorage first
-    const savedRecipes = localStorage.getItem(STORAGE_KEYS.RECIPES)
+    const savedRecipes = localStorage.getItem(STORAGE_KEYS.RECIPES);
 
     if (savedRecipes) {
       try {
-        const parsedRecipes = JSON.parse(savedRecipes)
-        setRecipes(parsedRecipes)
-        return // Exit early if we have saved recipes
+        const parsedRecipes = JSON.parse(savedRecipes);
+        setRecipes(parsedRecipes);
+        return; // Exit early if we have saved recipes
       } catch (error) {
-        console.error("Failed to parse saved recipes:", error)
+        console.error("Failed to parse saved recipes:", error);
         // Continue to fetch new recipes if parsing fails
       }
     }
 
     // If no saved recipes, fetch new ones
-    await getRandomRecipes()
-  }, [])
+    await getRandomRecipes();
+  }, []);
 
   // Fetch new random recipes
   const getRandomRecipes = useCallback(async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const newRecipes = await apiService.forignRandomSearch()
-      setRecipes(newRecipes)
+      const newRecipes = await apiService.forignRandomSearch();
+      setRecipes(newRecipes);
 
       // Save to localStorage
-      localStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(newRecipes))
-      localStorage.setItem(STORAGE_KEYS.TIMESTAMP, Date.now().toString())
+      localStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(newRecipes));
+      localStorage.setItem(STORAGE_KEYS.TIMESTAMP, Date.now().toString());
     } catch (error) {
-      console.error("Failed to fetch recipes:", error)
+      console.error("Failed to fetch recipes:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [])
+  }, []);
 
   // Initial load
   useEffect(() => {
-    loadRecipes()
+    loadRecipes();
 
     const checkLogin = async () => {
       if (await authService.loggedIn()) {
-        setLoginCheck(true)
+        setLoginCheck(true);
       }
-    }
-    checkLogin()
-  }, [loadRecipes])
+    };
+    checkLogin();
+  }, [loadRecipes]);
 
   const RefreshButton = () => (
     <Button
@@ -80,16 +80,20 @@ const HomePage = () => {
       <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
       {isLoading ? "Generating..." : "Generate New Recipes"}
     </Button>
-  )
+  );
 
   // Optional: Display when recipes were last refreshed
   const LastRefreshed = () => {
-    const timestamp = localStorage.getItem(STORAGE_KEYS.TIMESTAMP)
-    if (!timestamp) return null
+    const timestamp = localStorage.getItem(STORAGE_KEYS.TIMESTAMP);
+    if (!timestamp) return null;
 
-    const date = new Date(Number.parseInt(timestamp))
-    return <div className="text-sm text-gray-500 mt-2">Last refreshed: {date.toLocaleString()}</div>
-  }
+    const date = new Date(Number.parseInt(timestamp));
+    return (
+      <div className="text-sm text-gray-500 mt-2">
+        Last refreshed: {date.toLocaleString()}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-[#fef3d0]">
@@ -106,13 +110,18 @@ const HomePage = () => {
           {/* Sample Recipes Section */}
           <div className="pt-20 px-4">
             <div className="flex flex-col items-center mb-8">
-              <h1 className="text-4xl font-bold text-[#a84e24] mb-4 text-center">Sample Recipes</h1>
+              <h1 className="text-4xl font-bold text-[#a84e24] mb-4 text-center">
+                Sample Recipes
+              </h1>
               <div className="flex flex-col items-center">
                 <RefreshButton />
                 <LastRefreshed />
               </div>
             </div>
-            <div id="sample-recipies" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div
+              id="sample-recipies"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
               {recipes.map((recipe) => (
                 <RecipeCard key={recipe._id} recipe={recipe} />
               ))}
@@ -138,7 +147,10 @@ const HomePage = () => {
                 <LastRefreshed />
               </div>
             </div>
-            <div id="sample-recipies" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div
+              id="sample-recipies"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
               {recipes.map((recipe) => (
                 <RecipeCard key={recipe._id} recipe={recipe} />
               ))}
@@ -147,7 +159,7 @@ const HomePage = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default HomePage
+export default HomePage;
