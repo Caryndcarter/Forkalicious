@@ -1,6 +1,6 @@
 import { useState, useContext, useLayoutEffect, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import RecipeDetails from "../types/recipeDetails";
+import { RecipeDetails } from "@/types";
 import askService from "../api/askService";
 import { editingContext } from "@/App";
 import Auth from "@/utils_graphQL/auth";

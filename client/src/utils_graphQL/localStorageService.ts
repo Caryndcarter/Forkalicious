@@ -1,21 +1,4 @@
-import { RecipeDetails, DietaryNeeds } from "@/types";
-
-const defaultRecipe: RecipeDetails = {
-  _id: null,
-  title: "",
-  author: null,
-  summary: "",
-  readyInMinutes: 0,
-  servings: 0,
-  ingredients: [],
-  instructions: "",
-  steps: [],
-  diets: [],
-  image: "",
-  sourceUrl: "",
-  spoonacularSourceUrl: "",
-  spoonacularId: 0,
-};
+import { RecipeDetails, defaultRecipe, DietaryNeeds } from "@/types";
 
 const expirationTimeMinutes = 1;
 
