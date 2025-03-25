@@ -4,20 +4,7 @@ import {
   DropDownSelection,
   InputMultiSelect,
 } from "@/components/forms";
-
-const dietOptions = [
-  "Gluten Free",
-  "Ketogenic",
-  "Vegetarian",
-  "Lacto-Vegetarian",
-  "Ovo-Vegetarian",
-  "Vegan",
-  "Pescetarian",
-  "Paleo",
-  "Primal",
-  "Low FODMAP",
-  "Whole30",
-];
+import { dietOptions } from "@/types";
 
 const intoleranceOptions = [
   "Dairy",
