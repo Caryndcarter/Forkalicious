@@ -17,9 +17,12 @@ const defaultRecipe: RecipeDetails = {
   spoonacularId: 0,
 };
 
+const expirationTimeMinutes = 1;
+
 const currentRecipeID = "Current Recipe";
 const tokenID = "Authentication Token";
 const accountDietID = "Dietary Needs";
+const accountDietTimeStampID = `${accountDietID}_Timestamp`;
 const queryID = "Query";
 
 // holds logic for managing variables in local storage
@@ -71,13 +74,33 @@ class LocalStorageService {
     return JSON.parse(stringyDiet);
   }
 
+  isAccountDietExpired(): boolean {
+    const stringyTimestamp = localStorage.getItem(accountDietTimeStampID);
+
+    if (!stringyTimestamp) {
+      return true;
+    }
+
+    const timestamp = new Date(stringyTimestamp);
+    const now = new Date();
+
+    const differenceInMilliseconds = now.getTime() - timestamp.getTime();
+    const differenceInMinutes = differenceInMilliseconds / (1000 * 60);
+
+    return differenceInMinutes > expirationTimeMinutes;
+  }
+
   setAccountDiet(dietaryNeeds: DietaryNeeds): void {
     const stringyDiet = JSON.stringify(dietaryNeeds);
     localStorage.setItem(accountDietID, stringyDiet);
+
+    const timestamp = new Date().toISOString();
+    localStorage.setItem(accountDietTimeStampID, timestamp);
   }
 
   removeAccountDiet() {
     localStorage.removeItem(accountDietID);
+    localStorage.removeItem(`${accountDietID}_timestamp`);
   }
 
   getQuery(): string {
