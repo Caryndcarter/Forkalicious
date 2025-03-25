@@ -1,4 +1,4 @@
-import RecipeDetails from "../types/recipeDetails";
+import { RecipeDetails } from "@/types";
 import { authService } from "./authentication";
 
 // 1.  GET /api/recipes - Get all recipes
