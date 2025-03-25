@@ -13,7 +13,7 @@ import Navbar from "@/components/navbar/";
 import { createContext, useState } from "react";
 import { setContext } from "@apollo/client/link/context";
 import AuthService from "./utils_graphQL/auth.js";
-import RecipeDetails from "./interfaces/recipeDetails";
+import RecipeDetails from "./types/recipeDetails";
 import ScrollToTop from "./components/ScrollToTop";
 import AuthTracker from "./components/AuthTracker.js";
 

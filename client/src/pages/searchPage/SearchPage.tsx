@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useLayoutEffect } from "react";
-import type Recipe from "@/interfaces/recipe";
+import type Recipe from "@/types/recipe";
 import FilterForm from "./FilterForm";
 import apiService from "@/api/apiService";
 import Results from "./Results";

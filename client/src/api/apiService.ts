@@ -1,4 +1,4 @@
-import { RecipeDetails } from "@/interfaces";
+import { RecipeDetails } from "@/types";
 import { authService } from "./authentication";
 
 class apiService {

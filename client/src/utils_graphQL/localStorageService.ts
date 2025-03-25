@@ -1,4 +1,4 @@
-import { RecipeDetails, DietaryNeeds } from "@/interfaces";
+import { RecipeDetails, DietaryNeeds } from "@/types";
 
 const defaultRecipe: RecipeDetails = {
   _id: null,

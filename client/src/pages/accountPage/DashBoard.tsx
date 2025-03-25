@@ -8,7 +8,7 @@ import { DELETE_USER } from "@/utils_graphQL/mutations";
 import localStorageService from "@/utils_graphQL/localStorageService";
 import { toast } from "sonner";
 import DietForm from "./DietForm";
-import { DietaryNeeds } from "@/interfaces";
+import { DietaryNeeds } from "@/types";
 import { isEqual } from "lodash";
 
 export default function DashBoard() {
