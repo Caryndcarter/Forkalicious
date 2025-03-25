@@ -2,6 +2,8 @@ import { useState, useCallback, useRef, useLayoutEffect } from "react";
 import type Recipe from "@/types/recipe";
 import FilterForm from "./FilterForm";
 import apiService from "@/api/apiService";
+import { useQuery } from "@apollo/client";
+import { GET_ACCOUNT_PREFERENCES } from "@/utils_graphQL/queries";
 import Results from "./Results";
 import localStorageService from "@/utils_graphQL/localStorageService";
 import { ActiveFilters } from "./ActiveFilters";
@@ -13,7 +15,7 @@ export interface filterInfo {
   includeIngredients: string[];
 }
 
-export default function AccountPage() {
+const SearchPage: React.FC = () => {
   const queryReference = useRef<HTMLInputElement | null>(null);
   const [results, setResults] = useState<Recipe[]>([]); // Store the search results
   const [loading, setLoading] = useState<boolean>(true); // Track loading state
@@ -22,22 +24,30 @@ export default function AccountPage() {
     intolerances: [],
     includeIngredients: [],
   });
+  const { data, refetch } = useQuery(GET_ACCOUNT_PREFERENCES);
 
+  // retrieve query and load preferences
   useLayoutEffect(() => {
-    // load the query:
+    // Load the query
     const query = localStorageService.getQuery();
     if (queryReference.current) {
       queryReference.current.value = query;
     }
 
-    // load diet preferences saved to account:
-    const dietNeeds = localStorageService.getAccountDiet();
-    setFilterValue((previousFilter) => ({
-      ...previousFilter,
-      diet: dietNeeds.diet,
-      intolerances: dietNeeds.intolerances,
-    }));
+    // Ensure we have latest preferences
+    refetch();
   }, []);
+
+  // fetch account profile details
+  useLayoutEffect(() => {
+    if (data?.getUser) {
+      setFilterValue((prev) => ({
+        ...prev,
+        diet: data.getUser.diet || "",
+        intolerances: data.getUser.intolerances || [],
+      }));
+    }
+  }, [data]);
 
   // trigger the search on filter update
   useLayoutEffect(() => {
@@ -75,8 +85,7 @@ export default function AccountPage() {
     }
 
     if (filterValue.includeIngredients.length > 0) {
-      searchParams.includeIngredients =
-        filterValue.includeIngredients.join(",");
+      searchParams.includeIngredients = filterValue.includeIngredients.join(",");
     }
 
     const recipes = await apiService.forignRecipeSearch(searchParams);
@@ -84,26 +93,14 @@ export default function AccountPage() {
     setLoading(false);
   };
 
-  // uses a debounced search
-  const handleChange = async (e: any) => {
-    const queryText = e.target.value;
-    debouncedHandleSearch(queryText);
-  };
-
-  // debouncing logic
-  const debounce = (mainFunction: any, delay: number) => {
-    let timer: any;
-    return (...args: any) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        mainFunction(...args);
-      }, delay);
-    };
-  };
-
-  const debouncedHandleSearch = useCallback(debounce(handleSearch, 360), [
-    filterValue,
-  ]);
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const query = event.target.value;
+      localStorageService.setQuery(query);
+      handleSearch(query);
+    },
+    [filterValue]
+  );
 
   return (
     <div
@@ -149,4 +146,6 @@ export default function AccountPage() {
       </main>
     </div>
   );
-}
+};
+
+export default SearchPage;
