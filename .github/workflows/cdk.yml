@@ -38,6 +38,6 @@ jobs:
             aws-region: ${{ env.AWS_REGION }}
      
       - name: Deploy CDK Stack
-      - run: | 
+        run: | 
           npm --prefix cdk install
           npm --prefix cdk run cdk deploy -- --require-approval never
