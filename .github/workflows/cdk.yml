@@ -19,63 +19,63 @@ jobs:
       id-token: write # for aws-actions/configure-aws-credentials
       contents: read # for actions/checkout
     steps:
-     - uses: actions/checkout@v4
-       with:
-            path: '.' # This tells GitHub Actions to checkout into the current directory instead of creating a subdirectory
+      - uses: actions/checkout@v4
+        with:
+          path: '.' # This tells GitHub Actions to checkout into the current directory instead of creating a subdirectory
 
       - uses: actions/setup-node@v4
         with:
-            node-version: 20.x
-            cache: 'npm'
+          node-version: 20.x
+          cache: 'npm'
 
       - name: Build Lambda
         run: |
-            echo "=== DEBUGGING BUILD PROCESS ==="
-            echo "1. Current working directory:"
-            pwd
-            
-            echo "2. Root directory contents:"
-            ls -la
-            
-            echo "3. Server directory contents before build:"
-            ls -la server/
-            
-            echo "4. Checking package.json scripts:"
-            cat package.json | grep build
-            
-            echo "5. Server package.json scripts:"
-            cat server/package.json | grep build
-            
-            echo "6. Installing dependencies..."
-            npm install
-            
-            echo "7. Running build command..."
-            npm run render-build:lambda
-            
-            echo "8. Server directory contents after build:"
-            ls -la server/
-            
-            echo "9. Checking if dist was created:"
-            ls -la server/dist || echo "dist directory not found"
-            
-            echo "10. Checking TypeScript config:"
-            cat server/tsconfig.json
-            
-            echo "=== END DEBUGGING ==="
+          echo "=== DEBUGGING BUILD PROCESS ==="
+          echo "1. Current working directory:"
+          pwd
+          
+          echo "2. Root directory contents:"
+          ls -la
+          
+          echo "3. Server directory contents before build:"
+          ls -la server/
+          
+          echo "4. Checking package.json scripts:"
+          cat package.json | grep build
+          
+          echo "5. Server package.json scripts:"
+          cat server/package.json | grep build
+          
+          echo "6. Installing dependencies..."
+          npm install
+          
+          echo "7. Running build command..."
+          npm run render-build:lambda
+          
+          echo "8. Server directory contents after build:"
+          ls -la server/
+          
+          echo "9. Checking if dist was created:"
+          ls -la server/dist || echo "dist directory not found"
+          
+          echo "10. Checking TypeScript config:"
+          cat server/tsconfig.json
+          
+          echo "=== END DEBUGGING ==="
 
       - name: Build Client
         run: |
-            cd client
-            npm install
-            npm run build
-            cd ..
+          cd client
+          npm install
+          npm run build
+          cd ..
 
       - name: Build Server
         run: |
-            cd server
-            npm install
-            npm run build:lambda
-            cd ..
+          cd server
+          npm install
+          npm run build:lambda
+          cd ..
 
       - name: Debug Directory Structure
         run: |
@@ -108,13 +108,12 @@ jobs:
             echo "\nWARNING: client/dist directory not found!"
           fi
 
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-            role-to-assume: ${{ env.AWS_ROLE_ARN }}
-            role-session-name: DeployRoleForGitHubSession
-            aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: DeployRoleForGitHubSession
+          aws-region: ${{ env.AWS_REGION }}
      
       # - name: Deploy CDK Stack
       #   run: | 
@@ -148,7 +147,6 @@ jobs:
           echo "\nAbsolute path check:"
           node -e "console.log(require('path').resolve(__dirname, 'client/dist'))"
 
-     
       - name: Deploy CDK Stack
         run: | 
           cd cdk
@@ -161,4 +159,3 @@ jobs:
           echo "\nRelative path check for client/dist:"
           ls -la ../client/dist || echo "Cannot access ../client/dist"
           npx cdk deploy --require-approval never
-
