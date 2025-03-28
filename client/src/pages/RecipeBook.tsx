@@ -1,6 +1,6 @@
 import "../index.css";
 import RecipeCard from "../components/RecipeCard";
-import type Recipe from "../interfaces/recipe";
+import type Recipe from "../types/recipe";
 import apiService from "../api/apiService";
 import { useState, useLayoutEffect, useEffect } from "react";
 import { useNavigate } from "react-router-dom";

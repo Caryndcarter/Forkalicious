@@ -1,6 +1,6 @@
 import { useState } from "react";
 //import { authService } from "../api/authentication";
-//import UserLogin from "../interfaces/UserLogin";
+//import UserLogin from "../types/UserLogin";
 import { useMutation } from "@apollo/client";
 import { LOGIN_USER } from "@/utils_graphQL/mutations";
 import type { ChangeEvent, FormEvent } from "react";

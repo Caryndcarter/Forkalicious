@@ -13,9 +13,10 @@ import Navbar from "@/components/navbar/";
 import { createContext, useState } from "react";
 import { setContext } from "@apollo/client/link/context";
 import AuthService from "./utils_graphQL/auth.js";
-import RecipeDetails from "./interfaces/recipeDetails";
+import { RecipeDetails } from "@/types";
 import ScrollToTop from "./components/ScrollToTop";
 import AuthTracker from "./components/AuthTracker.js";
+import { defaultRecipe } from "@/types";
 
 // Apollo Client setup
 const httpLink = createHttpLink({
@@ -38,23 +39,6 @@ const client = new ApolloClient({
   link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 });
-
-const defaultRecipe: RecipeDetails = {
-  _id: null,
-  title: "",
-  author: null,
-  summary: "",
-  readyInMinutes: 0,
-  servings: 0,
-  ingredients: [],
-  instructions: "",
-  steps: [],
-  diets: [],
-  image: "",
-  sourceUrl: "",
-  spoonacularSourceUrl: "",
-  spoonacularId: 0,
-};
 
 export const currentRecipeContext = createContext({
   currentRecipeDetails: defaultRecipe,

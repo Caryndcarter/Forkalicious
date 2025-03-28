@@ -1,9 +1,9 @@
-import { useState, useContext, useLayoutEffect, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import type RecipeDetails from "../interfaces/recipeDetails"
-import askService from "../api/askService"
-import { editingContext } from "@/App"
-import Auth from "@/utils_graphQL/auth"
+import { useState, useContext, useLayoutEffect, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { RecipeDetails } from "@/types";
+import askService from "../api/askService";
+import { editingContext } from "@/App";
+import Auth from "@/utils_graphQL/auth";
 
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"

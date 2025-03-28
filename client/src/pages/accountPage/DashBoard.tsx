@@ -1,21 +1,42 @@
 import auth from "@/utils_graphQL/auth";
-// import { useNavigate } from "react-router-dom"
-import { useState } from "react";
-import { useMutation } from "@apollo/client";
+import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useMutation, useLazyQuery } from "@apollo/client";
+import { GET_ACCOUNT_PREFERENCES } from "@/utils_graphQL/queries";
 import { UPDATE_ACCOUNT_PREFERENCES } from "@/utils_graphQL/mutations";
 import { DELETE_USER } from "@/utils_graphQL/mutations";
 import localStorageService from "@/utils_graphQL/localStorageService";
 import { toast } from "sonner";
 import DietForm from "./DietForm";
-import { DietaryNeeds } from "@/interfaces";
+import { DietaryNeeds } from "@/types";
+import { isEqual } from "lodash";
 
 export default function DashBoard() {
   const [dietNeeds, setDietNeeds] = useState<DietaryNeeds>(
     localStorageService.getAccountDiet()
   );
-
+  const [fetchDiet, { data }] = useLazyQuery(GET_ACCOUNT_PREFERENCES);
   const [updateAccount] = useMutation(UPDATE_ACCOUNT_PREFERENCES);
   const [deleteUser] = useMutation(DELETE_USER);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (localStorageService.isAccountDietExpired()) {
+      fetchDiet();
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!data) {
+      return;
+    }
+    const FetchedDietNeeds: DietaryNeeds = data.getUser;
+    localStorageService.setAccountDiet(FetchedDietNeeds);
+
+    if (!isEqual(dietNeeds, FetchedDietNeeds)) {
+      setDietNeeds(FetchedDietNeeds);
+    }
+  }, [data]);
 
   const handleLogOut = () => {
     auth.logout();

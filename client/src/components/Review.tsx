@@ -9,7 +9,7 @@ import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 //import localData from "@/utils_graphQL/localStorageService";
-import ReviewDetails from "../interfaces/reviewDetails.ts";
+import ReviewDetails from "../types/reviewDetails.ts";
 import { currentRecipeContext } from "@/App";
 import { useContext } from "react";
 import { GET_REVIEWS } from "@/utils_graphQL/queries";
@@ -29,8 +29,11 @@ interface GetReviewsData {
   reviews: ReviewDetails[];
 }
 
-
-export function Review({ existingReview, onReviewSubmit, onReviewAdded }: ReviewProps) {
+export function Review({
+  existingReview,
+  onReviewSubmit,
+  onReviewAdded,
+}: ReviewProps) {
   //const currentRecipeDetails = localData.getCurrentRecipe();
   const [rating, setRating] = useState(existingReview?.rating || 0);
   const [comment, setComment] = useState(existingReview?.comment || "");
@@ -39,10 +42,11 @@ export function Review({ existingReview, onReviewSubmit, onReviewAdded }: Review
     useContext(currentRecipeContext);
   const [submitted, setSubmitted] = useState(false);
 
-
   const [addReview] = useMutation(ADD_REVIEW, {
     update(cache, { data: { addReview } }) {
-      const existingReviews = cache.readQuery<GetReviewsData>({ query: GET_REVIEWS });
+      const existingReviews = cache.readQuery<GetReviewsData>({
+        query: GET_REVIEWS,
+      });
       cache.writeQuery({
         query: GET_REVIEWS,
         data: { reviews: [addReview, ...(existingReviews?.reviews || [])] },
@@ -56,7 +60,7 @@ export function Review({ existingReview, onReviewSubmit, onReviewAdded }: Review
   const addReviewToContext = (newReview: string) => {
     // Update currentRecipeDetails directly with the new review
     //localData.setCurrentRecipe({
-      setCurrentRecipeDetails({
+    setCurrentRecipeDetails({
       ...currentRecipeDetails,
       reviews: [...(currentRecipeDetails.reviews || []), newReview], // Add new review
     });
@@ -113,14 +117,14 @@ export function Review({ existingReview, onReviewSubmit, onReviewAdded }: Review
     }
   };
 
-    // Reset form fields once review is submitted
-    useEffect(() => {
-      if (submitted) {
-        setComment(""); 
-        setRating(0);
-        setSubmitted(false); 
-      }
-    }, [submitted]);
+  // Reset form fields once review is submitted
+  useEffect(() => {
+    if (submitted) {
+      setComment("");
+      setRating(0);
+      setSubmitted(false);
+    }
+  }, [submitted]);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">

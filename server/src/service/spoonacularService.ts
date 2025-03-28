@@ -14,7 +14,7 @@ class spoonacularService {
 
   async findRecipes(input: searchInput) {
     try {
-      let searchURL = `${this.baseURL}/recipes/complexSearch?apiKey=${this.apiKey}`;
+      let searchURL = `${this.baseURL}/recipes/complexSearch?number=9&apiKey=${this.apiKey}`;
 
       Object.entries(input).forEach(([key, value]) => {
         searchURL += `&${key}=${value}`;

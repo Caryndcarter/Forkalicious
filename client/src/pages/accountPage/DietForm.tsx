@@ -1,33 +1,5 @@
 import { DropDownMultiSelect, DropDownSelection } from "@/components/forms";
-
-const dietOptions = [
-  "Gluten Free",
-  "Ketogenic",
-  "Vegetarian",
-  "Lacto-Vegetarian",
-  "Ovo-Vegetarian",
-  "Vegan",
-  "Pescetarian",
-  "Paleo",
-  "Primal",
-  "Low FODMAP",
-  "Whole30",
-];
-
-const intoleranceOptions = [
-  "Dairy",
-  "Egg",
-  "Gluten",
-  "Grain",
-  "Peanut",
-  "Seafood",
-  "Sesame",
-  "Shellfish",
-  "Soy",
-  "Sulfite",
-  "Tree Nut",
-  "Wheat",
-];
+import { dietOptions, intoleranceOptions } from "@/types";
 
 interface DietFormProps {
   formValues: any;

@@ -5,23 +5,32 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import * as route53 from "aws-cdk-lib/aws-route53";
 import * as route53_targets from "aws-cdk-lib/aws-route53-targets";
+import { OriginAccessIdentity } from "aws-cdk-lib/aws-cloudfront";
+import { PolicyStatement } from "aws-cdk-lib/aws-iam";
+import {
+  CloudFrontWebDistribution,
+  ViewerCertificate,
+  SSLMethod,
+  SecurityPolicyProtocol,
+} from "aws-cdk-lib/aws-cloudfront";
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class CdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    
     // The code that defines your stack goes here
     // 1. S3 Bucket
     const destinationBucket = new s3.Bucket(this, "DestinationBucket", {
       accessControl: s3.BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
-      autoDeleteObjects: true,
+      //autoDeleteObjects: true,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
-      //publicReadAccess: true,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      versioned: false,
-      //websiteErrorDocument: "index.html",
-      //websiteIndexDocument: "index.html",
+      publicReadAccess: true,
+      // removalPolicy: cdk.RemovalPolicy.DESTROY,
+      // versioned: false,
+      websiteErrorDocument: "index.html",
+      websiteIndexDocument: "index.html",
     });
 
     const hostedZone = new HostedZone (this, "isAwesomeHostedZone",  {
@@ -34,6 +43,7 @@ export class CdkStack extends cdk.Stack {
       validation: acm.CertificateValidation.fromDns(hostedZone),
     });
 
+    /*
     // 3. CloudFront Origin Access Control (OAC)
     const oac = new cloudfront.CfnOriginAccessControl(this, "OAC", {
       originAccessControlConfig: {
@@ -42,18 +52,30 @@ export class CdkStack extends cdk.Stack {
         signingBehavior: "always",
         signingProtocol: "sigv4",
       },
-    });
+    });*/
 
-    // 4. CloudFront Distribution
-    const distribution = new cloudfront.Distribution(this, "CloudFrontDist", {
+  const oai = new OriginAccessIdentity(this, "OAI");
+
+   destinationBucket.addToResourcePolicy(
+      new PolicyStatement({
+        actions: ["s3:GetObject"],
+        resources: [`${destinationBucket.bucketArn}/*`],
+        principals: [oai.grantPrincipal],
+      })
+    );
+
+
+   const distribution = new cloudfront.Distribution(this, "CloudFrontDist", {
       defaultBehavior: {
-        origin: new origins.S3Origin(destinationBucket),
+        cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+        origin: new origins.S3Origin(destinationBucket, { originAccessIdentity: oai }),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       },
       domainNames: ["forkalicious.isawesome.xyz"],
       certificate,
     });
 
+  
     // Assuming `hostedZone` and `distribution` are already defined
 
       new route53.ARecord(this, "CloudFrontAliasRecord", {
@@ -63,9 +85,9 @@ export class CdkStack extends cdk.Stack {
       });
 
       // 6. Attach OAC to the CloudFront Origin
-      const cfnDistribution = distribution.node.defaultChild as cloudfront.CfnDistribution;
-      cfnDistribution.addPropertyOverride("DistributionConfig.Origins.0.OriginAccessControlId", oac.ref);
-      cfnDistribution.addPropertyOverride("DistributionConfig.Origins.0.S3OriginConfig.OriginAccessIdentity", "");
+      // const cfnDistribution = distribution.node.defaultChild as cloudfront.CfnDistribution;
+      // cfnDistribution.addPropertyOverride("DistributionConfig.Origins.0.OriginAccessControlId", oac.ref);
+      // cfnDistribution.addPropertyOverride("DistributionConfig.Origins.0.S3OriginConfig.OriginAccessIdentity", "");
   
   }
 }
