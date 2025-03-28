@@ -101,7 +101,7 @@ export class CdkStack extends cdk.Stack {
   // 9 .Create Lambda function for your backend
   const backendFunction = new lambda.Function(this, 'BackendFunction', {
     runtime: lambda.Runtime.NODEJS_20_X,
-    handler: 'index.handler',
+    handler:  'dist/lambda.handler',
     code: lambda.Code.fromAsset('../../server'),
     environment: {
       JWT_SECRET_KEY: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/jwt-secret'),

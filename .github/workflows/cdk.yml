@@ -27,8 +27,11 @@ jobs:
             node-version: 20.x
             cache: 'npm'
 
-      - name: Build Application
-        run: npm run render-build
+      - name: Build Lambda
+        run: |
+          cd server
+          npm install
+          npm run build:lambda
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -37,7 +40,15 @@ jobs:
             role-session-name: DeployRoleForGitHubSession
             aws-region: ${{ env.AWS_REGION }}
      
+      # - name: Deploy CDK Stack
+      #   run: | 
+      #     npm --prefix cdk install
+      #     npm --prefix cdk run cdk deploy -- --require-approval never
+
       - name: Deploy CDK Stack
         run: | 
-          npm --prefix cdk install
-          npm --prefix cdk run cdk deploy -- --require-approval never
+          cd cdk
+          npm install
+          npm run build  # Compiles TypeScript to JavaScript
+          npx cdk deploy --require-approval never
+
