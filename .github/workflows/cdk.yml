@@ -78,8 +78,18 @@ jobs:
 
       - name: Deploy CDK Stack
         run: | 
-          cd cdk
-          npm install
-          npm run build  # Compiles TypeScript to JavaScript
-          npx cdk deploy --require-approval never
+            cd cdk
+            npm install
+            npm run build  # Compiles TypeScript to JavaScript
+            # Add debugging to see the paths
+            echo "Current directory: $(pwd)"
+            echo "Parent directory contents:"
+            ls -la ../
+            echo "Server directory contents:"
+            ls -la ../server/
+            echo "Server dist contents:"
+            ls -la ../server/dist/
+            # Deploy with debug logging
+            npx cdk deploy --require-approval never --debug
+
 
