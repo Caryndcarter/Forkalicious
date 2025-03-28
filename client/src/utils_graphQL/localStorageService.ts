@@ -16,6 +16,12 @@ const filterValueID = "Search Filter";
 
 // holds logic for managing variables in local storage
 class LocalStorageService {
+  cleanLocalStorage() {
+    this.removeIDToken();
+    this.removeAccountDiet();
+    this.removeFilter();
+  }
+
   getCurrentRecipe(): RecipeDetails {
     const stringyRecipe = localStorage.getItem(currentRecipeID);
 
