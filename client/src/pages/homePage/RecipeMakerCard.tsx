@@ -1,10 +1,16 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { ChefHat, Sparkles } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ChefHat, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-export function RecipeMakerCard() {
-  const navigate = useNavigate()
+export default function RecipeMakerCard() {
+  const navigate = useNavigate();
 
   return (
     <Card className="w-full shadow-xl rounded-lg overflow-hidden">
@@ -19,7 +25,9 @@ export function RecipeMakerCard() {
             <span className="font-semibold text-sm">AI Powered</span>
           </div>
         </div>
-        <CardDescription className="text-[#a84e24]">Create and customize your own recipes</CardDescription>
+        <CardDescription className="text-[#a84e24]">
+          Create and customize your own recipes
+        </CardDescription>
       </CardHeader>
       <CardContent className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -44,10 +52,13 @@ export function RecipeMakerCard() {
             <div className="bg-[#fff8e8] p-3 rounded-lg border border-[#f5d3a4]">
               <div className="flex items-center gap-2 mb-1">
                 <Sparkles className="h-4 w-4 text-[#ff9e40]" />
-                <span className="font-semibold text-[#a84e24]">AI Recipe Generator</span>
+                <span className="font-semibold text-[#a84e24]">
+                  AI Recipe Generator
+                </span>
               </div>
               <p className="text-sm text-gray-700">
-                Describe what you want, and our AI will create a complete recipe for you!
+                Describe what you want, and our AI will create a complete recipe
+                for you!
               </p>
             </div>
             <Button
@@ -60,5 +71,5 @@ export function RecipeMakerCard() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
