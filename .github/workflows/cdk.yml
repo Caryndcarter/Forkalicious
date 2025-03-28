@@ -29,9 +29,39 @@ jobs:
 
       - name: Build Lambda
         run: |
-          npm install
-          npm run render-build:lambda
-          ls -la server/dist  # Verify the build output
+            echo "=== DEBUGGING BUILD PROCESS ==="
+            echo "1. Current working directory:"
+            pwd
+            
+            echo "2. Root directory contents:"
+            ls -la
+            
+            echo "3. Server directory contents before build:"
+            ls -la server/
+            
+            echo "4. Checking package.json scripts:"
+            cat package.json | grep build
+            
+            echo "5. Server package.json scripts:"
+            cat server/package.json | grep build
+            
+            echo "6. Installing dependencies..."
+            npm install
+            
+            echo "7. Running build command..."
+            npm run render-build:lambda
+            
+            echo "8. Server directory contents after build:"
+            ls -la server/
+            
+            echo "9. Checking if dist was created:"
+            ls -la server/dist || echo "dist directory not found"
+            
+            echo "10. Checking TypeScript config:"
+            cat server/tsconfig.json
+            
+            echo "=== END DEBUGGING ==="
+
 
 
       - name: Configure AWS Credentials
