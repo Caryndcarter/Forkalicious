@@ -149,7 +149,7 @@ class LocalStorageService {
   }
 
   isSavedRecipesExpired(): boolean {
-    const stringyTimestamp = localStorage.getItem(accountDietTimeStampID);
+    const stringyTimestamp = localStorage.getItem(savedRecipesTimeStampID);
 
     if (!stringyTimestamp) {
       return true;
