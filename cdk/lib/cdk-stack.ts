@@ -92,9 +92,13 @@ export class CdkStack extends cdk.Stack {
         target: route53.RecordTarget.fromAlias(new route53_targets.CloudFrontTarget(distribution)),
       });
 
+  console.log('Current working directory:', process.cwd());
+  console.log('Asset path being used:', path.join(__dirname, '../client/dist'));
+
+
 // 8. Deploy the frontend assets to S3
     new s3deploy.BucketDeployment(this, 'clientDeploy', {
-      sources: [s3deploy.Source.asset(path.resolve(__dirname, '../../client/dist'))], 
+      sources: [s3deploy.Source.asset(path.join(__dirname, '../client/dist'))],  
       destinationBucket: destinationBucket,
       distribution: distribution,
       distributionPaths: ['/*'], // invalidate CloudFront cache after deploy
@@ -104,7 +108,7 @@ export class CdkStack extends cdk.Stack {
   const backendFunction = new lambda.Function(this, 'BackendFunction', {
     runtime: lambda.Runtime.NODEJS_20_X,
     handler:  'lambda.handler',
-    code: lambda.Code.fromAsset('../../server/dist'),
+    code: lambda.Code.fromAsset(path.join(__dirname, '../server/dist')), // Updated path
     environment: {
       JWT_SECRET_KEY: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/jwt-secret'),
       SPOONACULAR_API_KEY: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/spoonacular-api-key'),

@@ -20,7 +20,9 @@ jobs:
       contents: read # for actions/checkout
     steps:
 
-      - uses: actions/checkout@v4
+     - uses: actions/checkout@v4
+       with:
+          path: '.' # This tells GitHub Actions to checkout into the current directory instead of creating a subdirectory
 
       - uses: actions/setup-node@v4
         with:
