@@ -34,7 +34,7 @@ export class CdkStack extends cdk.Stack {
       //autoDeleteObjects: true,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
       publicReadAccess: true,
-      // removalPolicy: cdk.RemovalPolicy.DESTROY,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
       // versioned: false,
       websiteErrorDocument: "index.html",
       websiteIndexDocument: "index.html",
@@ -102,6 +102,9 @@ export class CdkStack extends cdk.Stack {
       destinationBucket: destinationBucket,
       distribution: distribution,
       distributionPaths: ['/*'], // invalidate CloudFront cache after deploy
+      prune: true,
+      memoryLimit: 1024, // Increase memory limit
+      logRetention: cdk.aws_logs.RetentionDays.ONE_DAY, // Add logging
     });
 
   // 9 .Create Lambda function for your backend

@@ -152,10 +152,10 @@ jobs:
           cd cdk
           npm install
           npm run build
-          echo "\nCurrent directory (should be in cdk):"
-          pwd
-          echo "\nRelative path check for server/dist:"
-          ls -la ../server/dist || echo "Cannot access ../server/dist"
-          echo "\nRelative path check for client/dist:"
-          ls -la ../client/dist || echo "Cannot access ../client/dist"
-          npx cdk deploy --require-approval never
+          echo "\nVerifying client/dist contents before deployment:"
+          ls -la ../client/dist/
+          echo "\nVerifying absolute path:"
+          realpath ../client/dist
+          echo "\nAttempting CDK deploy..."
+          npx cdk deploy --require-approval never --debug
+
