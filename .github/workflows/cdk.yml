@@ -19,12 +19,7 @@ jobs:
       id-token: write # for aws-actions/configure-aws-credentials
       contents: read # for actions/checkout
     steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-            role-to-assume: ${{ env.AWS_ROLE_ARN }}
-            role-session-name: DeployRoleForGitHubSession
-            aws-region: ${{ env.AWS_REGION }}
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
@@ -32,6 +27,17 @@ jobs:
             node-version: 20.x
             cache: 'npm'
 
+      - name: Build Application
+        run: npm run render-build
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+            role-to-assume: ${{ env.AWS_ROLE_ARN }}
+            role-session-name: DeployRoleForGitHubSession
+            aws-region: ${{ env.AWS_REGION }}
+     
+      - name: Deploy CDK Stack
       - run: | 
           npm --prefix cdk install
           npm --prefix cdk run cdk deploy -- --require-approval never
