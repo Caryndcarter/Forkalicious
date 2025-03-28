@@ -11,6 +11,8 @@ import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
+import * as path from 'path';
+
 
 import {
   CloudFrontWebDistribution,
@@ -92,7 +94,7 @@ export class CdkStack extends cdk.Stack {
 
 // 8. Deploy the frontend assets to S3
     new s3deploy.BucketDeployment(this, 'clientDeploy', {
-      sources: [s3deploy.Source.asset('../../client/dist')], 
+      sources: [s3deploy.Source.asset(path.resolve(__dirname, '../../client/dist'))], 
       destinationBucket: destinationBucket,
       distribution: distribution,
       distributionPaths: ['/*'], // invalidate CloudFront cache after deploy
