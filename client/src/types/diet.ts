@@ -1,4 +1,4 @@
-type diet =
+export type diet =
   | "Gluten Free"
   | "Ketogenic"
   | "Vegetarian"
@@ -11,7 +11,7 @@ type diet =
   | "Low FODMAP"
   | "Whole30";
 
-const dietOptions: diet[] = [
+export const dietOptions: diet[] = [
   "Gluten Free",
   "Ketogenic",
   "Vegetarian",
@@ -24,6 +24,3 @@ const dietOptions: diet[] = [
   "Low FODMAP",
   "Whole30",
 ];
-
-export type { diet };
-export { dietOptions };
