@@ -133,7 +133,7 @@ export default function AccountPage() {
         </div>
 
         {/* Active Filters Display */}
-        <ActiveFilters filterValue={filterValue} />
+        <ActiveFilters filterValue={filterValue} setFilterVisible={setFilterVisible} />
 
         {/* Search Results */}
         <Results results={results} loading={loading} />
