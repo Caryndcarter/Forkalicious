@@ -66,6 +66,8 @@ class AuthService {
 
     localStorageService.removeAccountDiet();
 
+    localStorageService.removeFilter();
+
     window.location.reload();
   }
 }
