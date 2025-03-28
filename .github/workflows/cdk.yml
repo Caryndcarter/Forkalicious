@@ -28,7 +28,7 @@ jobs:
             cache: 'npm'
 
       - name: Build Lambda
-         run: |
+        run: |
           npm install
           npm run render-build:lambda
           ls -la server/dist  # Verify the build output
