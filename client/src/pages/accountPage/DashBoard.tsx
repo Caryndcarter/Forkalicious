@@ -57,6 +57,7 @@ export default function DashBoard() {
       }
 
       localStorageService.setAccountDiet(updatedDiet);
+      localStorageService.removeFilter();
       setDietNeeds(updatedDiet);
 
       // Show success toast with custom styling
