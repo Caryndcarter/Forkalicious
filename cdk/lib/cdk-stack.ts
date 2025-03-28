@@ -113,11 +113,23 @@ export class CdkStack extends cdk.Stack {
     handler:  'lambda.handler',
     code: lambda.Code.fromAsset('../server/dist'), // Simplified path
     environment: {
-      JWT_SECRET_KEY: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/jwt-secret'),
-      SPOONACULAR_API_KEY: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/spoonacular-api-key'),
+      JWT_SECRET_KEY: ssm.StringParameter.fromSecureStringParameterAttributes(this, 'JWTSecretParameter', {
+        parameterName: '/forkalicious/jwt-secret',
+        version: 1  // Optional: specify version if needed
+      }).stringValue,
+      SPOONACULAR_API_KEY: ssm.StringParameter.fromSecureStringParameterAttributes(this, 'SpoonacularApiParameter', {
+        parameterName: '/forkalicious/spoonacular-api-key',
+        version: 1
+      }).stringValue,
       API_BASE_URL: 'https://api.spoonacular.com',
-      OPENAI_API_KEY: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/openai-api-key'), 
-      MONGODB_URI: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/mongodb-uri')
+      OPENAI_API_KEY: ssm.StringParameter.fromSecureStringParameterAttributes(this, 'OpenAIParameter', {
+        parameterName: '/forkalicious/openai-api-key',
+        version: 1
+      }).stringValue,
+      MONGODB_URI: ssm.StringParameter.fromSecureStringParameterAttributes(this, 'MongoDBParameter', {
+        parameterName: '/forkalicious/mongodb-uri',
+        version: 1
+      }).stringValue
     }, 
     timeout: cdk.Duration.seconds(30),
     memorySize: 256
