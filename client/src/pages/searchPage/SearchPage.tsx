@@ -5,23 +5,16 @@ import apiService from "@/api/apiService";
 import Results from "./Results";
 import localStorageService from "@/utils_graphQL/localStorageService";
 import { ActiveFilters } from "./ActiveFilters";
-
-export interface filterInfo {
-  diet?: string;
-  cuisine?: string;
-  intolerances: string[];
-  includeIngredients: string[];
-}
+import { searchParamters, defaultSearchParameters } from "@/types";
 
 export default function AccountPage() {
   const queryReference = useRef<HTMLInputElement | null>(null);
   const [results, setResults] = useState<Recipe[]>([]); // Store the search results
   const [loading, setLoading] = useState<boolean>(true); // Track loading state
   const [filterVisible, setFilterVisible] = useState<boolean>(false); // Track filter form visibility
-  const [filterValue, setFilterValue] = useState<filterInfo>({
-    intolerances: [],
-    includeIngredients: [],
-  });
+  const [filterValue, setFilterValue] = useState<searchParamters>(
+    defaultSearchParameters
+  );
 
   useLayoutEffect(() => {
     // load the query:
