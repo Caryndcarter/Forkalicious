@@ -110,30 +110,19 @@ export class CdkStack extends cdk.Stack {
   // 9 .Create Lambda function for your backend
   const backendFunction = new lambda.Function(this, 'BackendFunction', {
     runtime: lambda.Runtime.NODEJS_20_X,
-    handler:  'lambda.handler',
-    code: lambda.Code.fromAsset('../server/dist'), // Simplified path
+    handler: 'lambda.handler',
+    code: lambda.Code.fromAsset('../server/dist'),
     environment: {
-      JWT_SECRET_KEY: ssm.StringParameter.fromSecureStringParameterAttributes(this, 'JWTSecretParameter', {
-        parameterName: '/forkalicious/jwt-secret',
-        version: 1  // Optional: specify version if needed
-      }).stringValue,
-      SPOONACULAR_API_KEY: ssm.StringParameter.fromSecureStringParameterAttributes(this, 'SpoonacularApiParameter', {
-        parameterName: '/forkalicious/spoonacular-api-key',
-        version: 1
-      }).stringValue,
+      JWT_SECRET_KEY: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/jwt-secret'),
+      SPOONACULAR_API_KEY: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/spoonacular-api-key'),
       API_BASE_URL: 'https://api.spoonacular.com',
-      OPENAI_API_KEY: ssm.StringParameter.fromSecureStringParameterAttributes(this, 'OpenAIParameter', {
-        parameterName: '/forkalicious/openai-api-key',
-        version: 1
-      }).stringValue,
-      MONGODB_URI: ssm.StringParameter.fromSecureStringParameterAttributes(this, 'MongoDBParameter', {
-        parameterName: '/forkalicious/mongodb-uri',
-        version: 1
-      }).stringValue
-    }, 
+      OPENAI_API_KEY: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/openai-api-key'),
+      MONGODB_URI: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/mongodb-uri')
+    },
     timeout: cdk.Duration.seconds(30),
     memorySize: 256
   });
+  
 
     // 10. Create API Gateway
     const api = new apigateway.RestApi(this, 'BackendApi', {
