@@ -62,6 +62,50 @@ jobs:
             
             echo "=== END DEBUGGING ==="
 
+      - name: Build Client
+        run: |
+            cd client
+            npm install
+            npm run build
+            cd ..
+
+      - name: Build Server
+        run: |
+            cd server
+            npm install
+            npm run build:lambda
+            cd ..
+
+      - name: Debug Directory Structure
+        run: |
+          echo "=== FULL DIRECTORY STRUCTURE ==="
+          echo "Root directory:"
+          pwd
+          echo "\nRoot contents:"
+          ls -la
+          
+          echo "\nServer directory contents:"
+          ls -la server/ || echo "No server directory"
+          
+          echo "\nClient directory contents:"
+          ls -la client/ || echo "No client directory"
+          
+          echo "\nCDK directory contents:"
+          ls -la cdk/ || echo "No cdk directory"
+          
+          if [ -d "server/dist" ]; then
+            echo "\nServer/dist contents:"
+            ls -la server/dist/
+          else
+            echo "\nWARNING: server/dist directory not found!"
+          fi
+          
+          if [ -d "client/dist" ]; then
+            echo "\nClient/dist contents:"
+            ls -la client/dist/
+          else
+            echo "\nWARNING: client/dist directory not found!"
+          fi
 
 
       - name: Configure AWS Credentials
@@ -76,20 +120,33 @@ jobs:
       #     npm --prefix cdk install
       #     npm --prefix cdk run cdk deploy -- --require-approval never
 
+      # - name: Deploy CDK Stack
+      #   run: | 
+      #       cd cdk
+      #       npm install
+      #       npm run build  # Compiles TypeScript to JavaScript
+      #       # Add debugging to see the paths
+      #       echo "Current directory: $(pwd)"
+      #       echo "Parent directory contents:"
+      #       ls -la ../
+      #       echo "Server directory contents:"
+      #       ls -la ../server/
+      #       echo "Server dist contents:"
+      #       ls -la ../server/dist/
+      #       # Deploy with debug logging
+      #       npx cdk deploy --require-approval never --debug
+
+     
       - name: Deploy CDK Stack
         run: | 
-            cd cdk
-            npm install
-            npm run build  # Compiles TypeScript to JavaScript
-            # Add debugging to see the paths
-            echo "Current directory: $(pwd)"
-            echo "Parent directory contents:"
-            ls -la ../
-            echo "Server directory contents:"
-            ls -la ../server/
-            echo "Server dist contents:"
-            ls -la ../server/dist/
-            # Deploy with debug logging
-            npx cdk deploy --require-approval never --debug
-
+          cd cdk
+          npm install
+          npm run build
+          echo "\nCurrent directory (should be in cdk):"
+          pwd
+          echo "\nRelative path check for server/dist:"
+          ls -la ../server/dist || echo "Cannot access ../server/dist"
+          echo "\nRelative path check for client/dist:"
+          ls -la ../client/dist || echo "Cannot access ../client/dist"
+          npx cdk deploy --require-approval never
 
