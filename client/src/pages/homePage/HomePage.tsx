@@ -1,13 +1,13 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useContext } from "react";
 import RecipeCard from "@/components/RecipeCard";
 import type Recipe from "@/types/recipe";
-import { authService } from "@/api/authentication";
 import apiService from "@/api/apiService";
 import SearchCard from "./SearchCard";
 import RecipeBookCard from "./RecipeBookCard";
 import RecipeMakerCard from "./RecipeMakerCard";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
+import { userContext } from "@/App";
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -16,7 +16,9 @@ const STORAGE_KEYS = {
 };
 
 const HomePage = () => {
-  const [loginCheck, setLoginCheck] = useState(false);
+  const { userStatus } = useContext(userContext);
+  const loggedIn = userStatus !== "visiter";
+  // const [loginCheck, setLoginCheck] = useState(false);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -60,13 +62,6 @@ const HomePage = () => {
   // Initial load
   useEffect(() => {
     loadRecipes();
-
-    const checkLogin = async () => {
-      if (await authService.loggedIn()) {
-        setLoginCheck(true);
-      }
-    };
-    checkLogin();
   }, [loadRecipes]);
 
   const RefreshButton = () => (
@@ -97,7 +92,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-[#fef3d0]">
       {/* Main Content */}
-      {!loginCheck ? (
+      {!loggedIn ? (
         <div className="pt-20 px-4">
           {/* Card Components */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
