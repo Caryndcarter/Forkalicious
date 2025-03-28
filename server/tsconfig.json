@@ -1,13 +1,40 @@
-{
-  "extends": "../tsconfig.json",
-  "compilerOptions": {
-    /* Modules */
-    "rootDir": "src" /* Specify the root folder within your source files. */,
+// {
+//   "extends": "../tsconfig.json",
+//   "compilerOptions": {
+//     /* Modules */
+//     "rootDir": "src" /* Specify the root folder within your source files. */,
 
-    /* Emit */
-    "outDir": "dist" /* Specify an output folder for all emitted files. */
-    // "noEmitOnError": true /* Disable emitting files if any type checking errors are reported. */
+//     /* Emit */
+//     "outDir": "dist" /* Specify an output folder for all emitted files. */
+//     // "noEmitOnError": true /* Disable emitting files if any type checking errors are reported. */
+//   },
+//   "include": ["src", "tsconfig.lamda.json"],
+//   "typeRoots": ["./node_modules/@types", "./src/types"]
+// }
+
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "lib": ["ES2022", "DOM"],  // Keep DOM if you need it for your server
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "sourceMap": true
   },
-  "include": ["src", "tsconfig.lamda.json"],
-  "typeRoots": ["./node_modules/@types", "./src/types"]
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
 }
