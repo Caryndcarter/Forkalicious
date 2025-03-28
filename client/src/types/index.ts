@@ -5,6 +5,7 @@ import { intolerance, intoleranceOptions } from "./intolerances.js";
 import profile from "./profile.js";
 import Recipe from "./recipe.js";
 import { RecipeDetails, defaultRecipe } from "./recipeDetails.js";
+import { searchParamters, defaultSearchParameters } from "./searchParamters.js";
 
 export type {
   cuisine,
@@ -14,5 +15,12 @@ export type {
   profile,
   Recipe,
   RecipeDetails,
+  searchParamters,
 };
-export { cuisineOptions, dietOptions, defaultRecipe, intoleranceOptions };
+export {
+  cuisineOptions,
+  dietOptions,
+  defaultRecipe,
+  intoleranceOptions,
+  defaultSearchParameters,
+};

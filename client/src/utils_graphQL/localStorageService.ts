@@ -1,15 +1,27 @@
-import { RecipeDetails, defaultRecipe, DietaryNeeds } from "@/types";
+import {
+  RecipeDetails,
+  defaultRecipe,
+  DietaryNeeds,
+  searchParamters,
+} from "@/types";
 
 const expirationTimeMinutes = 1;
 
 const currentRecipeID = "Current Recipe";
 const tokenID = "Authentication Token";
-const accountDietID = "Dietary Needs";
-const accountDietTimeStampID = `${accountDietID}_Timestamp`;
+const accountDietID = "Dietary Needs",
+  accountDietTimeStampID = `${accountDietID}_Timestamp`;
 const queryID = "Query";
+const filterValueID = "Search Filter";
 
 // holds logic for managing variables in local storage
 class LocalStorageService {
+  cleanLocalStorage() {
+    this.removeIDToken();
+    this.removeAccountDiet();
+    this.removeFilter();
+  }
+
   getCurrentRecipe(): RecipeDetails {
     const stringyRecipe = localStorage.getItem(currentRecipeID);
 
@@ -102,6 +114,25 @@ class LocalStorageService {
 
   removeQuery() {
     localStorage.removeItem(queryID);
+  }
+
+  getFilter(): searchParamters | null {
+    const stringyFilter = localStorage.getItem(filterValueID);
+
+    if (!stringyFilter) {
+      return null;
+    }
+
+    return JSON.parse(stringyFilter);
+  }
+
+  setFilter(filter: searchParamters) {
+    const stringyFilter = JSON.stringify(filter);
+    localStorage.setItem(filterValueID, stringyFilter);
+  }
+
+  removeFilter() {
+    localStorage.removeItem(filterValueID);
   }
 }
 

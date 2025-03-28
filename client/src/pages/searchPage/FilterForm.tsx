@@ -1,4 +1,4 @@
-import { filterInfo } from "./SearchPage";
+import { searchParamters } from "@/types";
 import {
   DropDownMultiSelect,
   DropDownSelection,
@@ -7,7 +7,7 @@ import {
 import { cuisineOptions, dietOptions, intoleranceOptions } from "@/types";
 
 interface filterFormProps {
-  filterValue: filterInfo;
+  filterValue: searchParamters;
   setFilterValue: any;
   setFilterVisible: any;
 }
@@ -41,9 +41,9 @@ export default function FilterForm({
     console.log(updatedFilter);
 
     if (JSON.stringify(updatedFilter) !== JSON.stringify(filterValue)) {
-      setFilterValue((prevFilters: filterInfo) => ({
+      setFilterValue((prevFilters: searchParamters) => ({
         ...prevFilters,
-        ...(updatedFilter as filterInfo),
+        ...(updatedFilter as searchParamters),
       }));
     }
     setFilterVisible(false);

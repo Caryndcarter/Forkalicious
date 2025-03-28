@@ -1,52 +1,84 @@
-import { useState, useCallback, useRef, useLayoutEffect } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useLayoutEffect,
+} from "react";
 import type Recipe from "@/types/recipe";
 import FilterForm from "./FilterForm";
 import apiService from "@/api/apiService";
 import Results from "./Results";
 import localStorageService from "@/utils_graphQL/localStorageService";
 import { ActiveFilters } from "./ActiveFilters";
-
-export interface filterInfo {
-  diet?: string;
-  cuisine?: string;
-  intolerances: string[];
-  includeIngredients: string[];
-}
+import {
+  searchParamters,
+  DietaryNeeds,
+  defaultSearchParameters,
+} from "@/types";
+import { useLazyQuery } from "@apollo/client";
+import { GET_ACCOUNT_PREFERENCES } from "@/utils_graphQL/queries";
+import { isEqual } from "lodash";
 
 export default function AccountPage() {
   const queryReference = useRef<HTMLInputElement | null>(null);
   const [results, setResults] = useState<Recipe[]>([]); // Store the search results
   const [loading, setLoading] = useState<boolean>(true); // Track loading state
   const [filterVisible, setFilterVisible] = useState<boolean>(false); // Track filter form visibility
-  const [filterValue, setFilterValue] = useState<filterInfo>({
-    intolerances: [],
-    includeIngredients: [],
-  });
+  const [fetchDiet, { data }] = useLazyQuery(GET_ACCOUNT_PREFERENCES);
+  const [filterValue, setFilterValue] = useState<searchParamters>(
+    localStorageService.getFilter() ?? {
+      ...defaultSearchParameters,
+      ...localStorageService.getAccountDiet(),
+    }
+  );
 
+  // load the query:
   useLayoutEffect(() => {
-    // load the query:
     const query = localStorageService.getQuery();
     if (queryReference.current) {
       queryReference.current.value = query;
     }
-
-    // load diet preferences saved to account:
-    const dietNeeds = localStorageService.getAccountDiet();
-    setFilterValue((previousFilter) => ({
-      ...previousFilter,
-      diet: dietNeeds.diet,
-      intolerances: dietNeeds.intolerances,
-    }));
   }, []);
 
-  // trigger the search on filter update
+  // trigger the search on filter update, and activate local storage
   useLayoutEffect(() => {
+    localStorageService.setFilter(filterValue);
     if (queryReference.current) {
       handleChange({
         target: queryReference.current,
       } as React.ChangeEvent<HTMLInputElement>);
     }
   }, [filterValue]);
+
+  useEffect(() => {
+    if (localStorageService.isAccountDietExpired()) {
+      fetchDiet();
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!data) {
+      return;
+    }
+    const FetchedDietNeeds: DietaryNeeds = data.getUser;
+    localStorageService.setAccountDiet(FetchedDietNeeds);
+
+    // do not overwrite an existing filter
+    if (localStorageService.getFilter()) {
+      return;
+    }
+
+    // do not bother updating state variables if there is no change
+    if (isEqual(filterValue as DietaryNeeds, FetchedDietNeeds)) {
+      return;
+    }
+
+    setFilterValue({
+      ...defaultSearchParameters,
+      ...FetchedDietNeeds,
+    });
+  }, [data]);
 
   const handleSearch = async (queryText: string) => {
     setLoading(true);

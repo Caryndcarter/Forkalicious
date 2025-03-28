@@ -62,9 +62,7 @@ class AuthService {
   }
 
   logout() {
-    localStorageService.removeIDToken();
-
-    localStorageService.removeAccountDiet();
+    localStorageService.cleanLocalStorage();
 
     window.location.reload();
   }
