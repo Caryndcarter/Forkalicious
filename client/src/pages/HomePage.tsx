@@ -6,7 +6,7 @@ import { authService } from "../api/authentication";
 import apiService from "../api/apiService";
 import SearchCard from "../components/SearchCard";
 import RecipeBookCard from "../components/RecipeBookCard";
-import RecipeMakerCard from "../components/RecipeMakerCard";
+import { RecipeMakerCard } from "../components/RecipeMakerCard";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 
