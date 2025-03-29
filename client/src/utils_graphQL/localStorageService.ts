@@ -148,6 +148,16 @@ class LocalStorageService {
     return JSON.parse(stringyRecipes);
   }
 
+  getSavedRecipesTimeStamp(): Date | null {
+    const stringyTimestamp = localStorage.getItem(savedRecipesTimeStampID);
+
+    if (!stringyTimestamp) {
+      return null;
+    }
+
+    return new Date(stringyTimestamp);
+  }
+
   isSavedRecipesExpired(): boolean {
     const stringyTimestamp = localStorage.getItem(savedRecipesTimeStampID);
 
