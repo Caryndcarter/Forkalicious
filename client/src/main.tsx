@@ -2,12 +2,11 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import App from "./App";
-import HomePage from "./pages/HomePage";
 import RecipeBook from "./pages/RecipeBook";
 import RecipeShowcaseGraph from "./pages/RecipeShowcaseGraph";
 import RecipeMaker from "./pages/RecipeMaker";
 
-import { AccountPage, SearchPage, ErrorPage } from "./pages";
+import { AccountPage, HomePage, SearchPage, ErrorPage } from "@/pages";
 
 const router = createBrowserRouter([
   {

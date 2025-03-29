@@ -3,6 +3,7 @@ import {
   defaultRecipe,
   DietaryNeeds,
   searchParamters,
+  Recipe,
 } from "@/types";
 
 const expirationTimeMinutes = 1;
@@ -10,9 +11,11 @@ const expirationTimeMinutes = 1;
 const currentRecipeID = "Current Recipe";
 const tokenID = "Authentication Token";
 const accountDietID = "Dietary Needs",
-  accountDietTimeStampID = `${accountDietID}_Timestamp`;
+  accountDietTimeStampID = `${accountDietID} Timestamp`;
 const queryID = "Query";
 const filterValueID = "Search Filter";
+const savedRecipesID = "Saved Recipes",
+  savedRecipesTimeStampID = `${savedRecipesID} Timestamp`;
 
 // holds logic for managing variables in local storage
 class LocalStorageService {
@@ -95,7 +98,7 @@ class LocalStorageService {
 
   removeAccountDiet() {
     localStorage.removeItem(accountDietID);
-    localStorage.removeItem(`${accountDietID}_timestamp`);
+    localStorage.removeItem(accountDietTimeStampID);
   }
 
   getQuery(): string {
@@ -133,6 +136,55 @@ class LocalStorageService {
 
   removeFilter() {
     localStorage.removeItem(filterValueID);
+  }
+
+  getSavedRecipes(): Recipe[] {
+    const stringyRecipes = localStorage.getItem(savedRecipesID);
+
+    if (!stringyRecipes) {
+      return [];
+    }
+
+    return JSON.parse(stringyRecipes);
+  }
+
+  getSavedRecipesTimeStamp(): Date | null {
+    const stringyTimestamp = localStorage.getItem(savedRecipesTimeStampID);
+
+    if (!stringyTimestamp) {
+      return null;
+    }
+
+    return new Date(stringyTimestamp);
+  }
+
+  isSavedRecipesExpired(): boolean {
+    const stringyTimestamp = localStorage.getItem(savedRecipesTimeStampID);
+
+    if (!stringyTimestamp) {
+      return true;
+    }
+
+    const timestamp = new Date(stringyTimestamp);
+    const now = new Date();
+
+    const differenceInMilliseconds = now.getTime() - timestamp.getTime();
+    const differenceInMinutes = differenceInMilliseconds / (1000 * 60);
+
+    return differenceInMinutes > expirationTimeMinutes;
+  }
+
+  setSavedRecipes(recipes: Recipe[]): void {
+    const stringyRecipes = JSON.stringify(recipes);
+    localStorage.setItem(savedRecipesID, stringyRecipes);
+
+    const timestamp = new Date().toISOString();
+    localStorage.setItem(savedRecipesTimeStampID, timestamp);
+  }
+
+  removeSavedRecipes() {
+    localStorage.removeItem(savedRecipesID);
+    localStorage.removeItem(savedRecipesTimeStampID);
   }
 }
 
