@@ -1,95 +1,100 @@
-import { useNavigate, Link } from "react-router-dom"
-import { useContext, useLayoutEffect } from "react"
-import { currentRecipeContext } from "../App"
-import { editingContext } from "../App"
-import { useState, useEffect } from "react"
-import CopyRecipeButton from "@/components/CopyButton"
-import EditRecipeButton from "@/components/EditButton"
-import localData from "@/utils_graphQL/localStorageService"
-import ReviewSection from "@/components/Reviews"
+import { useNavigate, Link } from "react-router-dom";
+import { useContext, useLayoutEffect } from "react";
+import { currentRecipeContext } from "@/App";
+import { editingContext } from "@/App";
+import { useState, useEffect } from "react";
+import CopyRecipeButton from "@/components/CopyButton";
+import EditRecipeButton from "@/components/EditButton";
+import localData from "@/utils_graphQL/localStorageService";
+import ReviewSection from "@/components/Reviews";
 
 //new imports
-import { useMutation, useQuery } from "@apollo/client"
-import { ADD_RECIPE, SAVE_RECIPE, REMOVE_RECIPE } from "../utils_graphQL/mutations"
-import { GET_SPECIFIC_RECIPE_ID } from "../utils_graphQL/queries"
-import Auth from "../utils_graphQL/auth"
-import AverageRating from "../components/AverageRating"
+import { useMutation, useQuery } from "@apollo/client";
+import {
+  ADD_RECIPE,
+  SAVE_RECIPE,
+  REMOVE_RECIPE,
+} from "@/utils_graphQL/mutations";
+import { GET_SPECIFIC_RECIPE_ID } from "@/utils_graphQL/queries";
+import Auth from "@/utils_graphQL/auth";
+import AverageRating from "@/components/AverageRating";
 
-const RecipeShowcase = () => {
-  const { currentRecipeDetails, setCurrentRecipeDetails } = useContext(currentRecipeContext)
-  const navigate = useNavigate()
-  const { setIsEditing } = useContext(editingContext)
+export default function RecipeShowcase() {
+  const { currentRecipeDetails, setCurrentRecipeDetails } =
+    useContext(currentRecipeContext);
+  const navigate = useNavigate();
+  const { setIsEditing } = useContext(editingContext);
 
   // Local storage fallback
   useEffect(() => {
-    const storedRecipeDetails = localData.getCurrentRecipe()
+    const storedRecipeDetails = localData.getCurrentRecipe();
     if (storedRecipeDetails) {
-      setCurrentRecipeDetails(storedRecipeDetails)
+      setCurrentRecipeDetails(storedRecipeDetails);
     }
-  }, [setCurrentRecipeDetails])
+  }, [setCurrentRecipeDetails]);
 
-  const [loginCheck, setLoginCheck] = useState(false)
-  const [skipQuery, setSkipQuery] = useState<boolean>(true)
-  const [isSaved, setIsSaved] = useState<boolean>(false)
-  const [isAuthor, setIsAuthor] = useState<boolean>(false)
-  const [reviewCount, setReviewCount] = useState(0)
+  const [loginCheck, setLoginCheck] = useState(false);
+  const [skipQuery, setSkipQuery] = useState<boolean>(true);
+  const [isSaved, setIsSaved] = useState<boolean>(false);
+  const [isAuthor, setIsAuthor] = useState<boolean>(false);
+  const [reviewCount, setReviewCount] = useState(0);
 
   //mutations and queries
-  const [addRecipe] = useMutation(ADD_RECIPE)
-  const [saveRecipe] = useMutation(SAVE_RECIPE)
-  const [removeRecipe] = useMutation(REMOVE_RECIPE)
+  const [addRecipe] = useMutation(ADD_RECIPE);
+  const [saveRecipe] = useMutation(SAVE_RECIPE);
+  const [removeRecipe] = useMutation(REMOVE_RECIPE);
   const { data, refetch } = useQuery(GET_SPECIFIC_RECIPE_ID, {
     variables: { recipeId: currentRecipeDetails._id },
     skip: skipQuery,
-  })
+  });
 
   useLayoutEffect(() => {
     try {
-      const isLoggedIn = Auth.loggedIn()
-      setLoginCheck(isLoggedIn)
+      const isLoggedIn = Auth.loggedIn();
+      setLoginCheck(isLoggedIn);
       // if logged in, activate the query to check if the recipe is saved
       if (isLoggedIn) {
-        setSkipQuery(false)
+        setSkipQuery(false);
       }
     } catch (error) {
-      console.log("Auth error:", error)
-      setLoginCheck(false)
-      setSkipQuery(true)
+      console.log("Auth error:", error);
+      setLoginCheck(false);
+      setSkipQuery(true);
     }
-  }, [])
+  }, []);
 
   // This effect determines if the recipe is saved by checking the database.
   useEffect(() => {
     const checkSavedStatus = async () => {
       if (loginCheck && currentRecipeDetails._id) {
-        setSkipQuery(false)
+        setSkipQuery(false);
         try {
-          await refetch()
+          await refetch();
         } catch (error) {
-          console.error("Error checking saved status:", error)
+          console.error("Error checking saved status:", error);
         }
       }
-    }
+    };
 
-    checkSavedStatus()
-  }, [loginCheck, currentRecipeDetails._id, refetch])
+    checkSavedStatus();
+  }, [loginCheck, currentRecipeDetails._id, refetch]);
 
   useEffect(() => {
     if (data?.getSpecificRecipeId) {
-      setIsSaved(true)
+      setIsSaved(true);
     } else {
-      setIsSaved(false)
+      setIsSaved(false);
     }
 
-    let id
+    let id;
     if (loginCheck) {
-      id = Auth.getProfile()?._id
+      id = Auth.getProfile()?._id;
     }
 
     if (currentRecipeDetails.author == id && loginCheck) {
-      setIsAuthor(true)
+      setIsAuthor(true);
     }
-  }, [data, loginCheck, currentRecipeDetails.author])
+  }, [data, loginCheck, currentRecipeDetails.author]);
 
   // Function to save recipe
   const saveCurrentRecipe = async () => {
@@ -111,7 +116,7 @@ const RecipeShowcase = () => {
             spoonacularSourceUrl: currentRecipeDetails.spoonacularSourceUrl,
           },
         },
-      })
+      });
 
       // Save the recipe ID to the user's savedRecipes array
       if (data?.addRecipe._id) {
@@ -119,30 +124,30 @@ const RecipeShowcase = () => {
         const updatedRecipe = {
           ...currentRecipeDetails,
           _id: data.addRecipe._id,
-        }
-        setCurrentRecipeDetails(updatedRecipe)
-        localData.setCurrentRecipe(updatedRecipe)
+        };
+        setCurrentRecipeDetails(updatedRecipe);
+        localData.setCurrentRecipe(updatedRecipe);
 
         // save this recipe to the user
         await saveRecipe({
           variables: {
             recipeId: data.addRecipe._id,
           },
-        })
+        });
 
-        setIsSaved(true)
-        await refetch()
+        setIsSaved(true);
+        await refetch();
       }
     } catch (err) {
-      console.error("Error saving recipe:", err)
-      alert("Failed to save the recipe.")
+      console.error("Error saving recipe:", err);
+      alert("Failed to save the recipe.");
     }
-  }
+  };
 
   const editRecipe = () => {
-    setIsEditing(true)
-    navigate("/recipe-maker")
-  }
+    setIsEditing(true);
+    navigate("/recipe-maker");
+  };
 
   // Function to delete recipe
   const deleteCurrentRecipe = async () => {
@@ -151,27 +156,30 @@ const RecipeShowcase = () => {
         variables: {
           recipeId: currentRecipeDetails._id,
         },
-      })
+      });
 
       if (data) {
-        console.log("Recipe successfully deleted with ID: ", currentRecipeDetails._id)
+        console.log(
+          "Recipe successfully deleted with ID: ",
+          currentRecipeDetails._id
+        );
       }
 
       // refetch the query:
-      await refetch()
+      await refetch();
 
-      navigate("/recipe-book")
+      navigate("/recipe-book");
     } catch (err) {
-      console.error("Error deleting recipe:", err)
-      alert("Failed to delete recipe.")
+      console.error("Error deleting recipe:", err);
+      alert("Failed to delete recipe.");
     }
-  }
+  };
 
   const RawHtmlRenderer = ({ htmlString }: { htmlString: string }) => {
     // Replace multiple line breaks with a single space or remove unwanted elements
-    const cleanHtml = htmlString.replace(/<\/?[^>]+(>|$)/g, "") // removes HTML tags if needed
-    return <span dangerouslySetInnerHTML={{ __html: cleanHtml }} />
-  }
+    const cleanHtml = htmlString.replace(/<\/?[^>]+(>|$)/g, ""); // removes HTML tags if needed
+    return <span dangerouslySetInnerHTML={{ __html: cleanHtml }} />;
+  };
 
   return (
     <div className="bg-[#fef3d0] min-h-screen pt-24">
@@ -189,28 +197,43 @@ const RecipeShowcase = () => {
         )}
 
         {/* Recipe Title */}
-        <h2 className="text-3xl font-bold text-[#a84e24] mb-4">{currentRecipeDetails.title}</h2>
+        <h2 className="text-3xl font-bold text-[#a84e24] mb-4">
+          {currentRecipeDetails.title}
+        </h2>
 
         {/* Additional Info */}
         <div className="mb-6 space-y-2">
           {currentRecipeDetails.readyInMinutes && (
             <h4 className="text-lg font-bold text-[#a84e24]">
-              Ready in: <span className="text-black font-medium">{currentRecipeDetails.readyInMinutes} minutes</span>
+              Ready in:{" "}
+              <span className="text-black font-medium">
+                {currentRecipeDetails.readyInMinutes} minutes
+              </span>
             </h4>
           )}
           {currentRecipeDetails.servings && (
             <h4 className="text-lg font-bold text-[#a84e24]">
-              Servings: <span className="text-black font-medium">{currentRecipeDetails.servings}</span>
+              Servings:{" "}
+              <span className="text-black font-medium">
+                {currentRecipeDetails.servings}
+              </span>
             </h4>
           )}
-          {currentRecipeDetails.diets && currentRecipeDetails.diets.length > 0 && (
-            <h4 className="text-lg font-bold text-[#a84e24]">
-              Diets: <span className="text-black font-medium">{currentRecipeDetails.diets.join(", ")}</span>
-            </h4>
-          )}
+          {currentRecipeDetails.diets &&
+            currentRecipeDetails.diets.length > 0 && (
+              <h4 className="text-lg font-bold text-[#a84e24]">
+                Diets:{" "}
+                <span className="text-black font-medium">
+                  {currentRecipeDetails.diets.join(", ")}
+                </span>
+              </h4>
+            )}
 
           {/* Average Rating Component */}
-          <AverageRating recipeId={currentRecipeDetails._id} triggerRefetch={reviewCount} />
+          <AverageRating
+            recipeId={currentRecipeDetails._id}
+            triggerRefetch={reviewCount}
+          />
 
           <div className="flex flex-wrap gap-2 mt-4">
             {loginCheck ? (
@@ -224,9 +247,13 @@ const RecipeShowcase = () => {
             {/* Save Button */}
             {loginCheck && (
               <button
-                onClick={() => (isSaved ? deleteCurrentRecipe() : saveCurrentRecipe())}
+                onClick={() =>
+                  isSaved ? deleteCurrentRecipe() : saveCurrentRecipe()
+                }
                 className={`font-semibold py-2 px-4 rounded transition-colors duration-300 ${
-                  isSaved ? "bg-red-500 hover:bg-red-600 text-white" : "bg-[#A84E24] hover:bg-green-600 text-white"
+                  isSaved
+                    ? "bg-red-500 hover:bg-red-600 text-white"
+                    : "bg-[#A84E24] hover:bg-green-600 text-white"
                 }`}
               >
                 {isSaved ? "Delete Recipe" : "Save Recipe"}
@@ -246,26 +273,34 @@ const RecipeShowcase = () => {
 
         {/* Recipe Summary */}
         <div className="mb-8">
-          <h3 className="text-2xl font-semibold text-[#a84e24] mb-4">Summary</h3>
+          <h3 className="text-2xl font-semibold text-[#a84e24] mb-4">
+            Summary
+          </h3>
           {/* Render the instructions as HTML */}
           <RawHtmlRenderer htmlString={currentRecipeDetails.summary} />
         </div>
 
         {/* Ingredients List */}
         <div className="mb-8">
-          <h3 className="text-2xl font-semibold text-[#a84e24] mb-4">Ingredients</h3>
+          <h3 className="text-2xl font-semibold text-[#a84e24] mb-4">
+            Ingredients
+          </h3>
           <ul className="list-disc list-inside space-y-2">
-            {currentRecipeDetails.ingredients?.map((ingredient: string, index: number) => (
-              <li key={index} className="text-gray-800">
-                {ingredient}
-              </li>
-            ))}
+            {currentRecipeDetails.ingredients?.map(
+              (ingredient: string, index: number) => (
+                <li key={index} className="text-gray-800">
+                  {ingredient}
+                </li>
+              )
+            )}
           </ul>
         </div>
 
         {/* Cooking Instructions */}
         <div className="mb-8">
-          <h3 className="text-2xl font-semibold text-[#a84e24] mb-4">Instructions</h3>
+          <h3 className="text-2xl font-semibold text-[#a84e24] mb-4">
+            Instructions
+          </h3>
           {/* Render the instructions as HTML */}
           <RawHtmlRenderer htmlString={currentRecipeDetails.instructions} />
         </div>
@@ -274,11 +309,13 @@ const RecipeShowcase = () => {
         <div className="mb-8">
           <h3 className="text-2xl font-semibold text-[#a84e24] mb-4">Steps</h3>
           <ol className="list-decimal list-inside space-y-2">
-            {currentRecipeDetails.steps?.slice(0, -1).map((step: string, index: number) => (
-              <li key={index} className="text-gray-800">
-                <RawHtmlRenderer htmlString={step} />
-              </li>
-            ))}
+            {currentRecipeDetails.steps
+              ?.slice(0, -1)
+              .map((step: string, index: number) => (
+                <li key={index} className="text-gray-800">
+                  <RawHtmlRenderer htmlString={step} />
+                </li>
+              ))}
           </ol>
         </div>
 
@@ -320,7 +357,5 @@ const RecipeShowcase = () => {
         />
       </div>
     </div>
-  )
+  );
 }
-
-export default RecipeShowcase

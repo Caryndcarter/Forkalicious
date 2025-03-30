@@ -3,10 +3,15 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import App from "./App";
 import RecipeBook from "./pages/RecipeBook";
-import RecipeShowcaseGraph from "./pages/RecipeShowcaseGraph";
 import RecipeMaker from "./pages/RecipeMaker";
 
-import { AccountPage, HomePage, SearchPage, ErrorPage } from "@/pages";
+import {
+  AccountPage,
+  HomePage,
+  RecipeShowcase,
+  SearchPage,
+  ErrorPage,
+} from "@/pages";
 
 const router = createBrowserRouter([
   {
@@ -36,7 +41,7 @@ const router = createBrowserRouter([
       },
       {
         path: "recipe-showcase",
-        element: <RecipeShowcaseGraph />,
+        element: <RecipeShowcase />,
       },
     ],
   },
