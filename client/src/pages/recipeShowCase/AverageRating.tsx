@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@apollo/client";
-import { GET_REVIEWS_FOR_RECIPE } from "../utils_graphQL/queries";
+import { GET_REVIEWS_FOR_RECIPE } from "@/utils_graphQL/queries";
 import { Star } from "lucide-react";
 
 interface AverageRatingProps {
@@ -8,7 +8,10 @@ interface AverageRatingProps {
   triggerRefetch?: number;
 }
 
-const AverageRating = ({ recipeId, triggerRefetch = 0 }: AverageRatingProps) => {
+const AverageRating = ({
+  recipeId,
+  triggerRefetch = 0,
+}: AverageRatingProps) => {
   const [averageRating, setAverageRating] = useState<number | null>(null);
 
   // Fetch reviews for this recipe

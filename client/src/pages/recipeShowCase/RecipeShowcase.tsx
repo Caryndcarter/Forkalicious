@@ -17,7 +17,7 @@ import {
 } from "@/utils_graphQL/mutations";
 import { GET_SPECIFIC_RECIPE_ID } from "@/utils_graphQL/queries";
 import Auth from "@/utils_graphQL/auth";
-import AverageRating from "@/components/AverageRating";
+import AverageRating from "./AverageRating";
 
 import Heading from "./Heading";
 
