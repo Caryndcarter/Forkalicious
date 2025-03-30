@@ -3,8 +3,8 @@ import { useContext, useLayoutEffect } from "react";
 import { currentRecipeContext } from "@/App";
 import { editingContext } from "@/App";
 import { useState, useEffect } from "react";
-import CopyRecipeButton from "@/components/CopyButton";
-import EditRecipeButton from "@/components/EditButton";
+import CopyRecipeButton from "./CopyButton";
+import EditRecipeButton from "./EditButton";
 import localData from "@/utils_graphQL/localStorageService";
 import ReviewSection from "@/components/Reviews";
 
@@ -20,6 +20,7 @@ import Auth from "@/utils_graphQL/auth";
 import AverageRating from "./AverageRating";
 
 import Heading from "./Heading";
+import SaveRecipeButton from "./SaveButton";
 
 export default function RecipeShowcase() {
   const { currentRecipeDetails, setCurrentRecipeDetails } =
@@ -193,43 +194,28 @@ export default function RecipeShowcase() {
           triggerRefetch={reviewCount}
         />
 
-        {/* Additional Info */}
-        <div className="mb-6 space-y-2">
+        {/* Edit Buttons */}
+        {loginCheck ? (
           <div className="flex flex-wrap gap-2 mt-4">
-            {loginCheck ? (
-              isAuthor ? (
-                <EditRecipeButton onClick={editRecipe} />
-              ) : (
-                <CopyRecipeButton onClick={editRecipe} />
-              )
-            ) : null}
-
-            {/* Save Button */}
-            {loginCheck && (
-              <button
-                onClick={() =>
-                  isSaved ? deleteCurrentRecipe() : saveCurrentRecipe()
-                }
-                className={`font-semibold py-2 px-4 rounded transition-colors duration-300 ${
-                  isSaved
-                    ? "bg-red-500 hover:bg-red-600 text-white"
-                    : "bg-[#A84E24] hover:bg-green-600 text-white"
-                }`}
-              >
-                {isSaved ? "Delete Recipe" : "Save Recipe"}
-              </button>
+            {isAuthor ? (
+              <EditRecipeButton onClick={editRecipe} />
+            ) : (
+              <CopyRecipeButton onClick={editRecipe} />
             )}
-
-            {!loginCheck && (
-              <div className="text-gray-500 italic">
-                <Link to="/account" className="hover:underline">
-                  Log in
-                </Link>{" "}
-                to save recipes.
-              </div>
-            )}
+            <SaveRecipeButton
+              isSaved={isSaved}
+              deleteCurrentRecipe={deleteCurrentRecipe}
+              saveCurrentRecipe={saveCurrentRecipe}
+            />
           </div>
-        </div>
+        ) : (
+          <div className="text-gray-500 italic">
+            <Link to="/account" className="hover:underline">
+              Log in
+            </Link>{" "}
+            to save recipes.
+          </div>
+        )}
 
         {/* Recipe Summary */}
         <div className="mb-8">
