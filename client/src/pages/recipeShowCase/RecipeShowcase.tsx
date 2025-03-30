@@ -8,6 +8,8 @@ import EditRecipeButton from "./EditButton";
 import localData from "@/utils_graphQL/localStorageService";
 import ReviewSection from "@/components/Reviews";
 
+import Summary from "./Summary";
+
 //new imports
 import { useMutation, useQuery } from "@apollo/client";
 import {
@@ -178,12 +180,6 @@ export default function RecipeShowcase() {
     }
   };
 
-  const RawHtmlRenderer = ({ htmlString }: { htmlString: string }) => {
-    // Replace multiple line breaks with a single space or remove unwanted elements
-    const cleanHtml = htmlString.replace(/<\/?[^>]+(>|$)/g, ""); // removes HTML tags if needed
-    return <span dangerouslySetInnerHTML={{ __html: cleanHtml }} />;
-  };
-
   return (
     <div className="bg-[#fef3d0] min-h-screen pt-24">
       <div className="max-w-2xl mx-auto p-6 bg-[#fadaae] shadow-lg rounded-lg mt-10 border border-gray-200">
@@ -217,81 +213,7 @@ export default function RecipeShowcase() {
           </div>
         )}
 
-        {/* Recipe Summary */}
-        <div className="mb-8">
-          <h3 className="text-2xl font-semibold text-[#a84e24] mb-4">
-            Summary
-          </h3>
-          {/* Render the instructions as HTML */}
-          <RawHtmlRenderer htmlString={currentRecipeDetails.summary} />
-        </div>
-
-        {/* Ingredients List */}
-        <div className="mb-8">
-          <h3 className="text-2xl font-semibold text-[#a84e24] mb-4">
-            Ingredients
-          </h3>
-          <ul className="list-disc list-inside space-y-2">
-            {currentRecipeDetails.ingredients?.map(
-              (ingredient: string, index: number) => (
-                <li key={index} className="text-gray-800">
-                  {ingredient}
-                </li>
-              )
-            )}
-          </ul>
-        </div>
-
-        {/* Cooking Instructions */}
-        <div className="mb-8">
-          <h3 className="text-2xl font-semibold text-[#a84e24] mb-4">
-            Instructions
-          </h3>
-          {/* Render the instructions as HTML */}
-          <RawHtmlRenderer htmlString={currentRecipeDetails.instructions} />
-        </div>
-
-        {/* Steps List */}
-        <div className="mb-8">
-          <h3 className="text-2xl font-semibold text-[#a84e24] mb-4">Steps</h3>
-          <ol className="list-decimal list-inside space-y-2">
-            {currentRecipeDetails.steps
-              ?.slice(0, -1)
-              .map((step: string, index: number) => (
-                <li key={index} className="text-gray-800">
-                  <RawHtmlRenderer htmlString={step} />
-                </li>
-              ))}
-          </ol>
-        </div>
-
-        {/* Recipe Source Links */}
-        <div className="mb-8 flex space-x-4">
-          {currentRecipeDetails.sourceUrl && (
-            <h4 className="text-lg font-bold text-[#a84e24]">
-              <a
-                href={currentRecipeDetails.sourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-black font-medium underline"
-              >
-                Recipe Source
-              </a>
-            </h4>
-          )}
-          {currentRecipeDetails.spoonacularSourceUrl && (
-            <h4 className="text-lg font-bold text-[#a84e24]">
-              <a
-                href={currentRecipeDetails.spoonacularSourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-black font-medium underline"
-              >
-                Spoonacular Recipe
-              </a>
-            </h4>
-          )}
-        </div>
+        <Summary {...currentRecipeDetails} />
 
         {/* Integrated Review Section */}
         <ReviewSection
