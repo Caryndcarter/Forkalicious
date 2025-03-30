@@ -9,6 +9,7 @@ import {
 const expirationTimeMinutes = 1;
 
 const currentRecipeID = "Current Recipe";
+const recipePreviewID = "Recipe Preview";
 const tokenID = "Authentication Token";
 const accountDietID = "Dietary Needs",
   accountDietTimeStampID = `${accountDietID} Timestamp`;
@@ -42,6 +43,25 @@ class LocalStorageService {
 
   removeCurrentRecipe() {
     localStorage.removeItem(currentRecipeID);
+  }
+
+  getRecipePreview(): Recipe | null {
+    const stringyPreview = localStorage.getItem(recipePreviewID);
+
+    if (!stringyPreview) {
+      return null;
+    }
+
+    return JSON.parse(stringyPreview);
+  }
+
+  setRecipePreview(preview: Recipe) {
+    const stringyPreview = JSON.stringify(preview);
+    localStorage.setItem(recipePreviewID, stringyPreview);
+  }
+
+  removeRecipePreview() {
+    localStorage.removeItem(recipePreviewID);
   }
 
   getIDToken(): string {
