@@ -43,15 +43,13 @@ const AverageRating = ({
 
   return (
     <div className="flex items-center space-x-2 text-[#a84e24] mb-4">
-      {averageRating !== null ? (
+      {averageRating && (
         <>
           <p className="text-lg font-semibold">
             Average Rating: {averageRating}
           </p>
           <Star className="w-6 h-6 fill-yellow-400" />
         </>
-      ) : (
-        <p className="text-lg font-semibold">No reviews yet</p>
       )}
     </div>
   );
