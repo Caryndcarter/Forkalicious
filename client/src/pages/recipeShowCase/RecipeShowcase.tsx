@@ -19,6 +19,8 @@ import { GET_SPECIFIC_RECIPE_ID } from "@/utils_graphQL/queries";
 import Auth from "@/utils_graphQL/auth";
 import AverageRating from "@/components/AverageRating";
 
+import Heading from "./Heading";
+
 export default function RecipeShowcase() {
   const { currentRecipeDetails, setCurrentRecipeDetails } =
     useContext(currentRecipeContext);
@@ -183,58 +185,16 @@ export default function RecipeShowcase() {
 
   return (
     <div className="bg-[#fef3d0] min-h-screen pt-24">
-      {/* Recipe Details */}
       <div className="max-w-2xl mx-auto p-6 bg-[#fadaae] shadow-lg rounded-lg mt-10 border border-gray-200">
-        {/* Recipe Image */}
-        {currentRecipeDetails.image && (
-          <div className="mb-6 space-y-6">
-            <img
-              src={currentRecipeDetails.image || "/placeholder.svg"}
-              alt="Recipe"
-              className="w-full h-64 object-cover rounded-md"
-            />
-          </div>
-        )}
+        <Heading {...currentRecipeDetails} />
 
-        {/* Recipe Title */}
-        <h2 className="text-3xl font-bold text-[#a84e24] mb-4">
-          {currentRecipeDetails.title}
-        </h2>
+        <AverageRating
+          recipeId={currentRecipeDetails._id}
+          triggerRefetch={reviewCount}
+        />
 
         {/* Additional Info */}
         <div className="mb-6 space-y-2">
-          {currentRecipeDetails.readyInMinutes && (
-            <h4 className="text-lg font-bold text-[#a84e24]">
-              Ready in:{" "}
-              <span className="text-black font-medium">
-                {currentRecipeDetails.readyInMinutes} minutes
-              </span>
-            </h4>
-          )}
-          {currentRecipeDetails.servings && (
-            <h4 className="text-lg font-bold text-[#a84e24]">
-              Servings:{" "}
-              <span className="text-black font-medium">
-                {currentRecipeDetails.servings}
-              </span>
-            </h4>
-          )}
-          {currentRecipeDetails.diets &&
-            currentRecipeDetails.diets.length > 0 && (
-              <h4 className="text-lg font-bold text-[#a84e24]">
-                Diets:{" "}
-                <span className="text-black font-medium">
-                  {currentRecipeDetails.diets.join(", ")}
-                </span>
-              </h4>
-            )}
-
-          {/* Average Rating Component */}
-          <AverageRating
-            recipeId={currentRecipeDetails._id}
-            triggerRefetch={reviewCount}
-          />
-
           <div className="flex flex-wrap gap-2 mt-4">
             {loginCheck ? (
               isAuthor ? (
