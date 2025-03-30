@@ -3,8 +3,7 @@ import { useContext, useLayoutEffect } from "react";
 import { currentRecipeContext } from "@/App";
 import { editingContext } from "@/App";
 import { useState, useEffect } from "react";
-import CopyRecipeButton from "./CopyButton";
-import EditRecipeButton from "./EditButton";
+import ButtonManager from "./ButtonManager";
 import localData from "@/utils_graphQL/localStorageService";
 import ReviewSection from "./Reviews";
 
@@ -22,7 +21,6 @@ import Auth from "@/utils_graphQL/auth";
 import AverageRating from "./AverageRating";
 
 import Heading from "./Heading";
-import SaveRecipeButton from "./SaveButton";
 
 export default function RecipeShowcase() {
   const { currentRecipeDetails, setCurrentRecipeDetails } =
@@ -192,18 +190,13 @@ export default function RecipeShowcase() {
 
         {/* Edit Buttons */}
         {loginCheck ? (
-          <div className="flex flex-wrap gap-2 mt-4">
-            {isAuthor ? (
-              <EditRecipeButton onClick={editRecipe} />
-            ) : (
-              <CopyRecipeButton onClick={editRecipe} />
-            )}
-            <SaveRecipeButton
-              isSaved={isSaved}
-              deleteCurrentRecipe={deleteCurrentRecipe}
-              saveCurrentRecipe={saveCurrentRecipe}
-            />
-          </div>
+          <ButtonManager
+            isAuthor={isAuthor}
+            editRecipe={editRecipe}
+            isSaved={isSaved}
+            deleteCurrentRecipe={deleteCurrentRecipe}
+            saveCurrentRecipe={saveCurrentRecipe}
+          />
         ) : (
           <div className="text-gray-500 italic">
             <Link to="/account" className="hover:underline">
