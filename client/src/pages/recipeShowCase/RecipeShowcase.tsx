@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import CopyRecipeButton from "./CopyButton";
 import EditRecipeButton from "./EditButton";
 import localData from "@/utils_graphQL/localStorageService";
-import ReviewSection from "@/components/Reviews";
+import ReviewSection from "./Reviews";
 
 import Summary from "./Summary";
 
