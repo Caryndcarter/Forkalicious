@@ -33,6 +33,12 @@ export default function RecipeCard({
 
     if (currentRecipe.spoonacularId !== spoonacularId) {
       localStorageService.removeCurrentRecipe();
+      localStorageService.setRecipePreview({
+        _id,
+        spoonacularId,
+        title,
+        image,
+      });
     }
 
     navigate("/recipe-showcase");
