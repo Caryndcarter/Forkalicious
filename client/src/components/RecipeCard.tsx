@@ -3,13 +3,13 @@
 import type Recipe from "../types/recipe";
 import { useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import { currentRecipeContext } from "../App";
+import { currentRecipeContext, userContext } from "../App";
 import apiService from "../api/apiService";
 import { useQuery } from "@apollo/client";
 import { GET_RECIPE } from "@/utils_graphQL/queries";
 import type { RecipeDetails } from "@/types";
-import Auth from "@/utils_graphQL/auth";
 import localData from "@/utils_graphQL/localStorageService";
+import localStorageService from "@/utils_graphQL/localStorageService";
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -20,16 +20,39 @@ export default function RecipeCard({
 }: RecipeCardProps) {
   const { setCurrentRecipeDetails } = useContext(currentRecipeContext);
   const [skipQuery, setSkipQuery] = useState<boolean>(true);
+  const { userStatus } = useContext(userContext);
+  const loggedIn = userStatus !== "visiter";
   const { data, loading } = useQuery(GET_RECIPE, {
     variables: { mongoID: _id, spoonacularId: spoonacularId },
     skip: skipQuery,
   });
   const navigate = useNavigate();
 
-  // on submit, trigger the graphQL querry
   const handleSubmit = async () => {
+    const currentRecipe = localStorageService.getCurrentRecipe();
+
+    if (currentRecipe.spoonacularId !== spoonacularId) {
+      localStorageService.removeCurrentRecipe();
+    }
+
+    navigate("/recipe-showcase");
+    return;
+
+    if (currentRecipe.spoonacularId !== spoonacularId) {
+      navigate("/recipe-showcase");
+    } else {
+      navigate("/recipe-showcase");
+    }
+
+    console.log(`CURRENT RECIPE DETAILS: ${JSON.stringify(currentRecipe)}`);
+
+    console.log(`THIS CARD'S ID: ${_id}`);
+
+    console.log(`THIS CARD'S SPOONACULAR ID: ${spoonacularId}`);
+    return;
+
     // if logged in, trigger the query
-    if (Auth.loggedIn()) {
+    if (loggedIn) {
       setSkipQuery(false);
     }
 
