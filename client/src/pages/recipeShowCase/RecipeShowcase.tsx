@@ -1,6 +1,6 @@
 import { useNavigate, Link } from "react-router-dom";
-import { useContext, useLayoutEffect } from "react";
-import { currentRecipeContext } from "@/App";
+import { useContext, useLayoutEffect, useCallback, useMemo } from "react";
+
 import { editingContext } from "@/App";
 import { useState, useEffect } from "react";
 import ButtonManager from "./ButtonManager";
@@ -8,25 +8,65 @@ import localData from "@/utils_graphQL/localStorageService";
 import ReviewSection from "./Reviews";
 
 import Summary from "./Summary";
-
-//new imports
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useLazyQuery } from "@apollo/client";
 import {
   ADD_RECIPE,
   SAVE_RECIPE,
   REMOVE_RECIPE,
 } from "@/utils_graphQL/mutations";
-import { GET_SPECIFIC_RECIPE_ID } from "@/utils_graphQL/queries";
 import Auth from "@/utils_graphQL/auth";
 import AverageRating from "./AverageRating";
 
 import Heading from "./Heading";
+import localStorageService from "@/utils_graphQL/localStorageService";
+import { RecipeDetails, defaultRecipe } from "@/types";
+import { isEqual } from "lodash";
+
+import { GET_RECIPE } from "@/utils_graphQL/queries";
+import Placeholder from "./Placeholder";
 
 export default function RecipeShowcase() {
-  const { currentRecipeDetails, setCurrentRecipeDetails } =
-    useContext(currentRecipeContext);
+  const [currentRecipeDetails, setCurrentRecipeDetails] =
+    useState<RecipeDetails>(localStorageService.getCurrentRecipe());
+  const [loadingRecipe, setLoadingRecipe] = useState<boolean>(false);
+  const [queryRecipe] = useLazyQuery(GET_RECIPE);
+
+  const recipePreview = useMemo(() => {
+    return localStorageService.getRecipePreview();
+  }, [location.pathname]);
+
+  const fetchRecipe = useCallback(async () => {
+    if (!recipePreview) {
+      console.error("could not load needed information from local storage.");
+      return;
+    }
+
+    const { _id, spoonacularId } = recipePreview;
+
+    const { data } = await queryRecipe({
+      variables: {
+        mongoID: _id,
+        spoonacularId: spoonacularId,
+      },
+    });
+
+    const recipe: RecipeDetails = data?.getRecipe;
+
+    setCurrentRecipeDetails(recipe);
+    setLoadingRecipe(false);
+  }, []);
+
   const navigate = useNavigate();
   const { setIsEditing } = useContext(editingContext);
+
+  useLayoutEffect(() => {
+    const isDefault = isEqual(currentRecipeDetails, defaultRecipe);
+
+    if (isDefault) {
+      setLoadingRecipe(true);
+      fetchRecipe();
+    }
+  }, []);
 
   // Local storage fallback
   useEffect(() => {
@@ -37,19 +77,19 @@ export default function RecipeShowcase() {
   }, [setCurrentRecipeDetails]);
 
   const [loginCheck, setLoginCheck] = useState(false);
-  const [skipQuery, setSkipQuery] = useState<boolean>(true);
+  const [_SkipQuery, setSkipQuery] = useState<boolean>(true);
   const [isSaved, setIsSaved] = useState<boolean>(false);
-  const [isAuthor, setIsAuthor] = useState<boolean>(false);
+  const [isAuthor] = useState<boolean>(false);
   const [reviewCount, setReviewCount] = useState(0);
 
   //mutations and queries
   const [addRecipe] = useMutation(ADD_RECIPE);
   const [saveRecipe] = useMutation(SAVE_RECIPE);
   const [removeRecipe] = useMutation(REMOVE_RECIPE);
-  const { data, refetch } = useQuery(GET_SPECIFIC_RECIPE_ID, {
-    variables: { recipeId: currentRecipeDetails._id },
-    skip: skipQuery,
-  });
+  // const { data, refetch } = useQuery(GET_SPECIFIC_RECIPE_ID, {
+  //   variables: { recipeId: currentRecipeDetails._id },
+  //   skip: skipQuery,
+  // });
 
   useLayoutEffect(() => {
     try {
@@ -65,39 +105,6 @@ export default function RecipeShowcase() {
       setSkipQuery(true);
     }
   }, []);
-
-  // This effect determines if the recipe is saved by checking the database.
-  useEffect(() => {
-    const checkSavedStatus = async () => {
-      if (loginCheck && currentRecipeDetails._id) {
-        setSkipQuery(false);
-        try {
-          await refetch();
-        } catch (error) {
-          console.error("Error checking saved status:", error);
-        }
-      }
-    };
-
-    checkSavedStatus();
-  }, [loginCheck, currentRecipeDetails._id, refetch]);
-
-  useEffect(() => {
-    if (data?.getSpecificRecipeId) {
-      setIsSaved(true);
-    } else {
-      setIsSaved(false);
-    }
-
-    let id;
-    if (loginCheck) {
-      id = Auth.getProfile()?._id;
-    }
-
-    if (currentRecipeDetails.author == id && loginCheck) {
-      setIsAuthor(true);
-    }
-  }, [data, loginCheck, currentRecipeDetails.author]);
 
   // Function to save recipe
   const saveCurrentRecipe = async () => {
@@ -139,7 +146,6 @@ export default function RecipeShowcase() {
         });
 
         setIsSaved(true);
-        await refetch();
       }
     } catch (err) {
       console.error("Error saving recipe:", err);
@@ -169,7 +175,6 @@ export default function RecipeShowcase() {
       }
 
       // refetch the query:
-      await refetch();
 
       navigate("/recipe-book");
     } catch (err) {
@@ -177,6 +182,10 @@ export default function RecipeShowcase() {
       alert("Failed to delete recipe.");
     }
   };
+
+  if (loadingRecipe) {
+    return <Placeholder {...recipePreview} />;
+  }
 
   return (
     <div className="bg-[#fef3d0] min-h-screen pt-24">
@@ -213,7 +222,7 @@ export default function RecipeShowcase() {
           recipeId={currentRecipeDetails._id}
           isLoggedIn={loginCheck}
           isSaved={isSaved}
-          onReviewSubmit={() => refetch()}
+          onReviewSubmit={() => {}}
           onReviewAdded={() => setReviewCount((prev) => prev + 1)}
         />
       </div>
