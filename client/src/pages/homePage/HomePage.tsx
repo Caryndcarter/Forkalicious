@@ -1,6 +1,6 @@
 import { useState, useCallback, useContext, useLayoutEffect } from "react";
 import RecipeCard from "@/components/RecipeCard";
-import type Recipe from "@/types/recipe";
+import { Recipe } from "@/types";
 import apiService from "@/api/apiService";
 import SearchCard from "./SearchCard";
 import RecipeBookCard from "./RecipeBookCard";

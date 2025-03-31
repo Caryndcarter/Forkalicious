@@ -5,7 +5,7 @@ import {
   useRef,
   useLayoutEffect,
 } from "react";
-import type Recipe from "@/types/recipe";
+import { Recipe } from "@/types";
 import FilterForm from "./FilterForm";
 import apiService from "@/api/apiService";
 import Results from "./Results";

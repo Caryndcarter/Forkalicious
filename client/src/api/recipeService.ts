@@ -1,5 +1,5 @@
 // import 'dotenv/config';
-import Recipe from "../types/recipe";
+import { Recipe } from "@/types";
 
 export const fetchRecipes = async (query: string): Promise<Recipe[]> => {
   try {

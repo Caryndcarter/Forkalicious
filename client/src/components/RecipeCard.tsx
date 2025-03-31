@@ -1,6 +1,6 @@
 "use client";
 
-import type Recipe from "../types/recipe";
+import { Recipe } from "@/types";
 import { useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { currentRecipeContext, userContext } from "../App";
