@@ -1,6 +1,7 @@
 import {
   RecipeDetails,
   defaultRecipe,
+  defaultPreview,
   DietaryNeeds,
   searchParamters,
   Recipe,
@@ -45,11 +46,11 @@ class LocalStorageService {
     localStorage.removeItem(currentRecipeID);
   }
 
-  getRecipePreview(): Recipe | null {
+  getRecipePreview(): Recipe {
     const stringyPreview = localStorage.getItem(recipePreviewID);
 
     if (!stringyPreview) {
-      return null;
+      return defaultPreview;
     }
 
     return JSON.parse(stringyPreview);
