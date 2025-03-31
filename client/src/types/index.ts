@@ -3,7 +3,7 @@ import { diet, dietOptions } from "./diet.js";
 import DietaryNeeds from "./dietaryNeeds.js";
 import { intolerance, intoleranceOptions } from "./intolerances.js";
 import profile from "./profile.js";
-import Recipe from "./recipe.js";
+import { Recipe, defaultPreview } from "./recipe.js";
 import { RecipeDetails, defaultRecipe } from "./recipeDetails.js";
 import { searchParamters, defaultSearchParameters } from "./searchParamters.js";
 
@@ -21,6 +21,7 @@ export {
   cuisineOptions,
   dietOptions,
   defaultRecipe,
+  defaultPreview,
   intoleranceOptions,
   defaultSearchParameters,
 };
