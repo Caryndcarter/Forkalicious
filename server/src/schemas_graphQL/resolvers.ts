@@ -2,21 +2,17 @@ import { User, Recipe, Review } from "../models_mongo/index.js";
 import { signToken, AuthenticationError } from "../middleware/auth_graphQL.js";
 import { GraphQLError } from "graphql";
 import { recipe } from "../types/index.js";
-import {
-  diet,
-  intolerance,
-  user_context,
-  recipeAuthor,
-} from "../types/index.js";
+import { diet, intolerance, user_context } from "../types/index.js";
 import mongoose from "mongoose";
+import spoonacularService from "../service/spoonacularService.js";
 // import { ObjectId } from "mongodb";
 
 const resolvers = {
   Query: {
     getUser: async (_: any, _args: any, context: any): Promise<any> => {
-     if (context.user) {
+      if (context.user) {
         return User.findOne({ _id: context.user._id });
-      } 
+      }
       throw new AuthenticationError("could not authenticate user.");
     },
 
@@ -108,60 +104,42 @@ const resolvers = {
       args: {
         mongoID: mongoose.Schema.Types.ObjectId;
         spoonacularId: number;
-      },
-      context: user_context
-    ): Promise<recipeAuthor | null> => {
-      if (!context.user) {
-        throw new AuthenticationError("could not authenticate user.");
       }
-
-      const user = await User.findOne({ _id: context.user._id });
-
-      if (!user) {
-        throw new AuthenticationError("could not find user.");
-      }
-
+    ): Promise<recipe | null> => {
       const { mongoID, spoonacularId } = args;
-
-      //console.log(mongoID, spoonacularId);
 
       let recipe: recipe | null = null;
 
       if (mongoID) {
         recipe = await Recipe.findById(mongoID);
       } else if (spoonacularId) {
-        recipe = await Recipe.findOne({ spoonacularId: spoonacularId });
+        recipe = await spoonacularService.findInformation(spoonacularId);
       }
 
       if (recipe) {
-        let author = false;
-        const id = context.user._id;
-        const authorID = recipe.author;
-        if (id && authorID) {
-          author = id == authorID.toString();
-        }
-        return { recipe: recipe, author: author };
+        return recipe;
       } else {
         return null;
       }
     },
 
-    getReviews: async (_: any, { recipeId }: { recipeId: string }): Promise<any> => {
+    getReviews: async (
+      _: any,
+      { recipeId }: { recipeId: string }
+    ): Promise<any> => {
       try {
-
         const objectId = new mongoose.Types.ObjectId(recipeId);
         // Find the recipe and populate its reviews with user details
-        const recipeReviews = await Recipe.findById(objectId)
-        .populate({
-          path: 'reviews',
-          model: 'Review',  
-          select: 'rating comment userName' 
+        const recipeReviews = await Recipe.findById(objectId).populate({
+          path: "reviews",
+          model: "Review",
+          select: "rating comment userName",
         });
-          
+
         if (!recipeReviews) {
           throw new GraphQLError("Recipe not found");
         }
-    
+
         return recipeReviews.reviews;
       } catch (err) {
         console.error("Error fetching reviews:", err);
@@ -169,10 +147,13 @@ const resolvers = {
       }
     },
 
-    getReviewsByRecipeId: async (_: any, { reviewIds }: {reviewIds: string []}): Promise<any> => {
+    getReviewsByRecipeId: async (
+      _: any,
+      { reviewIds }: { reviewIds: string[] }
+    ): Promise<any> => {
       try {
         // Find reviews by the array of review IDs
-        const reviews = await Review.find({ '_id': { $in: reviewIds } });
+        const reviews = await Review.find({ _id: { $in: reviewIds } });
 
         // Return the found reviews
         return reviews;
@@ -182,13 +163,16 @@ const resolvers = {
       }
     },
 
-    getReviewsForRecipe: async (_: any, { recipeId }: { recipeId: string }): Promise<any> => {
+    getReviewsForRecipe: async (
+      _: any,
+      { recipeId }: { recipeId: string }
+    ): Promise<any> => {
       try {
         const objectId = new mongoose.Types.ObjectId(recipeId);
         const recipe = await Recipe.findById(objectId).populate({
-          path: 'reviews',
-          model: 'Review',
-          select: '_id rating comment userName'
+          path: "reviews",
+          model: "Review",
+          select: "_id rating comment userName",
         });
 
         if (!recipe) {
@@ -548,7 +532,7 @@ const resolvers = {
           { new: true, runValidators: true }
         );
 
-       // console.log("Updated user:", updatedUser);
+        // console.log("Updated user:", updatedUser);
 
         if (!updatedUser) {
           console.log("User not found or update failed.");
@@ -600,68 +584,68 @@ const resolvers = {
           );
         }
 
-      return updatedRecipe;
-    } catch (err) {
-      console.log("Error saving review ID to user:", err);
-      throw new GraphQLError("Error saving review ID to recipe.");
-    }
+        return updatedRecipe;
+      } catch (err) {
+        console.log("Error saving review ID to user:", err);
+        throw new GraphQLError("Error saving review ID to recipe.");
+      }
     },
 
-  // delete a review from the review collection and off of the arrays on the user and the recipes
+    // delete a review from the review collection and off of the arrays on the user and the recipes
     deleteReview: async (
-    _parent: any,
-    { reviewId }: { reviewId: string },
-    context: any
-  ) => {
-    //console.log("Attempting to delete review:", reviewId);
+      _parent: any,
+      { reviewId }: { reviewId: string },
+      context: any
+    ) => {
+      //console.log("Attempting to delete review:", reviewId);
 
-    if (!context.user) {
-      throw new GraphQLError("You must be logged in!");
-    }
-
-    try {
-
-    // Convert recipeId to ObjectId to ensure correct matching
-    const objectId = new mongoose.Types.ObjectId(reviewId);
-    //console.log("Converted to ObjectId:", objectId);
-
-    const deletedReview = await Review.findByIdAndDelete(objectId);
-    
-    if (!deletedReview) {
-      throw new GraphQLError("Review not found.");
-    }
-
-   //console.log("Deleted Review:", deletedReview);
-
-    await Recipe.findOneAndUpdate(
-      { reviews: objectId },
-      { $pull: { reviews: objectId } },
-      { new: true }
-    );
-
-
-    //console.log("Removed review from recipe.");
-
-      const updatedUser = await User.findByIdAndUpdate(
-        context.user._id,
-        { $pull: { reviews: objectId } },
-        { new: true, runValidators: true }
-      );
-
-      if (!updatedUser) {
-        throw new GraphQLError("Couldn't find user with this id!");
+      if (!context.user) {
+        throw new GraphQLError("You must be logged in!");
       }
 
-      return updatedUser;
-    } catch (err) {
-      console.log("Error deleting review:", err);
-      throw new GraphQLError("Error deleting review.");
-    }
+      try {
+        // Convert recipeId to ObjectId to ensure correct matching
+        const objectId = new mongoose.Types.ObjectId(reviewId);
+        //console.log("Converted to ObjectId:", objectId);
+
+        const deletedReview = await Review.findByIdAndDelete(objectId);
+
+        if (!deletedReview) {
+          throw new GraphQLError("Review not found.");
+        }
+
+        //console.log("Deleted Review:", deletedReview);
+
+        await Recipe.findOneAndUpdate(
+          { reviews: objectId },
+          { $pull: { reviews: objectId } },
+          { new: true }
+        );
+
+        //console.log("Removed review from recipe.");
+
+        const updatedUser = await User.findByIdAndUpdate(
+          context.user._id,
+          { $pull: { reviews: objectId } },
+          { new: true, runValidators: true }
+        );
+
+        if (!updatedUser) {
+          throw new GraphQLError("Couldn't find user with this id!");
+        }
+
+        return updatedUser;
+      } catch (err) {
+        console.log("Error deleting review:", err);
+        throw new GraphQLError("Error deleting review.");
+      }
     },
 
     deleteUser: async (_: any, _args: any, context: any): Promise<any> => {
       if (!context.user) {
-        throw new AuthenticationError("You must be logged in to delete your account.");
+        throw new AuthenticationError(
+          "You must be logged in to delete your account."
+        );
       }
 
       const deletedUser = await User.findByIdAndDelete(context.user._id);
@@ -672,12 +656,9 @@ const resolvers = {
       return {
         _id: deletedUser._id,
         userEmail: deletedUser.userEmail,
-      }
-     },
-
-    
+      };
+    },
   },
-
-}; 
+};
 
 export default resolvers;

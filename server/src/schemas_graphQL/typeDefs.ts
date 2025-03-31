@@ -4,7 +4,7 @@ const typeDefs = `
     getUser: User
     getSpecificRecipeId(recipeId: String): String
     getRecipes: [Recipe]
-    getRecipe(mongoID: ID, spoonacularId: Int): RecipeAuthor
+    getRecipe(mongoID: ID, spoonacularId: Int): Recipe
     getReviews(recipeId: ID!): [Review]
     getReviewsByRecipeId(reviewIds: [ID!]!): [Review!]!
     getReviewsForRecipe(recipeId: ID!): [Review]
@@ -50,7 +50,7 @@ const typeDefs = `
   }
 
    type Recipe {
-    _id: ID!
+    _id: ID
     author: ID
     title: String!
     summary: String!

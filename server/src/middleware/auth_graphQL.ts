@@ -15,7 +15,8 @@ export const authenticateToken = ({ req }: any) => {
   // skips authentication process if loging in or signing up
   if (
     req.body.query.includes("loginUser") ||
-    req.body.query.includes("signUp")
+    req.body.query.includes("signUp") ||
+    req.body.query.includes("getRecipe")
   ) {
     return req;
   }
@@ -24,7 +25,7 @@ export const authenticateToken = ({ req }: any) => {
   let token = req.body.token || req.query.token || req.headers.authorization;
 
   if (req.headers.authorization) {
-    token = token.split(' ').pop().trim();
+    token = token.split(" ").pop().trim();
   }
 
   // check for the token's existance:
