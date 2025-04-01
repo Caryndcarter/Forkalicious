@@ -26,9 +26,7 @@ export class CdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    
-    // The code that defines your stack goes here
-    // 1. S3 Bucket
+// 1. S3 Bucket
     const destinationBucket = new s3.Bucket(this, "DestinationBucket", {
       accessControl: s3.BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
       //autoDeleteObjects: true,
@@ -40,32 +38,21 @@ export class CdkStack extends cdk.Stack {
       websiteIndexDocument: "index.html",
     });
 
-       // 2. Create the hosted zone
+// 2. Create the hosted zone
     const hostedZone = new HostedZone (this, "isAwesomeHostedZone",  {
       zoneName: 'forkalicious.isawesome.xyz'
     })
 
-     // 3. ACM Certificate (must be in us-east-1 for CloudFront)
+  // 3. ACM Certificate (must be in us-east-1 for CloudFront)
     const certificate = new acm.Certificate(this, "Certificate", {
       domainName: "forkalicious.isawesome.xyz",
       validation: acm.CertificateValidation.fromDns(hostedZone),
     });
 
-    /*
-    // 4. CloudFront Origin Access Control (OAC)
-    const oac = new cloudfront.CfnOriginAccessControl(this, "OAC", {
-      originAccessControlConfig: {
-        name: "S3OAC",
-        originAccessControlOriginType: "s3",
-        signingBehavior: "always",
-        signingProtocol: "sigv4",
-      },
-    });*/
-
-    // 4. Create the OAI
+  // 4. Create the OAI
   const oai = new OriginAccessIdentity(this, "OAI");
 
-    // 5. Add bucket policy
+  // 5. Add bucket policy - allows CloudFront (via the OAI) to access objects in the bucket
    destinationBucket.addToResourcePolicy(
       new PolicyStatement({
         actions: ["s3:GetObject"],
@@ -74,7 +61,7 @@ export class CdkStack extends cdk.Stack {
       })
     );
 
-// 6. Create CloudFront distribution
+  // 6. Create CloudFront distribution
    const distribution = new cloudfront.Distribution(this, "CloudFrontDist", {
       defaultBehavior: {
         cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
@@ -92,11 +79,7 @@ export class CdkStack extends cdk.Stack {
         target: route53.RecordTarget.fromAlias(new route53_targets.CloudFrontTarget(distribution)),
       });
 
-  console.log('Current working directory:', process.cwd());
-  console.log('Asset path being used:', path.join(__dirname, '../client/dist'));
-
-
-// 8. Deploy the frontend assets to S3
+  // 8. Deploy the frontend assets to S3
     new s3deploy.BucketDeployment(this, 'clientDeploy', {
       sources: [s3deploy.Source.asset('../client/dist')], // Simplified path
       destinationBucket: destinationBucket,
@@ -123,8 +106,7 @@ export class CdkStack extends cdk.Stack {
     memorySize: 256
   });
   
-
-    // 10. Create API Gateway
+  // 10. Create API Gateway
     const api = new apigateway.RestApi(this, 'BackendApi', {
       restApiName: 'Backend Service',
       defaultCorsPreflightOptions: {
@@ -154,7 +136,16 @@ export class CdkStack extends cdk.Stack {
     });
 
     
-
+   /*
+    // 4. CloudFront Origin Access Control (OAC)
+    const oac = new cloudfront.CfnOriginAccessControl(this, "OAC", {
+      originAccessControlConfig: {
+        name: "S3OAC",
+        originAccessControlOriginType: "s3",
+        signingBehavior: "always",
+        signingProtocol: "sigv4",
+      },
+    });*/
     
 
       // Attach OAC to the CloudFront Origin
