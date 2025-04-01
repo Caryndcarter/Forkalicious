@@ -1,8 +1,8 @@
 import { useNavigate, Link } from "react-router-dom";
-import { useContext, useLayoutEffect, useCallback, useMemo } from "react";
+import { useContext, useLayoutEffect, useCallback } from "react";
 
-import { editingContext } from "@/App";
-import { useState, useEffect } from "react";
+import { editingContext, userContext } from "@/App";
+import { useState } from "react";
 import ButtonManager from "./ButtonManager";
 import localData from "@/utils_graphQL/localStorageService";
 import ReviewSection from "./Reviews";
@@ -14,26 +14,41 @@ import {
   SAVE_RECIPE,
   REMOVE_RECIPE,
 } from "@/utils_graphQL/mutations";
-import Auth from "@/utils_graphQL/auth";
 import AverageRating from "./AverageRating";
 
 import Heading from "./Heading";
 import localStorageService from "@/utils_graphQL/localStorageService";
-import { RecipeDetails, defaultRecipe } from "@/types";
+import { Recipe, RecipeDetails, defaultRecipe } from "@/types";
 import { isEqual } from "lodash";
 
 import { GET_RECIPE } from "@/utils_graphQL/queries";
 import Placeholder from "./Placeholder";
 
 export default function RecipeShowcase() {
+  // react router
+  const navigate = useNavigate();
+
+  // Context:
+  const { userStatus } = useContext(userContext);
+  const loggedIn = userStatus !== "visiter";
+  const { setIsEditing } = useContext(editingContext);
+
+  // Queries and mutations
+  const [queryRecipe] = useLazyQuery(GET_RECIPE);
+  const [addRecipe] = useMutation(ADD_RECIPE);
+  const [saveRecipe] = useMutation(SAVE_RECIPE);
+  const [removeRecipe] = useMutation(REMOVE_RECIPE);
+
+  // state variables
   const [currentRecipeDetails, setCurrentRecipeDetails] =
     useState<RecipeDetails>(localStorageService.getCurrentRecipe());
   const [loadingRecipe, setLoadingRecipe] = useState<boolean>(false);
-  const [queryRecipe] = useLazyQuery(GET_RECIPE);
-
-  const recipePreview = useMemo(() => {
-    return localStorageService.getRecipePreview();
-  }, [location.pathname]);
+  const [isSaved, setIsSaved] = useState<boolean>(false);
+  const [isAuthor] = useState<boolean>(false);
+  const [reviewCount, setReviewCount] = useState(0);
+  const [recipePreview] = useState<Recipe>(
+    localStorageService.getRecipePreview()
+  );
 
   const fetchRecipe = useCallback(async () => {
     if (!recipePreview) {
@@ -56,9 +71,7 @@ export default function RecipeShowcase() {
     setLoadingRecipe(false);
   }, []);
 
-  const navigate = useNavigate();
-  const { setIsEditing } = useContext(editingContext);
-
+  // initial loading
   useLayoutEffect(() => {
     const isDefault = isEqual(currentRecipeDetails, defaultRecipe);
 
@@ -68,45 +81,6 @@ export default function RecipeShowcase() {
     }
   }, []);
 
-  // Local storage fallback
-  useEffect(() => {
-    const storedRecipeDetails = localData.getCurrentRecipe();
-    if (storedRecipeDetails) {
-      setCurrentRecipeDetails(storedRecipeDetails);
-    }
-  }, [setCurrentRecipeDetails]);
-
-  const [loginCheck, setLoginCheck] = useState(false);
-  const [_SkipQuery, setSkipQuery] = useState<boolean>(true);
-  const [isSaved, setIsSaved] = useState<boolean>(false);
-  const [isAuthor] = useState<boolean>(false);
-  const [reviewCount, setReviewCount] = useState(0);
-
-  //mutations and queries
-  const [addRecipe] = useMutation(ADD_RECIPE);
-  const [saveRecipe] = useMutation(SAVE_RECIPE);
-  const [removeRecipe] = useMutation(REMOVE_RECIPE);
-  // const { data, refetch } = useQuery(GET_SPECIFIC_RECIPE_ID, {
-  //   variables: { recipeId: currentRecipeDetails._id },
-  //   skip: skipQuery,
-  // });
-
-  useLayoutEffect(() => {
-    try {
-      const isLoggedIn = Auth.loggedIn();
-      setLoginCheck(isLoggedIn);
-      // if logged in, activate the query to check if the recipe is saved
-      if (isLoggedIn) {
-        setSkipQuery(false);
-      }
-    } catch (error) {
-      console.log("Auth error:", error);
-      setLoginCheck(false);
-      setSkipQuery(true);
-    }
-  }, []);
-
-  // Function to save recipe
   const saveCurrentRecipe = async () => {
     try {
       const { data } = await addRecipe({
@@ -158,7 +132,6 @@ export default function RecipeShowcase() {
     navigate("/recipe-maker");
   };
 
-  // Function to delete recipe
   const deleteCurrentRecipe = async () => {
     try {
       const { data } = await removeRecipe({
@@ -198,7 +171,7 @@ export default function RecipeShowcase() {
         />
 
         {/* Edit Buttons */}
-        {loginCheck ? (
+        {loggedIn ? (
           <ButtonManager
             isAuthor={isAuthor}
             editRecipe={editRecipe}
@@ -220,7 +193,7 @@ export default function RecipeShowcase() {
         {/* Integrated Review Section */}
         <ReviewSection
           recipeId={currentRecipeDetails._id}
-          isLoggedIn={loginCheck}
+          isLoggedIn={loggedIn}
           isSaved={isSaved}
           onReviewSubmit={() => {}}
           onReviewAdded={() => setReviewCount((prev) => prev + 1)}
