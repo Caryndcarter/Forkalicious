@@ -262,7 +262,7 @@ const RecipeMaker = () => {
         className="max-w-3xl mx-auto bg-[#fadaae] p-6 shadow-lg rounded-lg space-y-4 border border-gray-200"
       >
         <div>
-          <label className="block font-bold mb-1">Title</label>
+          <label className="block font-bold mb-1">Title*</label>
           <input
             type="text"
             value={recipe.title}
@@ -272,7 +272,7 @@ const RecipeMaker = () => {
         </div>
 
         <div>
-          <label className="block font-bold mb-1">Summary</label>
+          <label className="block font-bold mb-1">Summary*</label>
           <textarea
             value={recipe.summary}
             onChange={(e) => handleChange("summary", e.target.value)}
@@ -281,7 +281,7 @@ const RecipeMaker = () => {
         </div>
 
         <div>
-          <label className="block font-bold mb-1">Ready In Minutes</label>
+          <label className="block font-bold mb-1">Ready In Minutes*</label>
           <input
             type="number"
             min="0"
@@ -292,7 +292,7 @@ const RecipeMaker = () => {
         </div>
 
         <div>
-          <label className="block font-bold mb-1">Servings</label>
+          <label className="block font-bold mb-1">Servings*</label>
           <input
             type="number"
             min="0"
@@ -303,7 +303,7 @@ const RecipeMaker = () => {
         </div>
 
         <div>
-          <label className="block font-bold mb-1">Ingredients</label>
+          <label className="block font-bold mb-1">Ingredients*</label>
           {recipe.ingredients.map((ingredient, index) => (
             <div key={index} className="flex items-center space-x-2 mb-2">
               <input
@@ -333,7 +333,7 @@ const RecipeMaker = () => {
         </div>
 
         <div>
-          <label className="block font-bold mb-1">Instructions</label>
+          <label className="block font-bold mb-1">Instructions*</label>
           <textarea
             value={recipe.instructions}
             onChange={(e) => handleChange("instructions", e.target.value)}
@@ -387,7 +387,7 @@ const RecipeMaker = () => {
 
         {/* Steps Section */}
         <div>
-          <label className="block font-bold mb-1">Steps</label>
+          <label className="block font-bold mb-1">Steps*</label>
           {(recipe.steps ?? []).map((step, index) => (
             <div key={index} className="flex items-center space-x-2 mb-2">
               <input
