@@ -1,149 +1,131 @@
-import {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  useLayoutEffect,
-} from "react";
-import type Recipe from "@/types/recipe";
-import FilterForm from "./FilterForm";
-import apiService from "@/api/apiService";
-import Results from "./Results";
-import localStorageService from "@/utils_graphQL/localStorageService";
-import { ActiveFilters } from "./ActiveFilters";
-import {
-  type searchParamters,
-  type DietaryNeeds,
-  defaultSearchParameters,
-} from "@/types";
-import { useLazyQuery } from "@apollo/client";
-import { GET_ACCOUNT_PREFERENCES } from "@/utils_graphQL/queries";
-import { isEqual } from "lodash";
+import { useState, useEffect, useCallback, useRef, useLayoutEffect } from "react"
+import type Recipe from "@/types/recipe"
+import FilterForm from "./FilterForm"
+import apiService from "@/api/apiService"
+import Results from "./Results"
+import localStorageService from "@/utils_graphQL/localStorageService"
+import { ActiveFilters } from "./ActiveFilters"
+import { type searchParamters, type DietaryNeeds, defaultSearchParameters } from "@/types"
+import { useLazyQuery } from "@apollo/client"
+import { GET_ACCOUNT_PREFERENCES } from "@/utils_graphQL/queries"
+import { isEqual } from "lodash"
 
 export default function AccountPage() {
-  const queryReference = useRef<HTMLInputElement | null>(null);
-  const [results, setResults] = useState<Recipe[]>([]); // Store the search results
-  const [loading, setLoading] = useState<boolean>(true); // Track loading state
-  const [filterVisible, setFilterVisible] = useState<boolean>(false); // Track filter form visibility
-  const [fetchDiet, { data }] = useLazyQuery(GET_ACCOUNT_PREFERENCES);
+  const queryReference = useRef<HTMLInputElement | null>(null)
+  const [results, setResults] = useState<Recipe[]>([]) // Store the search results
+  const [loading, setLoading] = useState<boolean>(true) // Track loading state
+  const [filterVisible, setFilterVisible] = useState<boolean>(false) // Track filter form visibility
+  const [fetchDiet, { data }] = useLazyQuery(GET_ACCOUNT_PREFERENCES)
   const [filterValue, setFilterValue] = useState<searchParamters>(
     localStorageService.getFilter() ?? {
       ...defaultSearchParameters,
       ...localStorageService.getAccountDiet(),
-    }
-  );
+    },
+  )
 
   // load the query:
   useLayoutEffect(() => {
-    const query = localStorageService.getQuery();
+    const query = localStorageService.getQuery()
     if (queryReference.current) {
-      queryReference.current.value = query;
+      queryReference.current.value = query
     }
-  }, []);
+  }, [])
 
   // trigger the search on filter update, and activate local storage
   useLayoutEffect(() => {
-    localStorageService.setFilter(filterValue);
+    localStorageService.setFilter(filterValue)
     if (queryReference.current) {
       handleChange({
         target: queryReference.current,
-      } as React.ChangeEvent<HTMLInputElement>);
+      } as React.ChangeEvent<HTMLInputElement>)
     }
-  }, [filterValue]);
+  }, [filterValue])
 
   useEffect(() => {
     if (localStorageService.isAccountDietExpired()) {
-      fetchDiet();
+      fetchDiet()
     }
-  }, [location.pathname]);
+  }, [location.pathname])
 
   useEffect(() => {
     if (!data) {
-      return;
+      return
     }
-    const FetchedDietNeeds: DietaryNeeds = data.getUser;
-    localStorageService.setAccountDiet(FetchedDietNeeds);
+    const FetchedDietNeeds: DietaryNeeds = data.getUser
+    localStorageService.setAccountDiet(FetchedDietNeeds)
 
     // do not overwrite an existing filter
     if (localStorageService.getFilter()) {
-      return;
+      return
     }
 
     // do not bother updating state variables if there is no change
     if (isEqual(filterValue as DietaryNeeds, FetchedDietNeeds)) {
-      return;
+      return
     }
 
     setFilterValue({
       ...defaultSearchParameters,
       ...FetchedDietNeeds,
-    });
-  }, [data]);
+    })
+  }, [data])
 
   const handleSearch = async (queryText: string) => {
-    localStorageService.setQuery(queryText);
-    setLoading(true);
+    setLoading(true)
 
     if (!queryText) {
-      const newRecipes = await apiService.forignRandomSearch();
-      setResults(newRecipes);
-      setLoading(false);
-      return;
+      const newRecipes = await apiService.forignRandomSearch()
+      setResults(newRecipes)
+      setLoading(false)
+      return
     }
 
     const searchParams: any = {
       query: queryText,
-    };
+    }
 
     if (filterValue.cuisine) {
-      searchParams.cuisine = filterValue.cuisine;
+      searchParams.cuisine = filterValue.cuisine
     }
 
     if (filterValue.diet) {
-      searchParams.diet = filterValue.diet;
+      searchParams.diet = filterValue.diet
     }
 
     if (filterValue.intolerances.length > 0) {
-      searchParams.intolerance = filterValue.intolerances;
+      searchParams.intolerance = filterValue.intolerances
     }
 
     if (filterValue.includeIngredients.length > 0) {
-      searchParams.includeIngredients =
-        filterValue.includeIngredients.join(",");
+      searchParams.includeIngredients = filterValue.includeIngredients.join(",")
     }
 
-    const recipes = await apiService.forignRecipeSearch(searchParams);
-    setResults(recipes);
-    setLoading(false);
-  };
+    const recipes = await apiService.forignRecipeSearch(searchParams)
+    setResults(recipes)
+    setLoading(false)
+  }
 
   // uses a debounced search
   const handleChange = async (e: any) => {
-    const queryText = e.target.value;
-    debouncedHandleSearch(queryText);
-  };
+    const queryText = e.target.value
+    debouncedHandleSearch(queryText)
+  }
 
   // debouncing logic
   const debounce = (mainFunction: any, delay: number) => {
-    let timer: any;
+    let timer: any
     return (...args: any) => {
-      clearTimeout(timer);
+      clearTimeout(timer)
       timer = setTimeout(() => {
-        mainFunction(...args);
-      }, delay);
-    };
-  };
+        mainFunction(...args)
+      }, delay)
+    }
+  }
 
-  const debouncedHandleSearch = useCallback(debounce(handleSearch, 360), [
-    filterValue,
-  ]);
+  const debouncedHandleSearch = useCallback(debounce(handleSearch, 360), [filterValue])
 
   return (
-    <div
-      className={`min-h-screen bg-[#fef3d0] ${
-        filterVisible ? "filter-blur" : ""
-      }`}
-    >
+    <div className={`min-h-screen bg-[#fef3d0] ${filterVisible ? "filter-blur" : ""}`}>
       {/* Main Content */}
       <main className="pt-20 px-4">
         {/* Search Bar and Filter Button */}
@@ -166,10 +148,7 @@ export default function AccountPage() {
         </div>
 
         {/* Active Filters Display - Now passing setFilterVisible */}
-        <ActiveFilters
-          filterValue={filterValue}
-          setFilterVisible={setFilterVisible}
-        />
+        <ActiveFilters filterValue={filterValue} setFilterVisible={setFilterVisible} />
 
         {/* Search Results */}
         <Results results={results} loading={loading} />
@@ -184,5 +163,6 @@ export default function AccountPage() {
         )}
       </main>
     </div>
-  );
+  )
 }
+
