@@ -1,56 +1,56 @@
-import type React from "react";
-import { searchParamters } from "@/types";
+import type { searchParamters } from "@/types"
 
 interface ActiveFiltersProps {
-  filterValue: searchParamters;
+  filterValue: searchParamters
+  setFilterVisible: (visible: boolean) => void
 }
 
-export const ActiveFilters: React.FC<ActiveFiltersProps> = ({
-  filterValue,
-}) => {
+export const ActiveFilters: React.FC<ActiveFiltersProps> = ({ filterValue, setFilterVisible }) => {
   const hasActiveFilters =
     filterValue.diet ||
     filterValue.cuisine ||
     filterValue.intolerances.length > 0 ||
-    filterValue.includeIngredients.length > 0;
+    filterValue.includeIngredients.length > 0
 
   if (!hasActiveFilters) {
-    return null;
+    return null
+  }
+
+  const handlePillClick = () => {
+    setFilterVisible(true)
   }
 
   return (
     <div className="flex flex-wrap gap-2 mb-4">
-      {filterValue.diet && <FilterPill label={`Diet: ${filterValue.diet}`} />}
+      {filterValue.diet && <FilterPill label={`Diet: ${filterValue.diet}`} onClick={handlePillClick} />}
 
-      {filterValue.cuisine && (
-        <FilterPill label={`Cuisine: ${filterValue.cuisine}`} />
-      )}
+      {filterValue.cuisine && <FilterPill label={`Cuisine: ${filterValue.cuisine}`} onClick={handlePillClick} />}
 
       {filterValue.intolerances.map((intolerance) => (
-        <FilterPill
-          key={`intolerance-${intolerance}`}
-          label={`No ${intolerance}`}
-        />
+        <FilterPill key={`intolerance-${intolerance}`} label={`No ${intolerance}`} onClick={handlePillClick} />
       ))}
 
       {filterValue.includeIngredients.map((ingredient) => (
-        <FilterPill
-          key={`ingredient-${ingredient}`}
-          label={`With: ${ingredient}`}
-        />
+        <FilterPill key={`ingredient-${ingredient}`} label={`With: ${ingredient}`} onClick={handlePillClick} />
       ))}
     </div>
-  );
-};
-
-interface FilterPillProps {
-  label: string;
+  )
 }
 
-const FilterPill: React.FC<FilterPillProps> = ({ label }) => {
+interface FilterPillProps {
+  label: string
+  onClick: () => void
+}
+
+const FilterPill: React.FC<FilterPillProps> = ({ label, onClick }) => {
   return (
-    <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#ff9e40] text-white text-sm">
+    <button
+      className="inline-flex items-center px-3 py-1 rounded-full bg-[#ff9e40] text-white text-sm hover:bg-[#e7890c] transition-colors cursor-pointer"
+      onClick={onClick}
+      aria-label={`Edit filter: ${label}`}
+    >
       <span>{label}</span>
-    </div>
-  );
-};
+    </button>
+  )
+}
+

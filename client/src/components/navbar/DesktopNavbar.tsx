@@ -79,8 +79,10 @@ export default function DesktopNavbar({
         className="fixed top-0 left-0 right-0 bg-[#ff9e40] p-4 shadow-md z-10 mx-auto flex flex-col"
       >
         <div id="title-row" className="text-center mb-4 flex justify-center">
-          <Utensils className="h-8 w-8 text-white mr-4" />
-          <h1 className="text-white text-3xl font-bold">Forkalicious</h1>
+          <Link to="/" className="flex items-center">
+            <Utensils className="h-8 w-8 text-white mr-4" />
+            <h1 className="text-white text-3xl font-bold">Forkalicious</h1>
+          </Link>
         </div>
 
         <div
