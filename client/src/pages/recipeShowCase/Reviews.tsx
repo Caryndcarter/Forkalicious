@@ -191,7 +191,7 @@ export default function ReviewSection({
   // If recipeId is null, show a message
   if (!recipeId) {
     return (
-      <Card className="mt-8 border border-[#a84e24]/20 bg-[#fadaae]/50">
+      <Card className="mt-8 border border-[#a84e24]/20 bg-[#fadaae]/50" id="reviews-section">
         <CardHeader>
           <CardTitle className="text-2xl font-semibold text-[#a84e24]">
             Reviews
@@ -210,7 +210,7 @@ export default function ReviewSection({
 
   if (!isLoggedIn) {
     return (
-      <Card className="mt-8 border border-[#a84e24]/20 bg-[#fadaae]/50">
+      <Card className="mt-8 border border-[#a84e24]/20 bg-[#fadaae]/50" id="reviews-section">
         <CardHeader>
           <CardTitle className="text-2xl font-semibold text-[#a84e24]">
             Reviews
@@ -233,7 +233,7 @@ export default function ReviewSection({
 
   if (!isSaved) {
     return (
-      <Card className="mt-8 border border-[#a84e24]/20 bg-[#fadaae]/50">
+      <Card className="mt-8 border border-[#a84e24]/20 bg-[#fadaae]/50" id="reviews-section">
         <CardHeader>
           <CardTitle className="text-2xl font-semibold text-[#a84e24]">
             Reviews
@@ -249,7 +249,7 @@ export default function ReviewSection({
   }
 
   return (
-    <Card className="mt-8 border border-[#a84e24]/20 bg-[#fadaae]/50">
+    <Card className="mt-8 border border-[#a84e24]/20 bg-[#fadaae]/50" id="reviews-section">
       <CardHeader className="pb-3">
         <CardTitle className="text-2xl font-semibold text-[#a84e24]">
           Reviews
