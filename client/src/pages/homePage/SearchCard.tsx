@@ -1,8 +1,11 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Search, Utensils } from "lucide-react"
+import { useNavigate } from "react-router-dom";
 
 export default function SearchCard() {
+  const navigate = useNavigate();
+
   return (
     <Card className="w-full shadow-xl rounded-lg overflow-hidden">
       <CardHeader className="p-6 bg-gradient-to-r from-[#f5d3a4] to-white">
@@ -47,7 +50,7 @@ export default function SearchCard() {
               </p>
             </div>
             <Button
-              // For Next.js: onClick={() => router.push('/search')}
+              onClick={() => navigate("/search")}
               className="w-full bg-[#ff9e40] text-white py-2 rounded-lg shadow hover:bg-[#e7890c] transition-colors duration-200"
             >
               Go to Search Page

@@ -1,11 +1,11 @@
-"use client"
-
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Book, BookOpen } from "lucide-react"
+import { useNavigate } from "react-router-dom";
 
 export default function RecipeBookCard() {
-  
+const navigate = useNavigate();
+
   return (
     <Card className="w-full shadow-xl rounded-lg overflow-hidden">
       <CardHeader className="p-6 bg-gradient-to-r from-[#f5d3a4] to-white">
@@ -50,7 +50,7 @@ export default function RecipeBookCard() {
               </p>
             </div>
             <Button
-              // For Next.js: onClick={() => router.push('/recipe-book')}
+              onClick={() => navigate("/recipe-book")}
               className="w-full bg-[#ff9e40] text-white py-2 rounded-lg shadow hover:bg-[#e7890c] transition-colors duration-200"
             >
               Go to Recipe Book
