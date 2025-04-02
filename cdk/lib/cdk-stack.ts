@@ -32,8 +32,8 @@ export class CdkStack extends cdk.Stack {
     const destinationBucket = new s3.Bucket(this, "DestinationBucket", {
       accessControl: s3.BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
       //autoDeleteObjects: true,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
-      publicReadAccess: true,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      publicReadAccess: false,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       // versioned: false,
       websiteErrorDocument: "index.html",
