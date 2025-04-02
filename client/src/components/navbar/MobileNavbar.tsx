@@ -9,13 +9,14 @@ import localStorageService from "@/utils_graphQL/localStorageService";
 
 interface MobileNavbarProps {
   pages: page[];
-  loggedIn: boolean;
+  userStatus: string;
 }
 
-export default function MobileNavbar({ pages, loggedIn }: MobileNavbarProps) {
+export default function MobileNavbar({ pages, userStatus }: MobileNavbarProps) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const loggedIn = userStatus !== "visiter";
 
   const searchListener = (event: any) => {
     // this will only trigger when hitting "enter"
@@ -88,7 +89,7 @@ export default function MobileNavbar({ pages, loggedIn }: MobileNavbarProps) {
 
       {/* Account button */}
       <Link
-        to="/user-info"
+        to="/account"
         id="account-nav-button"
         className="text-white flex items-center focus:outline-none"
       >

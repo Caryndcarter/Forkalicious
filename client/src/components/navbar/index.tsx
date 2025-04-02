@@ -1,10 +1,10 @@
-import { useEffect } from "react";
+import { useContext } from "react";
+import { userContext } from "@/App";
 import "./mediaQuery.css";
 import "./DesktopNavbar";
 import "./MobileNavbar";
 import MobileNavbar from "./MobileNavbar";
 import DesktopNavbar from "./DesktopNavbar";
-import auth from "@/utils_graphQL/auth";
 
 export interface page {
   name: string;
@@ -29,25 +29,15 @@ const pages: page[] = [
     href: "/recipe-maker",
     icon: "bookPlus",
   },
-  {
-    name: "Account Settings",
-    href: "/user-info",
-    icon: "userCog",
-  },
 ];
 
 export default function Navbar() {
-  let loggedIn = false;
-
-  useEffect(() => {
-    const status = auth.loggedIn();
-    loggedIn = status;
-  }, []);
+  const { userStatus } = useContext(userContext);
 
   return (
     <>
-      <MobileNavbar pages={pages} loggedIn={loggedIn} />
-      <DesktopNavbar pages={pages} loggedIn={loggedIn} />
+      <MobileNavbar pages={pages} userStatus={userStatus} />
+      <DesktopNavbar pages={pages} userStatus={userStatus} />
     </>
   );
 }

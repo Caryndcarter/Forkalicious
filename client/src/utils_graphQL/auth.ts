@@ -1,6 +1,7 @@
 // use this to decode a token and get the user's information out of it
 import { jwtDecode } from "jwt-decode";
-import { profile } from "../interfaces/index.js";
+import { DietaryNeeds, profile } from "../types/index.js";
+import localStorageService from "./localStorageService.js";
 
 interface UserToken {
   name: string;
@@ -9,53 +10,65 @@ interface UserToken {
 
 // create a new class to instantiate for a user
 class AuthService {
-  // get user data
+  getToken() {
+    return localStorageService.getIDToken();
+  }
+
   getProfile() {
     const payLoad: any = jwtDecode(this.getToken() || "");
     return payLoad?.data as profile;
   }
 
-  // check if user's logged in
   loggedIn() {
     try {
-      // Checks if there is a saved token and it's still valid
       const token = this.getToken();
-      return !!token && !this.isTokenExpired(token); // handwaiving here
-    } catch (err) {
-      return false;
-    }
-  }
 
-  // check if token is expired
-  isTokenExpired(token: string) {
-    try {
-      const decoded = jwtDecode<UserToken>(token);
-      if (decoded.exp < Date.now() / 1000) {
-        return true;
+      if (!token) {
+        return false;
       }
 
-      return false;
+      if (this.isTokenExpired(token)) {
+        this.logout();
+        return false;
+      }
+
+      return true;
     } catch (err) {
       return false;
     }
   }
 
-  getToken() {
-    // Retrieves the user token from localStorage
-    return localStorage.getItem("id_token");
+  isTokenExpired(token: string) {
+    const decoded = jwtDecode<UserToken>(token);
+    if (decoded.exp < Date.now() / 1000) {
+      return true;
+    }
+
+    return false;
   }
 
-  login(idToken: string) {
-    // Saves user token to localStorage
-    localStorage.setItem("id_token", idToken);
+  signUp(idToken: string) {
+    localStorageService.setIDToken(idToken);
+
+    window.location.assign("/");
+  }
+
+  login(idToken: string, diet: DietaryNeeds) {
+    localStorageService.setIDToken(idToken);
+
+    localStorageService.setAccountDiet(diet);
+
     window.location.assign("/");
   }
 
   logout() {
-    // Clear user token and profile data from localStorage
-    localStorage.removeItem("id_token");
-    // this will reload the page and reset the state of the application
-    window.location.assign("/");
+    localStorageService.cleanLocalStorage();
+
+    window.location.reload();
+  }
+
+  deleteAccount() {
+    localStorageService.cleanLocalStorage();
   }
 }
 

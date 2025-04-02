@@ -13,8 +13,10 @@ import Navbar from "@/components/navbar/";
 import { createContext, useState } from "react";
 import { setContext } from "@apollo/client/link/context";
 import AuthService from "./utils_graphQL/auth.js";
-import RecipeDetails from "./interfaces/recipeDetails";
+import { RecipeDetails } from "@/types";
 import ScrollToTop from "./components/ScrollToTop";
+import AuthTracker from "./components/AuthTracker.js";
+import { defaultRecipe } from "@/types";
 
 // Apollo Client setup
 const httpLink = createHttpLink({
@@ -38,23 +40,6 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-const defaultRecipe: RecipeDetails = {
-  _id: null,
-  title: "",
-  author: null,
-  summary: "",
-  readyInMinutes: 0,
-  servings: 0,
-  ingredients: [],
-  instructions: "",
-  steps: [],
-  diets: [],
-  image: "",
-  sourceUrl: "",
-  spoonacularSourceUrl: "",
-  spoonacularId: 0,
-};
-
 export const currentRecipeContext = createContext({
   currentRecipeDetails: defaultRecipe,
   setCurrentRecipeDetails: (recipe: RecipeDetails) => {
@@ -69,23 +54,35 @@ export const editingContext = createContext({
   },
 });
 
+export const userContext = createContext({
+  userStatus: "visiter",
+  setUserStatus: (status: string) => {
+    console.log(`status: ${status}`);
+  },
+});
+
 function App() {
   const [currentRecipeDetails, setCurrentRecipeDetails] =
     useState<RecipeDetails>(defaultRecipe);
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
+  const [userStatus, setUserStatus] = useState<string>("visiter");
+
   return (
-    <currentRecipeContext.Provider
-      value={{ currentRecipeDetails, setCurrentRecipeDetails }}
-    >
-      <editingContext.Provider value={{ isEditing, setIsEditing }}>
-        <ApolloProvider client={client}>
-          <ScrollToTop />
-          <Navbar />
-          <Outlet />
-        </ApolloProvider>
-      </editingContext.Provider>
-    </currentRecipeContext.Provider>
+    <userContext.Provider value={{ userStatus, setUserStatus }}>
+      <currentRecipeContext.Provider
+        value={{ currentRecipeDetails, setCurrentRecipeDetails }}
+      >
+        <editingContext.Provider value={{ isEditing, setIsEditing }}>
+          <ApolloProvider client={client}>
+            <ScrollToTop />
+            <AuthTracker />
+            <Navbar />
+            <Outlet />
+          </ApolloProvider>
+        </editingContext.Provider>
+      </currentRecipeContext.Provider>
+    </userContext.Provider>
   );
 }
 

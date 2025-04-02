@@ -5,9 +5,8 @@ export const LOGIN_USER = gql`
     login(userEmail: $userEmail, userPassword: $userPassword) {
       token
       user {
-        _id
-        userName
-        userEmail
+        diet
+        intolerances
       }
     }
   }
@@ -142,4 +141,3 @@ export const DELETE_USER = gql`
     }
   }
 `;
-

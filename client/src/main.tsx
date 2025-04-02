@@ -2,13 +2,16 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import App from "./App";
-import HomePage from "./pages/HomePage";
 import RecipeBook from "./pages/RecipeBook";
-import RecipeShowcaseGraph from "./pages/RecipeShowcaseGraph";
 import RecipeMaker from "./pages/RecipeMaker";
-import UserInfo from "./pages/UserInfo";
 
-import { SearchPage, ErrorPage } from "./pages";
+import {
+  AccountPage,
+  HomePage,
+  RecipeShowcase,
+  SearchPage,
+  ErrorPage,
+} from "@/pages";
 
 const router = createBrowserRouter([
   {
@@ -33,12 +36,12 @@ const router = createBrowserRouter([
         element: <RecipeMaker />,
       },
       {
-        path: "user-info",
-        element: <UserInfo />,
+        path: "account",
+        element: <AccountPage />,
       },
       {
         path: "recipe-showcase",
-        element: <RecipeShowcaseGraph />,
+        element: <RecipeShowcase />,
       },
     ],
   },

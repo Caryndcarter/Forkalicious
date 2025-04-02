@@ -1,71 +1,13 @@
-import { filterInfo } from "./SearchPage";
+import { searchParamters } from "@/types";
 import {
   DropDownMultiSelect,
   DropDownSelection,
   InputMultiSelect,
 } from "@/components/forms";
-
-const dietOptions = [
-  "Gluten Free",
-  "Ketogenic",
-  "Vegetarian",
-  "Lacto-Vegetarian",
-  "Ovo-Vegetarian",
-  "Vegan",
-  "Pescetarian",
-  "Paleo",
-  "Primal",
-  "Low FODMAP",
-  "Whole30",
-];
-
-const intoleranceOptions = [
-  "Dairy",
-  "Egg",
-  "Gluten",
-  "Grain",
-  "Peanut",
-  "Seafood",
-  "Sesame",
-  "Shellfish",
-  "Soy",
-  "Sulfite",
-  "Tree Nut",
-  "Wheat",
-];
-
-const cuisineOptions = [
-  "African",
-  "Asian",
-  "American",
-  "British",
-  "Cajun",
-  "Caribbean",
-  "Chinese",
-  "Eastern European",
-  "European",
-  "French",
-  "German",
-  "Greek",
-  "Indian",
-  "Irish",
-  "Italian",
-  "Japanese",
-  "Jewish",
-  "Korean",
-  "Latin American",
-  "Mediterranean",
-  "Mexican",
-  "Middle Eastern",
-  "Nordic",
-  "Southern",
-  "Spanish",
-  "Thai",
-  "Vietnamese",
-];
+import { cuisineOptions, dietOptions, intoleranceOptions } from "@/types";
 
 interface filterFormProps {
-  filterValue: filterInfo;
+  filterValue: searchParamters;
   setFilterValue: any;
   setFilterVisible: any;
 }
@@ -99,9 +41,9 @@ export default function FilterForm({
     console.log(updatedFilter);
 
     if (JSON.stringify(updatedFilter) !== JSON.stringify(filterValue)) {
-      setFilterValue((prevFilters: filterInfo) => ({
+      setFilterValue((prevFilters: searchParamters) => ({
         ...prevFilters,
-        ...(updatedFilter as filterInfo),
+        ...(updatedFilter as searchParamters),
       }));
     }
     setFilterVisible(false);

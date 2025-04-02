@@ -12,18 +12,23 @@ import {
   BookPlus,
   CircleOff,
   UserCog,
+  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { page } from ".";
 
 interface DesktopNavbarProps {
   pages: page[];
-  loggedIn: boolean;
+  userStatus: string;
 }
 
-export default function DesktopNavbar({ pages }: DesktopNavbarProps) {
+export default function DesktopNavbar({
+  pages,
+  userStatus,
+}: DesktopNavbarProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const loggedIn = userStatus !== "visiter";
 
   const handleBack = () => {
     navigate(-1);
@@ -74,8 +79,10 @@ export default function DesktopNavbar({ pages }: DesktopNavbarProps) {
         className="fixed top-0 left-0 right-0 bg-[#ff9e40] p-4 shadow-md z-10 mx-auto flex flex-col"
       >
         <div id="title-row" className="text-center mb-4 flex justify-center">
-          <Utensils className="h-8 w-8 text-white mr-4" />
-          <h1 className="text-white text-3xl font-bold">Forkalicious</h1>
+          <Link to="/" className="flex items-center">
+            <Utensils className="h-8 w-8 text-white mr-4" />
+            <h1 className="text-white text-3xl font-bold">Forkalicious</h1>
+          </Link>
         </div>
 
         <div
@@ -131,6 +138,22 @@ export default function DesktopNavbar({ pages }: DesktopNavbarProps) {
               <span className="text-xs mt-1">{page.name}</span>
             </Link>
           ))}
+
+          <Link
+            key="/account"
+            to="/account"
+            id="nav-account-link"
+            className={`text-white p-2 rounded-md hover:bg-white/20 flex flex-col items-center mx-4 ${
+              location.pathname === "/account" ? "bg-white/20" : ""
+            }`}
+            title="Account Settings"
+          >
+            <User className="w-5 h-5" />
+
+            <span className="text-xs mt-1">
+              {loggedIn ? "Account Settings" : "Log in"}
+            </span>
+          </Link>
         </div>
       </nav>
       <div id="desktop-spacer" className="h-20"></div>

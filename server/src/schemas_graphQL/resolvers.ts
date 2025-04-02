@@ -88,7 +88,10 @@ const resolvers = {
       }
       let recipes: recipe[] = [];
 
-      for (const id of savedRecipes) {
+      // Reverse the savedRecipes array to show the newest first on the page
+      const reversedRecipes = [...savedRecipes].reverse();
+
+      for (const id of reversedRecipes) {
         const recipe: recipe | null = await Recipe.findById(id);
         if (!recipe) {
           //console.log("skipping...");

@@ -1,8 +1,8 @@
 import { useState, useContext, useLayoutEffect, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import RecipeDetails from "../interfaces/recipeDetails";
+import { RecipeDetails } from "@/types";
 import askService from "../api/askService";
-import { editingContext } from "@/App";
+import { editingContext, userContext } from "@/App";
 import Auth from "@/utils_graphQL/auth";
 
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,10 @@ const RecipeMaker = () => {
   const [createRecipe] = useMutation(CREATE_RECIPE);
   const [saveRecipe] = useMutation(SAVE_RECIPE);
   const isLoggedIn = Auth.loggedIn();
-  
+
+  const { userStatus } = useContext(userContext);
+  const loggedIn = userStatus !== "visiter";
+
   // Initialize recipe state with empty values
   const emptyRecipe: RecipeDetails = {
     _id: null,
@@ -41,7 +44,7 @@ const RecipeMaker = () => {
     diets: [],
     image: "",
   };
-  
+
   const [recipe, setRecipe] = useState<RecipeDetails>(emptyRecipe);
 
   // Load saved form data from localStorage on component mount
@@ -51,7 +54,7 @@ const RecipeMaker = () => {
       try {
         const parsedData = JSON.parse(savedFormData);
         setRecipe(parsedData);
-        
+
         // Also set the prompt if it was saved
         if (parsedData.savedPrompt) {
           setPrompt(parsedData.savedPrompt);
@@ -170,7 +173,7 @@ const RecipeMaker = () => {
           recipeId: data.createRecipe._id,
         },
       });
-      
+
       // Clear the saved form data after successful creation
       localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
@@ -212,7 +215,9 @@ const RecipeMaker = () => {
       {/* Show a notification if there was saved data loaded */}
       {(recipe.title || recipe.summary || recipe.ingredients[0] !== "") && (
         <div className="w-full max-w-3xl mx-auto mb-4 p-4 bg-[#ffe8b3] border border-[#e7890c] rounded-lg flex justify-between items-center">
-          <p className="text-[#a84e24] font-medium">Your progress has been saved.</p>
+          <p className="text-[#a84e24] font-medium">
+            Your progress has been saved.
+          </p>
           <button
             onClick={clearSavedFormData}
             className="text-sm bg-[#ff9e40] text-white px-3 py-1 rounded hover:bg-[#e7890c] transition-colors"
@@ -222,45 +227,53 @@ const RecipeMaker = () => {
         </div>
       )}
 
-      <form
-        onSubmit={handleAiCall}
-        className="w-full max-w-3xl mx-auto p-6 rounded-lg space-y-4"
-      >
-        <div className="space-y-2">
-          <Label htmlFor="prompt" className="font-bold">
-            Use AI to generate a recipe instantly!
-          </Label>
-          <div className="relative">
-            <Textarea
-              id="prompt"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              className="w-full min-h-[150px] pr-24 pl-10"
-              placeholder="Enter your prompt here..."
-            />
-            {AILoading && (
-              <div className="absolute left-3 bottom-3">
-                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-              </div>
-            )}
-            <Button
-              type="submit"
-              className="absolute right-3 bottom-3"
-              disabled={AILoading || !prompt.trim()}
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Generate
-            </Button>
+      {loggedIn ? (
+        <form
+          onSubmit={handleAiCall}
+          className="w-full max-w-3xl mx-auto p-6 rounded-lg space-y-4"
+        >
+          <div className="space-y-2">
+            <Label htmlFor="prompt" className="font-bold">
+              Use AI to generate a recipe instantly!
+            </Label>
+            <div className="relative">
+              <Textarea
+                id="prompt"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                className="w-full min-h-[150px] pr-24 pl-10"
+                placeholder="Enter your prompt here..."
+              />
+              {AILoading && (
+                <div className="absolute left-3 bottom-3">
+                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                </div>
+              )}
+              <Button
+                type="submit"
+                className="absolute right-3 bottom-3"
+                disabled={AILoading || !prompt.trim()}
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Generate
+              </Button>
+            </div>
+          </div>
+        </form>
+      ) : (
+        <div className="w-full max-w-3xl mx-auto p-6 rounded-lg space-y-4">
+          <div className="space-y-2">
+            <p>Log in and use AI to automaticaly generate recipies!</p>
           </div>
         </div>
-      </form>
+      )}
 
       <form
         onSubmit={handleSubmit}
         className="max-w-3xl mx-auto bg-[#fadaae] p-6 shadow-lg rounded-lg space-y-4 border border-gray-200"
       >
         <div>
-          <label className="block font-bold mb-1">Title</label>
+          <label className="block font-bold mb-1">Title*</label>
           <input
             type="text"
             value={recipe.title}
@@ -270,7 +283,7 @@ const RecipeMaker = () => {
         </div>
 
         <div>
-          <label className="block font-bold mb-1">Summary</label>
+          <label className="block font-bold mb-1">Summary*</label>
           <textarea
             value={recipe.summary}
             onChange={(e) => handleChange("summary", e.target.value)}
@@ -279,7 +292,7 @@ const RecipeMaker = () => {
         </div>
 
         <div>
-          <label className="block font-bold mb-1">Ready In Minutes</label>
+          <label className="block font-bold mb-1">Ready In Minutes*</label>
           <input
             type="number"
             min="0"
@@ -290,7 +303,7 @@ const RecipeMaker = () => {
         </div>
 
         <div>
-          <label className="block font-bold mb-1">Servings</label>
+          <label className="block font-bold mb-1">Servings*</label>
           <input
             type="number"
             min="0"
@@ -301,7 +314,7 @@ const RecipeMaker = () => {
         </div>
 
         <div>
-          <label className="block font-bold mb-1">Ingredients</label>
+          <label className="block font-bold mb-1">Ingredients*</label>
           {recipe.ingredients.map((ingredient, index) => (
             <div key={index} className="flex items-center space-x-2 mb-2">
               <input
@@ -331,7 +344,7 @@ const RecipeMaker = () => {
         </div>
 
         <div>
-          <label className="block font-bold mb-1">Instructions</label>
+          <label className="block font-bold mb-1">Instructions*</label>
           <textarea
             value={recipe.instructions}
             onChange={(e) => handleChange("instructions", e.target.value)}
@@ -385,7 +398,7 @@ const RecipeMaker = () => {
 
         {/* Steps Section */}
         <div>
-          <label className="block font-bold mb-1">Steps</label>
+          <label className="block font-bold mb-1">Steps*</label>
           {(recipe.steps ?? []).map((step, index) => (
             <div key={index} className="flex items-center space-x-2 mb-2">
               <input
@@ -445,10 +458,12 @@ const RecipeMaker = () => {
           </button>
         ) : (
           <div className="space-y-2">
-            <p className="text-center text-gray-700 font-medium">Log in to create this recipe</p>
+            <p className="text-center text-gray-700 font-medium">
+              Log in to create this recipe
+            </p>
             <button
               type="button"
-              onClick={() => navigate("/user-info")} 
+              onClick={() => navigate("/account")}
               className="w-full bg-[#ff9e40] text-white font-bold p-2 rounded hover:bg-[#e7890c] transition-colors"
             >
               Log In

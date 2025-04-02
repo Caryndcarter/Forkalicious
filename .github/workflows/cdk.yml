@@ -2,7 +2,11 @@ name: Deploy To AWS using CDK
 
 on:
   push:
+    branches: [cdk-*]
     tags: cdk-*
+concurrency: 
+  group: deploy-cdk
+  cancel-in-progress: false
 env:
   AWS_REGION: us-east-1
   AWS_ROLE_ARN: ${{ vars.ACCOUNT_AWS_ROLE_ARN }}
@@ -15,19 +19,143 @@ jobs:
       id-token: write # for aws-actions/configure-aws-credentials
       contents: read # for actions/checkout
     steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-            role-to-assume: ${{ env.AWS_ROLE_ARN }}
-            role-session-name: DeployRoleForGitHubSession
-            aws-region: ${{ env.AWS_REGION }}
       - uses: actions/checkout@v4
+        with:
+          path: '.' # This tells GitHub Actions to checkout into the current directory instead of creating a subdirectory
 
       - uses: actions/setup-node@v4
         with:
-            node-version: 20.x
-            cache: 'npm'
+          node-version: 20.x
+          cache: 'npm'
 
-      - run: | 
-          npm --prefix cdk install
-          npm --prefix cdk run cdk deploy -- --require-approval never
+      - name: Build Lambda
+        run: |
+          echo "=== DEBUGGING BUILD PROCESS ==="
+          echo "1. Current working directory:"
+          pwd
+          
+          echo "2. Root directory contents:"
+          ls -la
+          
+          echo "3. Server directory contents before build:"
+          ls -la server/
+          
+          echo "4. Checking package.json scripts:"
+          cat package.json | grep build
+          
+          echo "5. Server package.json scripts:"
+          cat server/package.json | grep build
+          
+          echo "6. Installing dependencies..."
+          npm install
+          
+          echo "7. Running build command..."
+          npm run render-build:lambda
+          
+          echo "8. Server directory contents after build:"
+          ls -la server/
+          
+          echo "9. Checking if dist was created:"
+          ls -la server/dist || echo "dist directory not found"
+          
+          echo "10. Checking TypeScript config:"
+          cat server/tsconfig.json
+          
+          echo "=== END DEBUGGING ==="
+
+      - name: Build Client
+        run: |
+          cd client
+          npm install
+          npm run build
+          cd ..
+
+      - name: Build Server
+        run: |
+          cd server
+          npm install
+          npm run build:lambda
+          cd ..
+
+      - name: Debug Directory Structure
+        run: |
+          echo "=== FULL DIRECTORY STRUCTURE ==="
+          echo "Root directory:"
+          pwd
+          echo "\nRoot contents:"
+          ls -la
+          
+          echo "\nServer directory contents:"
+          ls -la server/ || echo "No server directory"
+          
+          echo "\nClient directory contents:"
+          ls -la client/ || echo "No client directory"
+          
+          echo "\nCDK directory contents:"
+          ls -la cdk/ || echo "No cdk directory"
+          
+          if [ -d "server/dist" ]; then
+            echo "\nServer/dist contents:"
+            ls -la server/dist/
+          else
+            echo "\nWARNING: server/dist directory not found!"
+          fi
+          
+          if [ -d "client/dist" ]; then
+            echo "\nClient/dist contents:"
+            ls -la client/dist/
+          else
+            echo "\nWARNING: client/dist directory not found!"
+          fi
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: DeployRoleForGitHubSession
+          aws-region: ${{ env.AWS_REGION }}
+     
+      # - name: Deploy CDK Stack
+      #   run: | 
+      #     npm --prefix cdk install
+      #     npm --prefix cdk run cdk deploy -- --require-approval never
+
+      # - name: Deploy CDK Stack
+      #   run: | 
+      #       cd cdk
+      #       npm install
+      #       npm run build  # Compiles TypeScript to JavaScript
+      #       # Add debugging to see the paths
+      #       echo "Current directory: $(pwd)"
+      #       echo "Parent directory contents:"
+      #       ls -la ../
+      #       echo "Server directory contents:"
+      #       ls -la ../server/
+      #       echo "Server dist contents:"
+      #       ls -la ../server/dist/
+      #       # Deploy with debug logging
+      #       npx cdk deploy --require-approval never --debug
+
+      - name: Verify Paths
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "\nFull path to client/dist:"
+          realpath client/dist
+          echo "\nContents of client/dist:"
+          ls -la client/dist
+          echo "\nAbsolute path check:"
+          node -e "console.log(require('path').resolve(__dirname, 'client/dist'))"
+
+      - name: Deploy CDK Stack
+        run: | 
+          cd cdk
+          npm install
+          npm run build
+          echo "\nVerifying client/dist contents before deployment:"
+          ls -la ../client/dist/
+          echo "\nVerifying absolute path:"
+          realpath ../client/dist
+          echo "\nAttempting CDK deploy..."
+          npx cdk deploy --require-approval never --debug
+
