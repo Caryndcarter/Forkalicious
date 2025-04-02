@@ -33,7 +33,7 @@ export class CdkStack extends cdk.Stack {
     const destinationBucket = new s3.Bucket(this, "DestinationBucket", {
       accessControl: s3.BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
       //autoDeleteObjects: true,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       publicReadAccess: true,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       // versioned: false,
@@ -106,7 +106,7 @@ export class CdkStack extends cdk.Stack {
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       },
       additionalBehaviors: {
-        '/*': {  // This will catch all requests to port 3001
+        '/open/*': {  // This will catch all requests to port 3001
           origin: new origins.RestApiOrigin(api),
           viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
           allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
