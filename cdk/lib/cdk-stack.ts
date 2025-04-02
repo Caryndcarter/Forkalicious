@@ -75,12 +75,44 @@ export class CdkStack extends cdk.Stack {
       })
     );
 
+
+    // 10. Create API Gateway
+    const api = new apigateway.RestApi(this, 'BackendApi', {
+      restApiName: 'Backend Service',
+      defaultCorsPreflightOptions: {
+        allowOrigins: ['https://forkalicious.isawesome.xyz'], // add other domains later if needed in the array like https://dev.forkalicious.isawesome.xyz
+        allowMethods: ['GET', 'POST', 'PUT', 'DELETE'], 
+        allowHeaders: [
+          'Content-Type',
+          'Authorization',
+          'Apollo-Require-Preflight',
+          'Accept',
+          'x-apollo-operation-name',
+          'x-apollo-operation-type'
+        ],
+      }
+    });
+
+    new cdk.CfnOutput(this, 'ApiGatewayUrl', {
+      value: api.url,
+      description: 'API Gateway URL'
+    });
+
 // 6. Create CloudFront distribution
    const distribution = new cloudfront.Distribution(this, "CloudFrontDist", {
       defaultBehavior: {
         cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
         origin: new origins.S3Origin(destinationBucket, { originAccessIdentity: oai }),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      },
+      additionalBehaviors: {
+        '/*': {  // This will catch all requests to port 3001
+          origin: new origins.RestApiOrigin(api),
+          viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+          cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+          originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
+        }
       },
       domainNames: ["forkalicious.isawesome.xyz"],
       certificate,
@@ -133,27 +165,6 @@ export class CdkStack extends cdk.Stack {
   });
   
 
-    // 10. Create API Gateway
-    const api = new apigateway.RestApi(this, 'BackendApi', {
-      restApiName: 'Backend Service',
-      defaultCorsPreflightOptions: {
-        allowOrigins: ['https://forkalicious.isawesome.xyz'], // add other domains later if needed in the array like https://dev.forkalicious.isawesome.xyz
-        allowMethods: ['GET', 'POST', 'PUT', 'DELETE'], 
-        allowHeaders: [
-          'Content-Type',
-          'Authorization',
-          'Apollo-Require-Preflight',
-          'Accept',
-          'x-apollo-operation-name',
-          'x-apollo-operation-type'
-        ],
-      }
-    });
-
-    new cdk.CfnOutput(this, 'ApiGatewayUrl', {
-      value: api.url,
-      description: 'API Gateway URL'
-    });
     
 
     // 11. Connect API Gateway to Lambda
