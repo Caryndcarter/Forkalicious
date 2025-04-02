@@ -102,7 +102,7 @@ export class CdkStack extends cdk.Stack {
       });
 
   console.log('Current working directory:', process.cwd());
-  console.log('Asset path being used:', path.join(__dirname, '../client/dist'));
+  console.log('Asset path being used:', path.join(__dirname, '../../client/dist'));
 
 
 // 8. Deploy the frontend assets to S3
