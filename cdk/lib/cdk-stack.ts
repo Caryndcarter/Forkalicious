@@ -63,7 +63,16 @@ export class CdkStack extends cdk.Stack {
     });*/
 
     // 4. Create the OAI
-  const oai = new OriginAccessIdentity(this, "OAI");
+  //const oai = new OriginAccessIdentity(this, "OAI");
+
+  const oai = new OriginAccessIdentity(this, "WebsiteOAI", {
+    comment: "OAI for website content"
+  });
+
+  new cdk.CfnOutput(this, 'OAIId', {
+    value: oai.originAccessIdentityId,
+    description: 'OAI ID for CloudFront'
+  });
 
     // 5. Add bucket policy
    destinationBucket.addToResourcePolicy(
