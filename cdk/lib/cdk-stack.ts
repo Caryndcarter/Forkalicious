@@ -39,6 +39,7 @@ export class CdkStack extends cdk.Stack {
       websiteErrorDocument: "index.html",
       websiteIndexDocument: "index.html",
     });
+    
 
        // 2. Create the hosted zone
     const hostedZone = new HostedZone (this, "isAwesomeHostedZone",  {
