@@ -12,6 +12,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 import * as path from 'path';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 
 import {
@@ -120,8 +121,15 @@ export class CdkStack extends cdk.Stack {
       OPENAI_API_KEY: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/openai-api-key'),
       MONGODB_URI: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/mongodb-uri')
     },
+    role: new iam.Role(this, 'LambdaExecutionRole', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')
+      ]
+    }),
     timeout: cdk.Duration.seconds(30),
-    memorySize: 256
+    memorySize: 256,
+    logRetention: cdk.aws_logs.RetentionDays.ONE_WEEK 
   });
   
 
