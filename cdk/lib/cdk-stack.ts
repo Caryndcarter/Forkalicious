@@ -51,20 +51,7 @@ export class CdkStack extends cdk.Stack {
       validation: acm.CertificateValidation.fromDns(hostedZone),
     });
 
-    /*
-    // 4. CloudFront Origin Access Control (OAC)
-    const oac = new cloudfront.CfnOriginAccessControl(this, "OAC", {
-      originAccessControlConfig: {
-        name: "S3OAC",
-        originAccessControlOriginType: "s3",
-        signingBehavior: "always",
-        signingProtocol: "sigv4",
-      },
-    });*/
-
     // 4. Create the OAI
-  //const oai = new OriginAccessIdentity(this, "OAI");
-
   const oai = new OriginAccessIdentity(this, "WebsiteOAI", {
     comment: "OAI for website content"
   });
@@ -164,7 +151,17 @@ export class CdkStack extends cdk.Stack {
     });
 
     
-
+ 
+    /*
+    // 4. CloudFront Origin Access Control (OAC)
+    const oac = new cloudfront.CfnOriginAccessControl(this, "OAC", {
+      originAccessControlConfig: {
+        name: "S3OAC",
+        originAccessControlOriginType: "s3",
+        signingBehavior: "always",
+        signingProtocol: "sigv4",
+      },
+    });*/
     
 
       // Attach OAC to the CloudFront Origin
