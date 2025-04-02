@@ -108,7 +108,7 @@ export class CdkStack extends cdk.Stack {
     runtime: lambda.Runtime.NODEJS_20_X,
     handler: 'lambda.handler',
     //code: lambda.Code.fromAsset('../server/dist'),
-    code: lambda.Code.fromAsset(path.resolve(__dirname, '../server/dist')),
+    code: lambda.Code.fromAsset(path.resolve(__dirname, '../../server/dist')),
     environment: {
       JWT_SECRET_KEY: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/jwt-secret'),
       SPOONACULAR_API_KEY: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/spoonacular-api-key'),
