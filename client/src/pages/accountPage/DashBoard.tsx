@@ -88,12 +88,12 @@ export default function DashBoard() {
         });
 
         // Log the user out but don't navigate away immediately
-        handleLogOut();
+        auth.deleteAccount();
 
         // Optional: You could add a slight delay before navigation if you want
         // the user to see the toast before being redirected
         setTimeout(() => {
-          // navigate("/")
+          window.location.reload();
         }, 3000);
       } else {
         // Show error toast for failed deletion
