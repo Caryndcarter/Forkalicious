@@ -81,6 +81,19 @@ export class CdkStack extends cdk.Stack {
         origin: new origins.S3Origin(destinationBucket, { originAccessIdentity: oai }),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       },
+      defaultRootObject: "index.html",  // Make sure this is present
+      errorResponses: [   // Add these error responses
+        {
+          httpStatus: 403,
+          responseHttpStatus: 200,
+          responsePagePath: '/index.html',
+        },
+        {
+          httpStatus: 404,
+          responseHttpStatus: 200,
+          responsePagePath: '/index.html',
+        }
+      ],
       domainNames: ["forkalicious.isawesome.xyz"],
       certificate,
     });
