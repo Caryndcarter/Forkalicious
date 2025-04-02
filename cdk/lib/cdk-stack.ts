@@ -98,7 +98,8 @@ export class CdkStack extends cdk.Stack {
 
 // 8. Deploy the frontend assets to S3
     new s3deploy.BucketDeployment(this, 'clientDeploy', {
-      sources: [s3deploy.Source.asset('../client/dist')], // Simplified path
+      //sources: [s3deploy.Source.asset('../client/dist')], // Simplified path
+      sources: [s3deploy.Source.asset(path.resolve(__dirname, '../../client/dist'))],
       destinationBucket: destinationBucket,
       distribution: distribution,
       distributionPaths: ['/*'], // invalidate CloudFront cache after deploy
