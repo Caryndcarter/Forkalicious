@@ -1,8 +1,8 @@
-import { authService } from "./authentication";
+import auth from "@/utils_graphQL/auth";
 
 class askService {
   async askForRecipe(question: string) {
-    const jwtToken = authService.getToken();
+    const jwtToken = auth.getToken();
 
     const response = await fetch("/api/ask", {
       method: "POST",
