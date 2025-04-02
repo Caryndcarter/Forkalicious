@@ -52,6 +52,7 @@ export class CdkStack extends cdk.Stack {
     });
 
     // 4. Create the OAI
+
   const oai = new OriginAccessIdentity(this, "WebsiteOAI", {
     comment: "OAI for website content"
   });
