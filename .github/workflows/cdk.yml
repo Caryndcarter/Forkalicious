@@ -159,9 +159,20 @@ jobs:
           echo "\nVerifying absolute path:"
           realpath ../client/dist
           echo "\nAttempting CDK deploy..."
-           if [[ ${{ github.ref }} == refs/heads/cdk-dev-* ]]; then
+            if [[ ${{ github.ref }} == refs/heads/cdk-dev-* ]]; then
             echo "Deploying to development environment..."
-            npx cdk deploy DevCdkStack --require-approval never --debug
+            echo "Current AWS credentials:"
+            aws sts get-caller-identity
+            echo "Available stacks:"
+            npx cdk ls
+            echo "Synthesizing DevCdkStack..."
+            npx cdk synth DevCdkStack
+            echo "Deploying DevCdkStack..."
+            set -x  # This will print each command before executing
+            npx cdk deploy DevCdkStack --require-approval never --debug || {
+              echo "CDK deploy failed with exit code $?"
+              exit 1
+            }
           else
             echo "Deploying to production environment..."
             npx cdk deploy ProdCdkStack --require-approval never --debug
