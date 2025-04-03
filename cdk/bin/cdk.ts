@@ -3,6 +3,26 @@ import * as cdk from 'aws-cdk-lib';
 import { CdkStack } from '../lib/cdk-stack';
 
 const app = new cdk.App();
+
+// Development stack
+new CdkStack(app, 'DevCdkStack', {
+  envName: 'dev',
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION
+  }
+});
+
+// Production stack
+new CdkStack(app, 'ProdCdkStack', {
+  envName: 'prod',
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION
+  }
+});
+
+/*
 new CdkStack(app, 'CdkStack', {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
@@ -16,5 +36,4 @@ new CdkStack(app, 'CdkStack', {
    * want to deploy the stack to. */
   // env: { account: '123456789012', region: 'us-east-1' },
 
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
-});
+  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html }); */

@@ -2,7 +2,9 @@ name: Deploy To AWS using CDK
 
 on:
   push:
-    branches: [cdk-*]
+    branches: 
+      - 'cdk-*'        # Production branches
+      - 'cdk-dev-*'    # Development branches
     tags: cdk-*
 concurrency: 
   group: deploy-cdk
@@ -157,5 +159,11 @@ jobs:
           echo "\nVerifying absolute path:"
           realpath ../client/dist
           echo "\nAttempting CDK deploy..."
-          npx cdk deploy --require-approval never --debug
+           if [[ ${{ github.ref }} == refs/heads/cdk-dev-* ]]; then
+            echo "Deploying to development environment..."
+            npx cdk deploy DevCdkStack --require-approval never --debug
+          else
+            echo "Deploying to production environment..."
+            npx cdk deploy ProdCdkStack --require-approval never --debug
+          fi
 
