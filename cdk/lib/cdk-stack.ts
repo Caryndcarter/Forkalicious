@@ -186,7 +186,6 @@ export class CdkStack extends cdk.Stack {
       },
     });*/
     
-
       // Attach OAC to the CloudFront Origin
       // const cfnDistribution = distribution.node.defaultChild as cloudfront.CfnDistribution;
       // cfnDistribution.addPropertyOverride("DistributionConfig.Origins.0.OriginAccessControlId", oac.ref);

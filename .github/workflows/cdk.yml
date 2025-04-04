@@ -12,6 +12,8 @@ concurrency:
 env:
   AWS_REGION: us-east-1
   AWS_ROLE_ARN: ${{ vars.ACCOUNT_AWS_ROLE_ARN }}
+  CDK_DEFAULT_REGION: us-east-1  
+  CDK_DEFAULT_ACCOUNT: ${{ vars.AWS_ACCOUNT_ID }}
 
 jobs:
   ci:
