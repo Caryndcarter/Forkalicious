@@ -54,10 +54,18 @@ export class CdkStack extends cdk.Stack {
       websiteIndexDocument: "index.html",
     });
 
-       // 2. Create the hosted zone
-    const hostedZone = new HostedZone (this, `${props.envName}HostedZone`,  {
-      zoneName: 'forkalicious.isawesome.xyz'
-    })
+        // 2. Create the hosted zone
+    let hostedZone; 
+    if (props.envName === "prod") {  
+      hostedZone = new HostedZone(this, `HostedZone`, {
+        zoneName: 'forkalicious.isawesome.xyz'
+      })
+    } else {
+      hostedZone = HostedZone.fromLookup(this, 'ExistingHostedZone', {
+        domainName: 'forkalicious.isawesome.xyz',
+      });
+    }
+
 
      // 3. ACM Certificate (must be in us-east-1 for CloudFront)
     const certificate = new acm.Certificate(this, `${props.envName}Certificate`, {
