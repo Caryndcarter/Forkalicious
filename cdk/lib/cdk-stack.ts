@@ -100,7 +100,7 @@ export class CdkStack extends cdk.Stack {
         origin: new origins.S3Origin(destinationBucket, { originAccessIdentity: oai }),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       },
-      domainNames: ["forkalicious.isawesome.xyz"],
+      domainNames: [domainName],
       certificate,
     });
 
