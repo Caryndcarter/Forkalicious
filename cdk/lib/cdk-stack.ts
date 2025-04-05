@@ -135,6 +135,7 @@ export class CdkStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY // or RETAIN if you want to keep logs after stack deletion
     });
 
+
   // 9 .Create Lambda function for your backend
   const backendFunction = new lambda.Function(this, 'BackendFunction', {
     runtime: lambda.Runtime.NODEJS_20_X,
@@ -152,6 +153,8 @@ export class CdkStack extends cdk.Stack {
     timeout: cdk.Duration.seconds(30),
     memorySize: 256
   });
+
+ 
 
   // Add permissions after creating the function
 backendFunction.addToRolePolicy(
@@ -210,6 +213,20 @@ backendFunction.addToRolePolicy(
       }
     });
 
+            // Make sure the integration is properly set up
+const backendIntegration = new apigateway.LambdaIntegration(backendFunction, {
+  proxy: true,
+  // Add logging
+  integrationResponses: [{
+    statusCode: '200',
+    responseParameters: {
+      'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+      'method.response.header.Access-Control-Allow-Origin': "'*'",
+      'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET'"
+    }
+  }]
+});
+    
 
 
 // Add a test endpoint to verify basic connectivity
@@ -250,20 +267,6 @@ api.root.addProxy({
     //   anyMethod: true 
     // });
 
-        // Make sure the integration is properly set up
-const backendIntegration = new apigateway.LambdaIntegration(backendFunction, {
-  proxy: true,
-  // Add logging
-  integrationResponses: [{
-    statusCode: '200',
-    responseParameters: {
-      'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
-      'method.response.header.Access-Control-Allow-Origin': "'*'",
-      'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET'"
-    }
-  }]
-});
-    
  
     /*
     // 4. CloudFront Origin Access Control (OAC)
