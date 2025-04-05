@@ -1,6 +1,7 @@
 // server/src/lambda.ts
 import express from "express";
 import dotenv from "dotenv";
+import { APIGatewayProxyEvent, Context} from 'aws-lambda';
 import serverlessExpress from '@vendia/serverless-express';
 
 // MongoDB and GraphQL
@@ -18,6 +19,17 @@ const app = express();
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// Add error handling middleware
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error('Error:', err);
+  res.status(500).json({ error: 'Internal Server Error' });
+});
+
+// Add a test endpoint
+app.get('/test', (req, res) => {
+  res.json({ message: 'Test endpoint working' });
+});
 
 // Lambda-specific CORS headers
 app.use((req, res, next) => {
@@ -45,7 +57,9 @@ const server = new ApolloServer({
 
 // Initialize Apollo Server and set up routes
 const initializeServer = async () => {
-  await server.start();
+  try {
+    await server.start();
+    console.log('Apollo Server started');
 
   app.use(
     "/graphql",
@@ -59,10 +73,32 @@ const initializeServer = async () => {
 
   // MongoDB Connection Error Handling
   db.on("error", console.error.bind(console, "MongoDB connection error:"));
+ } catch (error) {
+    console.error('Server initialization error:', error);
+    throw error;
+  }
 };
 
-// Initialize the server
-await initializeServer();
+let serverInitialized = false;
 
-// Export the Lambda handler
-export const handler = serverlessExpress({ app });
+export const handler = async (event: APIGatewayProxyEvent, context: Context, callback: any) => {
+  try {
+    console.log('Lambda event:', JSON.stringify(event));
+    
+    if (!serverInitialized) {
+      await initializeServer();
+      serverInitialized = true;
+    }
+
+    const handler = serverlessExpress({ app });
+    return await handler(event, context, callback);  
+  } catch (error) {
+    console.error('Handler error:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Internal Server Error' })
+    };
+  }
+};
+
+

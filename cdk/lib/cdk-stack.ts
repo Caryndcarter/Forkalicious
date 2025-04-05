@@ -205,6 +205,7 @@ export class CdkStack extends cdk.Stack {
     const backendIntegration = new apigateway.LambdaIntegration(backendFunction);
     api.root.addProxy({
       defaultIntegration: backendIntegration,
+      anyMethod: true 
     });
 
     
