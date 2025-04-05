@@ -231,20 +231,30 @@ const backendIntegration = new apigateway.LambdaIntegration(backendFunction, {
 // Add a test endpoint to verify basic connectivity
 const testResource = api.root.addResource('test');
 testResource.addMethod('GET', backendIntegration, {
-  // methodResponses: [{
-  //   statusCode: '200',
-  //   responseParameters: {
-  //     'method.response.header.Access-Control-Allow-Headers': true,
-  //     'method.response.header.Access-Control-Allow-Origin': true,
-  //     'method.response.header.Access-Control-Allow-Methods': true
-  //   }
-  // }]
+  methodResponses: [{
+    statusCode: '200',
+    responseParameters: {
+      'method.response.header.Access-Control-Allow-Headers': true,
+      'method.response.header.Access-Control-Allow-Origin': true,
+      'method.response.header.Access-Control-Allow-Methods': true
+    }
+  }]
 });
 
 // Add proxy integration for all other routes
-api.root.addProxy({
+const proxyResource = api.root.addProxy({
   defaultIntegration: backendIntegration,
-  anyMethod: true
+  anyMethod: true,
+  defaultMethodOptions: {
+    methodResponses: [{
+      statusCode: '200',
+      responseParameters: {
+        'method.response.header.Access-Control-Allow-Headers': true,
+        'method.response.header.Access-Control-Allow-Origin': true,
+        'method.response.header.Access-Control-Allow-Methods': true
+      }
+    }]
+  }
 });
 
     new cdk.CfnOutput(this, 'ApiGatewayUrl', {
@@ -284,9 +294,3 @@ api.root.addProxy({
   
   }
 }
-
-
-
-
-
-
