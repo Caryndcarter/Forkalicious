@@ -195,13 +195,18 @@ backendFunction.addToRolePolicy(
     cloudWatchRoleArn: apiGatewayLoggingRole.roleArn
   });
 
+  // Create log group for API Gateway
+  const apiLogGroup = new logs.LogGroup(this, 'ApiGatewayAccessLogs', {
+    retention: logs.RetentionDays.ONE_WEEK
+  });
+
   // Create API Gateway
   const api = new apigateway.RestApi(this, `${props.envName}BackendApi`, {
     restApiName: `${props.envName}BackendService`,
     deployOptions: {
       loggingLevel: apigateway.MethodLoggingLevel.INFO,
       dataTraceEnabled: true,
-      accessLogDestination: new apigateway.LogGroupLogDestination(new logs.LogGroup(this, 'ApiGatewayAccessLogs')),
+      accessLogDestination: new apigateway.LogGroupLogDestination(apiLogGroup),
       accessLogFormat: apigateway.AccessLogFormat.clf(),
     },
     defaultCorsPreflightOptions: {
@@ -218,9 +223,8 @@ backendFunction.addToRolePolicy(
     }
   });
 
-  // Make sure the deployment waits for the account settings
-  const apiGatewayDeployment = api.node.findChild('Deployment') as apigateway.CfnDeployment;
-  apiGatewayDeployment.addDependsOn(apiGatewayAccount);
+  // Add dependency to ensure account settings are created first
+  api.node.addDependency(apiGatewayAccount);
 
   // Make sure the integration is properly set up
   const backendIntegration = new apigateway.LambdaIntegration(backendFunction, {
