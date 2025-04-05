@@ -6,12 +6,13 @@ import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import * as route53 from "aws-cdk-lib/aws-route53";
 import * as route53_targets from "aws-cdk-lib/aws-route53-targets";
 import { OriginAccessIdentity } from "aws-cdk-lib/aws-cloudfront";
-import { PolicyStatement } from "aws-cdk-lib/aws-iam";
+import { PolicyStatement, Effect } from "aws-cdk-lib/aws-iam";
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 import * as path from 'path';
+
 
 
 import {
@@ -142,11 +143,27 @@ export class CdkStack extends cdk.Stack {
     timeout: cdk.Duration.seconds(30),
     memorySize: 256
   });
+
+  backendFunction.addToRolePolicy(new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: [
+      'ssm:GetParameter',
+      'ssm:GetParameters',
+      'ssm:GetParametersByPath'
+    ],
+    resources: [
+      `arn:aws:ssm:${this.region}:${this.account}:parameter/forkalicious/*`
+    ]
+  }));
   
 
     // 10. Create API Gateway
     const api = new apigateway.RestApi(this, `${props.envName}BackendApi`, {
       restApiName: `${props.envName}BackendService`,
+      deployOptions: {
+        loggingLevel: apigateway.MethodLoggingLevel.INFO,
+        dataTraceEnabled: true,
+      },
       defaultCorsPreflightOptions: {
         allowOrigins: [`https://${domainName}`], // add other domains later if needed in the array like https://dev.forkalicious.isawesome.xyz
         allowMethods: ['GET', 'POST', 'PUT', 'DELETE'], 
