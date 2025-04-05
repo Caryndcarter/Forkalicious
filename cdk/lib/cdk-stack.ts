@@ -266,7 +266,6 @@ api.root.addProxy({
     //   defaultIntegration: backendIntegration,
     //   anyMethod: true 
     // });
-
  
     /*
     // 4. CloudFront Origin Access Control (OAC)
