@@ -147,25 +147,30 @@ export class CdkStack extends cdk.Stack {
       SPOONACULAR_API_KEY: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/spoonacular-api-key'),
       API_BASE_URL: 'https://api.spoonacular.com',
       OPENAI_API_KEY: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/openai-api-key'),
-      MONGODB_URI: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/mongodb-uri')
+      MONGODB_URI: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/mongodb-uri'),
+      NODE_ENV: props.envName === 'prod' ? 'production' : 'development'
     },
     timeout: cdk.Duration.seconds(30),
-    memorySize: 256
+    memorySize: 256,
+    logRetention: logs.RetentionDays.ONE_WEEK
   });
 
-  // Add permissions for SSM and CloudWatch
+  // Add permissions for SSM, CloudWatch, and basic execution
   backendFunction.addToRolePolicy(new iam.PolicyStatement({
     effect: iam.Effect.ALLOW,
     actions: [
       'ssm:GetParameter',
       'ssm:GetParameters',
-      'ssm:GetParametersByPath'
+      'ssm:GetParametersByPath',
+      'logs:CreateLogGroup',
+      'logs:CreateLogStream',
+      'logs:PutLogEvents'
     ],
     resources: [
-      `arn:aws:ssm:${this.region}:${this.account}:parameter/forkalicious/*`
+      `arn:aws:ssm:${this.region}:${this.account}:parameter/forkalicious/*`,
+      `arn:aws:logs:${this.region}:${this.account}:*`
     ]
   }));
-
 
   // Create API Gateway logging role
   const apiGatewayLoggingRole = new iam.Role(this, 'ApiGatewayLoggingRole', {
@@ -183,7 +188,9 @@ export class CdkStack extends cdk.Stack {
   // Create API Gateway
   const api = new apigateway.RestApi(this, `${props.envName}BackendApi`, {
     restApiName: `${props.envName}BackendService`,
+    deploy: true,
     deployOptions: {
+      stageName: 'prod',
       loggingLevel: apigateway.MethodLoggingLevel.INFO,
       dataTraceEnabled: true,
       accessLogDestination: new apigateway.LogGroupLogDestination(new logs.LogGroup(this, 'ApiGatewayAccessLogs', {
