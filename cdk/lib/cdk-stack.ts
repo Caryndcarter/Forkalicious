@@ -165,16 +165,6 @@ export class CdkStack extends cdk.Stack {
     ]
   }));
 
-  // Add basic CloudWatch logging permissions for Lambda
-  backendFunction.addToRolePolicy(new iam.PolicyStatement({
-    effect: iam.Effect.ALLOW,
-    actions: [
-      'logs:CreateLogGroup',
-      'logs:CreateLogStream',
-      'logs:PutLogEvents'
-    ],
-    resources: ['*']
-  }));
 
   // Create API Gateway logging role
   const apiGatewayLoggingRole = new iam.Role(this, 'ApiGatewayLoggingRole', {
