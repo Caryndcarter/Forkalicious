@@ -193,15 +193,15 @@ backendFunction.addToRolePolicy(
               // Make sure the integration is properly set up
 const backendIntegration = new apigateway.LambdaIntegration(backendFunction, {
   proxy: true,
-  // Add logging
-  integrationResponses: [{
-    statusCode: '200',
-    responseParameters: {
-      'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
-      'method.response.header.Access-Control-Allow-Origin': "'*'",
-      'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET'"
-    }
-  }]
+  // // Add logging
+  // integrationResponses: [{
+  //   statusCode: '200',
+  //   responseParameters: {
+  //     'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+  //     'method.response.header.Access-Control-Allow-Origin': "'*'",
+  //     'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET'"
+  //   }
+  // }]
 });
 
     // 10. Create API Gateway
@@ -232,14 +232,14 @@ const backendIntegration = new apigateway.LambdaIntegration(backendFunction, {
 // Add a test endpoint to verify basic connectivity
 const testResource = api.root.addResource('test');
 testResource.addMethod('GET', backendIntegration, {
-  methodResponses: [{
-    statusCode: '200',
-    responseParameters: {
-      'method.response.header.Access-Control-Allow-Headers': true,
-      'method.response.header.Access-Control-Allow-Origin': true,
-      'method.response.header.Access-Control-Allow-Methods': true
-    }
-  }]
+  // methodResponses: [{
+  //   statusCode: '200',
+  //   responseParameters: {
+  //     'method.response.header.Access-Control-Allow-Headers': true,
+  //     'method.response.header.Access-Control-Allow-Origin': true,
+  //     'method.response.header.Access-Control-Allow-Methods': true
+  //   }
+  // }]
 });
 
 // Add proxy integration for all other routes
