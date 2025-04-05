@@ -130,7 +130,7 @@ export class CdkStack extends cdk.Stack {
     });
 
     const logGroup = new logs.LogGroup(this, 'BackendFunctionLogGroup', {
-      logGroupName: '/aws/lambda/DevCdkStack-BackendFunction63314140-Hfx7l7RpBVrr',
+      logGroupName: `/aws/lambda/${props.envName}-forkalicious-backend`,
       retention: logs.RetentionDays.ONE_WEEK, // or whatever retention period you want
       removalPolicy: cdk.RemovalPolicy.DESTROY // or RETAIN if you want to keep logs after stack deletion
     });
@@ -138,6 +138,7 @@ export class CdkStack extends cdk.Stack {
 
   // 9 .Create Lambda function for your backend
   const backendFunction = new lambda.Function(this, 'BackendFunction', {
+    functionName: `${props.envName}-forkalicious-backend`,
     runtime: lambda.Runtime.NODEJS_20_X,
     handler: 'lambda.handler',
     code: lambda.Code.fromAsset(path.resolve(__dirname, '../../server/dist')),
