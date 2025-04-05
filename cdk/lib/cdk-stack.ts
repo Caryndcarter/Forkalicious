@@ -193,26 +193,25 @@ backendFunction.addToRolePolicy(
               // Make sure the integration is properly set up
 const backendIntegration = new apigateway.LambdaIntegration(backendFunction, {
   proxy: true,
-  // // Add logging
-  // integrationResponses: [{
-  //   statusCode: '200',
-  //   responseParameters: {
-  //     'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
-  //     'method.response.header.Access-Control-Allow-Origin': "'*'",
-  //     'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET'"
-  //   }
-  // }]
+  integrationResponses: [{
+    statusCode: '200',
+    responseParameters: {
+      'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+      'method.response.header.Access-Control-Allow-Origin': "'*'",
+      'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET'"
+    }
+  }]
 });
 
     // 10. Create API Gateway
     const api = new apigateway.RestApi(this, `${props.envName}BackendApi`, {
       restApiName: `${props.envName}BackendService`,
-      // deployOptions: {
-      //   // loggingLevel: apigateway.MethodLoggingLevel.INFO,
-      //   // dataTraceEnabled: true,
-      //   accessLogDestination: new apigateway.LogGroupLogDestination(new cdk.aws_logs.LogGroup(this, 'ApiGatewayAccessLogs')),
-      //   accessLogFormat: apigateway.AccessLogFormat.clf(),
-      // },
+      deployOptions: {
+        loggingLevel: apigateway.MethodLoggingLevel.INFO,
+        dataTraceEnabled: true,
+        accessLogDestination: new apigateway.LogGroupLogDestination(new cdk.aws_logs.LogGroup(this, 'ApiGatewayAccessLogs')),
+        accessLogFormat: apigateway.AccessLogFormat.clf(),
+      },
       defaultCorsPreflightOptions: {
         allowOrigins: [`https://${domainName}`], // add other domains later if needed in the array like https://dev.forkalicious.isawesome.xyz
         allowMethods: ['GET', 'POST', 'PUT', 'DELETE'], 
