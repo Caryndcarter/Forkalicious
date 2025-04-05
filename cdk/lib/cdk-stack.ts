@@ -158,23 +158,23 @@ export class CdkStack extends cdk.Stack {
   }));
 
 
-  const apiGatewayLoggingRole = new iam.Role(this, 'ApiGatewayLoggingRole', {
-    assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
-    managedPolicies: [
-      iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonAPIGatewayPushToCloudWatchLogs')
-    ]
-  });
+  // const apiGatewayLoggingRole = new iam.Role(this, 'ApiGatewayLoggingRole', {
+  //   assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
+  //   managedPolicies: [
+  //     iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonAPIGatewayPushToCloudWatchLogs')
+  //   ]
+  // });
   
 
     // 10. Create API Gateway
     const api = new apigateway.RestApi(this, `${props.envName}BackendApi`, {
       restApiName: `${props.envName}BackendService`,
-      deployOptions: {
-        loggingLevel: apigateway.MethodLoggingLevel.INFO,
-        dataTraceEnabled: true,
-        accessLogDestination: new apigateway.LogGroupLogDestination(new cdk.aws_logs.LogGroup(this, 'ApiGatewayAccessLogs')),
-        accessLogFormat: apigateway.AccessLogFormat.clf(),
-      },
+      // deployOptions: {
+      //   // loggingLevel: apigateway.MethodLoggingLevel.INFO,
+      //   // dataTraceEnabled: true,
+      //   accessLogDestination: new apigateway.LogGroupLogDestination(new cdk.aws_logs.LogGroup(this, 'ApiGatewayAccessLogs')),
+      //   accessLogFormat: apigateway.AccessLogFormat.clf(),
+      // },
       defaultCorsPreflightOptions: {
         allowOrigins: [`https://${domainName}`], // add other domains later if needed in the array like https://dev.forkalicious.isawesome.xyz
         allowMethods: ['GET', 'POST', 'PUT', 'DELETE'], 
@@ -194,6 +194,12 @@ export class CdkStack extends cdk.Stack {
       description: 'API Gateway URL'
     });
     
+    // const apiGatewayAccount = new apigateway.CfnAccount(this, 'ApiGatewayAccount', {
+    //   cloudWatchRoleArn: apiGatewayLoggingRole.roleArn
+    // });
+
+    // const apiGatewayDeployment = api.node.findChild('Deployment') as apigateway.CfnDeployment;
+    // apiGatewayDeployment.addDependsOn(apiGatewayAccount);   
 
     // 11. Connect API Gateway to Lambda
     const backendIntegration = new apigateway.LambdaIntegration(backendFunction);
