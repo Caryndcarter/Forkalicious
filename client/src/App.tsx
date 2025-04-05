@@ -20,7 +20,7 @@ import { defaultRecipe } from "@/types";
 
 // Apollo Client setup
 const httpLink = createHttpLink({
-  uri: "/graphql",
+  uri: "https://333otwehe9.execute-api.us-east-1.amazonaws.com/prod/graphql",
 });
 
 // Construct request middleware that will attach the JWT token to every request as an `authorization` header
@@ -29,7 +29,7 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      authorization: token ? token : "",
+      authorization: token ? `Bearer ${token}` : "",
     },
   };
 });
@@ -38,6 +38,16 @@ const authLink = setContext((_, { headers }) => {
 const client = new ApolloClient({
   link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: 'network-only',
+      errorPolicy: 'ignore',
+    },
+    query: {
+      fetchPolicy: 'network-only',
+      errorPolicy: 'all',
+    },
+  },
 });
 
 export const currentRecipeContext = createContext({
