@@ -13,6 +13,7 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 import * as path from 'path';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as logs from 'aws-cdk-lib/aws-logs';
 
 
 
@@ -128,6 +129,12 @@ export class CdkStack extends cdk.Stack {
       logRetention: cdk.aws_logs.RetentionDays.ONE_DAY, // Add logging
     });
 
+    const logGroup = new logs.LogGroup(this, 'BackendFunctionLogGroup', {
+      logGroupName: '/aws/lambda/DevCdkStack-BackendFunction63314140-Hfx7l7RpBVrr',
+      retention: logs.RetentionDays.ONE_WEEK, // or whatever retention period you want
+      removalPolicy: cdk.RemovalPolicy.DESTROY // or RETAIN if you want to keep logs after stack deletion
+    });
+
   // 9 .Create Lambda function for your backend
   const backendFunction = new lambda.Function(this, 'BackendFunction', {
     runtime: lambda.Runtime.NODEJS_20_X,
@@ -141,6 +148,7 @@ export class CdkStack extends cdk.Stack {
       OPENAI_API_KEY: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/openai-api-key'),
       MONGODB_URI: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/mongodb-uri')
     },
+    logGroup: logGroup,
     timeout: cdk.Duration.seconds(30),
     memorySize: 256
   });
@@ -154,7 +162,7 @@ backendFunction.addToRolePolicy(
       'logs:CreateLogStream',
       'logs:PutLogEvents'
     ],
-    resources: ['*']
+    resources: [logGroup.logGroupArn + ':*'] 
   })
 );
 
