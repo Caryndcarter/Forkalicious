@@ -1,7 +1,3 @@
-"use client"
-
-import type React from "react"
-
 import { useState, useContext, useLayoutEffect, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import type { RecipeDetails } from "@/types"
@@ -386,9 +382,26 @@ const RecipeMaker = () => {
             min="0"
             value={recipe.readyInMinutes}
             onChange={(e) => {
-              handleChange("readyInMinutes", +e.target.value)
-              if (+e.target.value > 0) {
+              const value = e.target.value === "" ? 0 : +e.target.value
+              handleChange("readyInMinutes", value)
+              if (value > 0) {
                 setValidationErrors((prev) => ({ ...prev, readyInMinutes: false }))
+              }
+            }}
+            onKeyDown={(e) => {
+              // Allow: backspace, delete, tab, escape, enter, decimal point
+              if (
+                ["Backspace", "Delete", "Tab", "Escape", "Enter", "."].includes(e.key) ||
+                // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                (["a", "c", "v", "x"].includes(e.key.toLowerCase()) && (e.ctrlKey || e.metaKey)) ||
+                // Allow: home, end, left, right
+                ["Home", "End", "ArrowLeft", "ArrowRight"].includes(e.key)
+              ) {
+                return
+              }
+              // Ensure that it's a number or stop the keypress
+              if ((e.shiftKey || e.key < "0" || e.key > "9") && !["ArrowUp", "ArrowDown"].includes(e.key)) {
+                e.preventDefault()
               }
             }}
             className={getInputClasses("readyInMinutes") + (validationErrors.readyInMinutes ? " error-field" : "")}
@@ -405,9 +418,26 @@ const RecipeMaker = () => {
             min="0"
             value={recipe.servings}
             onChange={(e) => {
-              handleChange("servings", +e.target.value)
-              if (+e.target.value > 0) {
+              const value = e.target.value === "" ? 0 : +e.target.value
+              handleChange("servings", value)
+              if (value > 0) {
                 setValidationErrors((prev) => ({ ...prev, servings: false }))
+              }
+            }}
+            onKeyDown={(e) => {
+              // Allow: backspace, delete, tab, escape, enter, decimal point
+              if (
+                ["Backspace", "Delete", "Tab", "Escape", "Enter", "."].includes(e.key) ||
+                // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                (["a", "c", "v", "x"].includes(e.key.toLowerCase()) && (e.ctrlKey || e.metaKey)) ||
+                // Allow: home, end, left, right
+                ["Home", "End", "ArrowLeft", "ArrowRight"].includes(e.key)
+              ) {
+                return
+              }
+              // Ensure that it's a number or stop the keypress
+              if ((e.shiftKey || e.key < "0" || e.key > "9") && !["ArrowUp", "ArrowDown"].includes(e.key)) {
+                e.preventDefault()
               }
             }}
             className={getInputClasses("servings") + (validationErrors.servings ? " error-field" : "")}
