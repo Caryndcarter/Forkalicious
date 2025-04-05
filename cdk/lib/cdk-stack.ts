@@ -140,7 +140,6 @@ export class CdkStack extends cdk.Stack {
   const backendFunction = new lambda.Function(this, 'BackendFunction', {
     runtime: lambda.Runtime.NODEJS_20_X,
     handler: 'lambda.handler',
-    //code: lambda.Code.fromAsset('../server/dist'),
     code: lambda.Code.fromAsset(path.resolve(__dirname, '../../server/dist')),
     environment: {
       JWT_SECRET_KEY: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/jwt-secret'),
@@ -149,28 +148,13 @@ export class CdkStack extends cdk.Stack {
       OPENAI_API_KEY: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/openai-api-key'),
       MONGODB_URI: ssm.StringParameter.valueForStringParameter(this, '/forkalicious/mongodb-uri')
     },
-    logGroup: logGroup,
     timeout: cdk.Duration.seconds(30),
     memorySize: 256
   });
 
- 
-
-  // Add permissions after creating the function
-backendFunction.addToRolePolicy(
-  new iam.PolicyStatement({
+  // Add permissions for SSM and CloudWatch
+  backendFunction.addToRolePolicy(new iam.PolicyStatement({
     effect: iam.Effect.ALLOW,
-    actions: [
-      'logs:CreateLogGroup',
-      'logs:CreateLogStream',
-      'logs:PutLogEvents'
-    ],
-    resources: [logGroup.logGroupArn + ':*'] 
-  })
-);
-
-  backendFunction.addToRolePolicy(new PolicyStatement({
-    effect: Effect.ALLOW,
     actions: [
       'ssm:GetParameter',
       'ssm:GetParameters',
@@ -181,6 +165,16 @@ backendFunction.addToRolePolicy(
     ]
   }));
 
+  // Add basic CloudWatch logging permissions for Lambda
+  backendFunction.addToRolePolicy(new iam.PolicyStatement({
+    effect: iam.Effect.ALLOW,
+    actions: [
+      'logs:CreateLogGroup',
+      'logs:CreateLogStream',
+      'logs:PutLogEvents'
+    ],
+    resources: ['*']
+  }));
 
   // Create API Gateway logging role
   const apiGatewayLoggingRole = new iam.Role(this, 'ApiGatewayLoggingRole', {
@@ -195,13 +189,18 @@ backendFunction.addToRolePolicy(
     cloudWatchRoleArn: apiGatewayLoggingRole.roleArn
   });
 
+  // Create log group for API Gateway
+  const apiLogGroup = new logs.LogGroup(this, 'ApiGatewayAccessLogs', {
+    retention: logs.RetentionDays.ONE_WEEK
+  });
+
   // Create API Gateway
   const api = new apigateway.RestApi(this, `${props.envName}BackendApi`, {
     restApiName: `${props.envName}BackendService`,
     deployOptions: {
       loggingLevel: apigateway.MethodLoggingLevel.INFO,
       dataTraceEnabled: true,
-      accessLogDestination: new apigateway.LogGroupLogDestination(new logs.LogGroup(this, 'ApiGatewayAccessLogs')),
+      accessLogDestination: new apigateway.LogGroupLogDestination(apiLogGroup),
       accessLogFormat: apigateway.AccessLogFormat.clf(),
     },
     defaultCorsPreflightOptions: {
@@ -218,11 +217,7 @@ backendFunction.addToRolePolicy(
     }
   });
 
-  // Make sure the deployment waits for the account settings
-  const apiGatewayDeployment = api.node.findChild('Deployment') as apigateway.CfnDeployment;
-  apiGatewayDeployment.addDependsOn(apiGatewayAccount);
-
-  // Make sure the integration is properly set up
+  // Set up Lambda integration with proper response handling
   const backendIntegration = new apigateway.LambdaIntegration(backendFunction, {
     proxy: true,
     integrationResponses: [{
