@@ -182,70 +182,62 @@ backendFunction.addToRolePolicy(
   }));
 
 
-  // const apiGatewayLoggingRole = new iam.Role(this, 'ApiGatewayLoggingRole', {
-  //   assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
-  //   managedPolicies: [
-  //     iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonAPIGatewayPushToCloudWatchLogs')
-  //   ]
-  // });
-  
+  // Create API Gateway logging role
+  const apiGatewayLoggingRole = new iam.Role(this, 'ApiGatewayLoggingRole', {
+    assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
+    managedPolicies: [
+      iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonAPIGatewayPushToCloudWatchLogs')
+    ]
+  });
 
-              // Make sure the integration is properly set up
-const backendIntegration = new apigateway.LambdaIntegration(backendFunction, {
-  proxy: true,
-  integrationResponses: [{
-    statusCode: '200',
-    responseParameters: {
-      'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
-      'method.response.header.Access-Control-Allow-Origin': "'*'",
-      'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET'"
+  // Create API Gateway account settings
+  const apiGatewayAccount = new apigateway.CfnAccount(this, 'ApiGatewayAccount', {
+    cloudWatchRoleArn: apiGatewayLoggingRole.roleArn
+  });
+
+  // Create API Gateway
+  const api = new apigateway.RestApi(this, `${props.envName}BackendApi`, {
+    restApiName: `${props.envName}BackendService`,
+    deployOptions: {
+      loggingLevel: apigateway.MethodLoggingLevel.INFO,
+      dataTraceEnabled: true,
+      accessLogDestination: new apigateway.LogGroupLogDestination(new logs.LogGroup(this, 'ApiGatewayAccessLogs')),
+      accessLogFormat: apigateway.AccessLogFormat.clf(),
+    },
+    defaultCorsPreflightOptions: {
+      allowOrigins: [`https://${domainName}`],
+      allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
+      allowHeaders: [
+        'Content-Type',
+        'Authorization',
+        'Apollo-Require-Preflight',
+        'Accept',
+        'x-apollo-operation-name',
+        'x-apollo-operation-type'
+      ],
     }
-  }]
-});
+  });
 
-    // 10. Create API Gateway
-    const api = new apigateway.RestApi(this, `${props.envName}BackendApi`, {
-      restApiName: `${props.envName}BackendService`,
-      deployOptions: {
-        loggingLevel: apigateway.MethodLoggingLevel.INFO,
-        dataTraceEnabled: true,
-        accessLogDestination: new apigateway.LogGroupLogDestination(new cdk.aws_logs.LogGroup(this, 'ApiGatewayAccessLogs')),
-        accessLogFormat: apigateway.AccessLogFormat.clf(),
-      },
-      defaultCorsPreflightOptions: {
-        allowOrigins: [`https://${domainName}`], // add other domains later if needed in the array like https://dev.forkalicious.isawesome.xyz
-        allowMethods: ['GET', 'POST', 'PUT', 'DELETE'], 
-        allowHeaders: [
-          'Content-Type',
-          'Authorization',
-          'Apollo-Require-Preflight',
-          'Accept',
-          'x-apollo-operation-name',
-          'x-apollo-operation-type'
-        ],
+  // Make sure the deployment waits for the account settings
+  const apiGatewayDeployment = api.node.findChild('Deployment') as apigateway.CfnDeployment;
+  apiGatewayDeployment.addDependsOn(apiGatewayAccount);
+
+  // Make sure the integration is properly set up
+  const backendIntegration = new apigateway.LambdaIntegration(backendFunction, {
+    proxy: true,
+    integrationResponses: [{
+      statusCode: '200',
+      responseParameters: {
+        'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        'method.response.header.Access-Control-Allow-Origin': "'*'",
+        'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET'"
       }
-    });
-    
+    }]
+  });
 
-
-// Add a test endpoint to verify basic connectivity
-const testResource = api.root.addResource('test');
-testResource.addMethod('GET', backendIntegration, {
-  methodResponses: [{
-    statusCode: '200',
-    responseParameters: {
-      'method.response.header.Access-Control-Allow-Headers': true,
-      'method.response.header.Access-Control-Allow-Origin': true,
-      'method.response.header.Access-Control-Allow-Methods': true
-    }
-  }]
-});
-
-// Add proxy integration for all other routes
-const proxyResource = api.root.addProxy({
-  defaultIntegration: backendIntegration,
-  anyMethod: true,
-  defaultMethodOptions: {
+  // Add a test endpoint to verify basic connectivity
+  const testResource = api.root.addResource('test');
+  testResource.addMethod('GET', backendIntegration, {
     methodResponses: [{
       statusCode: '200',
       responseParameters: {
@@ -254,13 +246,28 @@ const proxyResource = api.root.addProxy({
         'method.response.header.Access-Control-Allow-Methods': true
       }
     }]
-  }
-});
+  });
 
-    new cdk.CfnOutput(this, 'ApiGatewayUrl', {
-      value: api.url,
-      description: 'API Gateway URL'
-    });
+  // Add proxy integration for all other routes
+  const proxyResource = api.root.addProxy({
+    defaultIntegration: backendIntegration,
+    anyMethod: true,
+    defaultMethodOptions: {
+      methodResponses: [{
+        statusCode: '200',
+        responseParameters: {
+          'method.response.header.Access-Control-Allow-Headers': true,
+          'method.response.header.Access-Control-Allow-Origin': true,
+          'method.response.header.Access-Control-Allow-Methods': true
+        }
+      }]
+    }
+  });
+
+  new cdk.CfnOutput(this, 'ApiGatewayUrl', {
+    value: api.url,
+    description: 'API Gateway URL'
+  });
     
     // const apiGatewayAccount = new apigateway.CfnAccount(this, 'ApiGatewayAccount', {
     //   cloudWatchRoleArn: apiGatewayLoggingRole.roleArn
@@ -292,5 +299,5 @@ const proxyResource = api.root.addProxy({
       // cfnDistribution.addPropertyOverride("DistributionConfig.Origins.0.OriginAccessControlId", oac.ref);
       // cfnDistribution.addPropertyOverride("DistributionConfig.Origins.0.S3OriginConfig.OriginAccessIdentity", "");
   
-  }
+}
 }
