@@ -145,6 +145,19 @@ export class CdkStack extends cdk.Stack {
     memorySize: 256
   });
 
+  // Add permissions after creating the function
+backendFunction.addToRolePolicy(
+  new iam.PolicyStatement({
+    effect: iam.Effect.ALLOW,
+    actions: [
+      'logs:CreateLogGroup',
+      'logs:CreateLogStream',
+      'logs:PutLogEvents'
+    ],
+    resources: ['*']
+  })
+);
+
   backendFunction.addToRolePolicy(new PolicyStatement({
     effect: Effect.ALLOW,
     actions: [

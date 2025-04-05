@@ -84,6 +84,7 @@ let serverInitialized = false;
 export const handler = async (event: APIGatewayProxyEvent, context: Context, callback: any) => {
   try {
     console.log('Lambda event:', JSON.stringify(event));
+    console.log('Lambda function starting - basic test log');
     
     if (!serverInitialized) {
       await initializeServer();
