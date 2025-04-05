@@ -1,58 +1,69 @@
-import { searchParamters } from "@/types";
-import {
-  DropDownMultiSelect,
-  DropDownSelection,
-  InputMultiSelect,
-} from "@/components/forms";
-import { cuisineOptions, dietOptions, intoleranceOptions } from "@/types";
+import type { searchParamters } from "@/types"
+import { DropDownMultiSelect, DropDownSelection, InputMultiSelect } from "@/components/forms"
+import { cuisineOptions, dietOptions, intoleranceOptions } from "@/types"
+import { useEffect, useRef } from "react"
 
 interface filterFormProps {
-  filterValue: searchParamters;
-  setFilterValue: any;
-  setFilterVisible: any;
+  filterValue: searchParamters
+  setFilterValue: any
+  setFilterVisible: any
 }
 
-export default function FilterForm({
-  filterValue,
-  setFilterValue,
-  setFilterVisible,
-}: filterFormProps) {
-  const submitFilterUpdate = (event: any) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const updatedFilter: any = Object.fromEntries(formData.entries());
+export default function FilterForm({ filterValue, setFilterValue, setFilterVisible }: filterFormProps) {
+  const formRef = useRef<HTMLDivElement>(null)
 
-    updatedFilter.intolerances = [];
-    updatedFilter.includeIngredients = [];
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (formRef.current && !formRef.current.contains(event.target as Node)) {
+        setFilterVisible(false)
+      }
+    }
+
+    // Add event listener when component mounts
+    document.addEventListener("mousedown", handleClickOutside)
+
+    // Clean up event listener when component unmounts
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [setFilterVisible])
+
+  const submitFilterUpdate = (event: any) => {
+    event.preventDefault()
+    const formData = new FormData(event.target)
+    const updatedFilter: any = Object.fromEntries(formData.entries())
+
+    updatedFilter.intolerances = []
+    updatedFilter.includeIngredients = []
 
     for (const [key, value] of formData) {
-      const stringValue = value as string;
+      const stringValue = value as string
 
       if (key.includes("intolerance")) {
-        stringValue ? updatedFilter.intolerances.push(stringValue) : null;
-        delete updatedFilter[key];
+        stringValue ? updatedFilter.intolerances.push(stringValue) : null
+        delete updatedFilter[key]
       }
 
       if (key.includes("required ingredient")) {
-        stringValue ? updatedFilter.includeIngredients.push(stringValue) : null;
-        delete updatedFilter[key];
+        stringValue ? updatedFilter.includeIngredients.push(stringValue) : null
+        delete updatedFilter[key]
       }
     }
-    console.log(updatedFilter);
+    console.log(updatedFilter)
 
     if (JSON.stringify(updatedFilter) !== JSON.stringify(filterValue)) {
       setFilterValue((prevFilters: searchParamters) => ({
         ...prevFilters,
         ...(updatedFilter as searchParamters),
-      }));
+      }))
     }
-    setFilterVisible(false);
-  };
+    setFilterVisible(false)
+  }
 
   return (
     <>
       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
-        <div className="bg-white p-4 rounded-lg shadow-lg relative">
+        <div ref={formRef} className="bg-white p-4 rounded-lg shadow-lg relative">
           <button
             id="close-filter"
             className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
@@ -60,15 +71,10 @@ export default function FilterForm({
           >
             ×
           </button>
-          <form
-            id="filter-form"
-            onSubmit={submitFilterUpdate}
-            className="space-y-6"
-          >
+          <form id="filter-form" onSubmit={submitFilterUpdate} className="space-y-6">
             <section className="Filters-info">
               <p className="text-sm text-gray-500">
-                Filters are set from your Account Preferences, but you can
-                change them here to experiment.
+                Filters are set from your Account Preferences, but you can change them here to experiment.
               </p>
             </section>
 
@@ -88,9 +94,7 @@ export default function FilterForm({
 
             <DropDownSelection
               name="Cuisine"
-              placeholder={
-                filterValue.cuisine ? filterValue.cuisine : "Select a Cuisine"
-              }
+              placeholder={filterValue.cuisine ? filterValue.cuisine : "Select a Cuisine"}
               options={cuisineOptions}
             ></DropDownSelection>
 
@@ -113,5 +117,5 @@ export default function FilterForm({
         </div>
       </div>
     </>
-  );
+  )
 }
