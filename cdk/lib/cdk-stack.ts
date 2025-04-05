@@ -223,7 +223,15 @@ export class CdkStack extends cdk.Stack {
       statusCode: '200',
       responseParameters: {
         'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,Apollo-Require-Preflight,x-apollo-operation-name,x-apollo-operation-type'",
-        'method.response.header.Access-Control-Allow-Origin': "'*'", // Temporarily allow all origins for testing
+        'method.response.header.Access-Control-Allow-Origin': "'*'",
+        'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET,PUT,DELETE'"
+      }
+    }, {
+      selectionPattern: '.*',
+      statusCode: '500',
+      responseParameters: {
+        'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,Apollo-Require-Preflight,x-apollo-operation-name,x-apollo-operation-type'",
+        'method.response.header.Access-Control-Allow-Origin': "'*'",
         'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET,PUT,DELETE'"
       }
     }]
@@ -234,6 +242,13 @@ export class CdkStack extends cdk.Stack {
   testResource.addMethod('GET', backendIntegration, {
     methodResponses: [{
       statusCode: '200',
+      responseParameters: {
+        'method.response.header.Access-Control-Allow-Headers': true,
+        'method.response.header.Access-Control-Allow-Origin': true,
+        'method.response.header.Access-Control-Allow-Methods': true
+      }
+    }, {
+      statusCode: '500',
       responseParameters: {
         'method.response.header.Access-Control-Allow-Headers': true,
         'method.response.header.Access-Control-Allow-Origin': true,
@@ -252,6 +267,13 @@ export class CdkStack extends cdk.Stack {
         'method.response.header.Access-Control-Allow-Origin': true,
         'method.response.header.Access-Control-Allow-Methods': true
       }
+    }, {
+      statusCode: '500',
+      responseParameters: {
+        'method.response.header.Access-Control-Allow-Headers': true,
+        'method.response.header.Access-Control-Allow-Origin': true,
+        'method.response.header.Access-Control-Allow-Methods': true
+      }
     }]
   });
 
@@ -262,6 +284,13 @@ export class CdkStack extends cdk.Stack {
     defaultMethodOptions: {
       methodResponses: [{
         statusCode: '200',
+        responseParameters: {
+          'method.response.header.Access-Control-Allow-Headers': true,
+          'method.response.header.Access-Control-Allow-Origin': true,
+          'method.response.header.Access-Control-Allow-Methods': true
+        }
+      }, {
+        statusCode: '500',
         responseParameters: {
           'method.response.header.Access-Control-Allow-Headers': true,
           'method.response.header.Access-Control-Allow-Origin': true,
