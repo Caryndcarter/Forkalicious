@@ -237,6 +237,19 @@ export class CdkStack extends cdk.Stack {
     }]
   });
 
+  // Add GraphQL endpoint
+  const graphqlResource = api.root.addResource('graphql');
+  graphqlResource.addMethod('POST', backendIntegration, {
+    methodResponses: [{
+      statusCode: '200',
+      responseParameters: {
+        'method.response.header.Access-Control-Allow-Headers': true,
+        'method.response.header.Access-Control-Allow-Origin': true,
+        'method.response.header.Access-Control-Allow-Methods': true
+      }
+    }]
+  });
+
   // Add proxy integration for all other routes
   api.root.addProxy({
     defaultIntegration: backendIntegration,
@@ -251,19 +264,6 @@ export class CdkStack extends cdk.Stack {
         }
       }]
     }
-  });
-
-  // Add GraphQL endpoint
-  const graphqlResource = api.root.addResource('graphql');
-  graphqlResource.addMethod('POST', backendIntegration, {
-    methodResponses: [{
-      statusCode: '200',
-      responseParameters: {
-        'method.response.header.Access-Control-Allow-Headers': true,
-        'method.response.header.Access-Control-Allow-Origin': true,
-        'method.response.header.Access-Control-Allow-Methods': true
-      }
-    }]
   });
 
   new cdk.CfnOutput(this, 'ApiGatewayUrl', {
