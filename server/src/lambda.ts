@@ -115,11 +115,14 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context, cal
 
     const handler = serverlessExpress({ app });
     return await handler(event, context, callback);  
-  } catch (error) {
+  } catch (error: any) {
     console.error('Handler error:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal Server Error', details: error.message })
+      body: JSON.stringify({ 
+        error: 'Internal Server Error', 
+        details: error?.message || 'Unknown error occurred'
+      })
     };
   }
 };
