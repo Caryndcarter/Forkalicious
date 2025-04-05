@@ -179,18 +179,13 @@ export class CdkStack extends cdk.Stack {
     cloudWatchRoleArn: apiGatewayLoggingRole.roleArn
   });
 
-  // Create log group for API Gateway
-  const apiLogGroup = new logs.LogGroup(this, 'ApiGatewayAccessLogs', {
-    retention: logs.RetentionDays.ONE_WEEK
-  });
-
   // Create API Gateway
   const api = new apigateway.RestApi(this, `${props.envName}BackendApi`, {
     restApiName: `${props.envName}BackendService`,
     deployOptions: {
       loggingLevel: apigateway.MethodLoggingLevel.INFO,
       dataTraceEnabled: true,
-      accessLogDestination: new apigateway.LogGroupLogDestination(apiLogGroup),
+      accessLogDestination: new apigateway.LogGroupLogDestination(new logs.LogGroup(this, 'ApiGatewayAccessLogs')),
       accessLogFormat: apigateway.AccessLogFormat.clf(),
     },
     defaultCorsPreflightOptions: {
@@ -207,7 +202,11 @@ export class CdkStack extends cdk.Stack {
     }
   });
 
-  // Set up Lambda integration with proper response handling
+  // Make sure the deployment waits for the account settings
+  const apiGatewayDeployment = api.node.findChild('Deployment') as apigateway.CfnDeployment;
+  apiGatewayDeployment.addDependsOn(apiGatewayAccount);
+
+  // Make sure the integration is properly set up
   const backendIntegration = new apigateway.LambdaIntegration(backendFunction, {
     proxy: true,
     integrationResponses: [{
