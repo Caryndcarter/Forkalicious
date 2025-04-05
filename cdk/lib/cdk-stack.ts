@@ -202,9 +202,8 @@ export class CdkStack extends cdk.Stack {
     }
   });
 
-  // Make sure the deployment waits for the account settings
-  const apiGatewayDeployment = api.node.findChild('Deployment') as apigateway.CfnDeployment;
-  apiGatewayDeployment.addDependsOn(apiGatewayAccount);
+  // Add dependency to ensure account settings are created first
+  api.node.addDependency(apiGatewayAccount);
 
   // Make sure the integration is properly set up
   const backendIntegration = new apigateway.LambdaIntegration(backendFunction, {
