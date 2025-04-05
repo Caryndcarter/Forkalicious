@@ -27,7 +27,7 @@ app.use((err: any, _req: any, res: any, _next: any) => {
 });
 
 // Add a test endpoint
-app.get('/test', (req, res) => {
+app.get('/test', (_req, res) => {
   res.json({ message: 'Test endpoint working' });
 });
 
