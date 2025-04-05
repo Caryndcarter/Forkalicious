@@ -12,6 +12,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 import * as path from 'path';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 
 
@@ -155,6 +156,14 @@ export class CdkStack extends cdk.Stack {
       `arn:aws:ssm:${this.region}:${this.account}:parameter/forkalicious/*`
     ]
   }));
+
+
+  const apiGatewayLoggingRole = new iam.Role(this, 'ApiGatewayLoggingRole', {
+    assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
+    managedPolicies: [
+      iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonAPIGatewayPushToCloudWatchLogs')
+    ]
+  });
   
 
     // 10. Create API Gateway
@@ -163,6 +172,8 @@ export class CdkStack extends cdk.Stack {
       deployOptions: {
         loggingLevel: apigateway.MethodLoggingLevel.INFO,
         dataTraceEnabled: true,
+        accessLogDestination: new apigateway.LogGroupLogDestination(new cdk.aws_logs.LogGroup(this, 'ApiGatewayAccessLogs')),
+        accessLogFormat: apigateway.AccessLogFormat.clf(),
       },
       defaultCorsPreflightOptions: {
         allowOrigins: [`https://${domainName}`], // add other domains later if needed in the array like https://dev.forkalicious.isawesome.xyz
