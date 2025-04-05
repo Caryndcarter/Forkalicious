@@ -189,16 +189,22 @@ export class CdkStack extends cdk.Stack {
       accessLogFormat: apigateway.AccessLogFormat.clf(),
     },
     defaultCorsPreflightOptions: {
-      allowOrigins: [`https://${domainName}`],
-      allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
+      allowOrigins: apigateway.Cors.ALL_ORIGINS,
+      allowMethods: apigateway.Cors.ALL_METHODS,
       allowHeaders: [
         'Content-Type',
+        'X-Amz-Date',
         'Authorization',
+        'X-Api-Key',
+        'X-Amz-Security-Token',
+        'X-Amz-User-Agent',
         'Apollo-Require-Preflight',
-        'Accept',
         'x-apollo-operation-name',
-        'x-apollo-operation-type'
+        'x-apollo-operation-type',
+        'Access-Control-Allow-Origin',
+        'Access-Control-Allow-Headers'
       ],
+      allowCredentials: true
     }
   });
 
@@ -211,9 +217,9 @@ export class CdkStack extends cdk.Stack {
     integrationResponses: [{
       statusCode: '200',
       responseParameters: {
-        'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
-        'method.response.header.Access-Control-Allow-Origin': "'*'",
-        'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET'"
+        'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,Apollo-Require-Preflight,x-apollo-operation-name,x-apollo-operation-type'",
+        'method.response.header.Access-Control-Allow-Origin': "'*'", // Temporarily allow all origins for testing
+        'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET,PUT,DELETE'"
       }
     }]
   });
@@ -232,7 +238,7 @@ export class CdkStack extends cdk.Stack {
   });
 
   // Add proxy integration for all other routes
-  const proxyResource = api.root.addProxy({
+  api.root.addProxy({
     defaultIntegration: backendIntegration,
     anyMethod: true,
     defaultMethodOptions: {
@@ -245,6 +251,42 @@ export class CdkStack extends cdk.Stack {
         }
       }]
     }
+  });
+
+  // Add GraphQL endpoint
+  const graphqlResource = api.root.addResource('graphql');
+  graphqlResource.addMethod('POST', backendIntegration, {
+    methodResponses: [{
+      statusCode: '200',
+      responseParameters: {
+        'method.response.header.Access-Control-Allow-Headers': true,
+        'method.response.header.Access-Control-Allow-Origin': true,
+        'method.response.header.Access-Control-Allow-Methods': true
+      }
+    }]
+  });
+  graphqlResource.addMethod('OPTIONS', new apigateway.MockIntegration({
+    integrationResponses: [{
+      statusCode: '200',
+      responseParameters: {
+        'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,Apollo-Require-Preflight,x-apollo-operation-name,x-apollo-operation-type'",
+        'method.response.header.Access-Control-Allow-Origin': "'*'",
+        'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET,PUT,DELETE'"
+      }
+    }],
+    passthroughBehavior: apigateway.PassthroughBehavior.NEVER,
+    requestTemplates: {
+      "application/json": "{\"statusCode\": 200}"
+    }
+  }), {
+    methodResponses: [{
+      statusCode: '200',
+      responseParameters: {
+        'method.response.header.Access-Control-Allow-Headers': true,
+        'method.response.header.Access-Control-Allow-Origin': true,
+        'method.response.header.Access-Control-Allow-Methods': true
+      }
+    }]
   });
 
   new cdk.CfnOutput(this, 'ApiGatewayUrl', {

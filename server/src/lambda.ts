@@ -34,15 +34,23 @@ app.get('/test', (_req, res) => {
 // Lambda-specific CORS headers
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Headers', 
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization, Apollo-Require-Preflight, x-apollo-operation-name, x-apollo-operation-type');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  
+  // Handle preflight requests
   if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Max-Age', '86400'); // 24 hours
     return res.status(200).end();
   }
   next();
-  return;
 });
 
+// Add request logging
+app.use((req, _res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
 
 // Apollo Server for GraphQL
 const server = new ApolloServer({
@@ -101,5 +109,3 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context, cal
     };
   }
 };
-
-
