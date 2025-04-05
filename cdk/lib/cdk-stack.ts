@@ -210,6 +210,27 @@ backendFunction.addToRolePolicy(
       }
     });
 
+
+
+// Add a test endpoint to verify basic connectivity
+const testResource = api.root.addResource('test');
+testResource.addMethod('GET', backendIntegration, {
+  methodResponses: [{
+    statusCode: '200',
+    responseParameters: {
+      'method.response.header.Access-Control-Allow-Headers': true,
+      'method.response.header.Access-Control-Allow-Origin': true,
+      'method.response.header.Access-Control-Allow-Methods': true
+    }
+  }]
+});
+
+// Add proxy integration for all other routes
+api.root.addProxy({
+  defaultIntegration: backendIntegration,
+  anyMethod: true
+});
+
     new cdk.CfnOutput(this, 'ApiGatewayUrl', {
       value: api.url,
       description: 'API Gateway URL'
@@ -223,12 +244,25 @@ backendFunction.addToRolePolicy(
     // apiGatewayDeployment.addDependsOn(apiGatewayAccount);   
 
     // 11. Connect API Gateway to Lambda
-    const backendIntegration = new apigateway.LambdaIntegration(backendFunction);
-    api.root.addProxy({
-      defaultIntegration: backendIntegration,
-      anyMethod: true 
-    });
+    // const backendIntegration = new apigateway.LambdaIntegration(backendFunction);
+    // api.root.addProxy({
+    //   defaultIntegration: backendIntegration,
+    //   anyMethod: true 
+    // });
 
+        // Make sure the integration is properly set up
+const backendIntegration = new apigateway.LambdaIntegration(backendFunction, {
+  proxy: true,
+  // Add logging
+  integrationResponses: [{
+    statusCode: '200',
+    responseParameters: {
+      'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+      'method.response.header.Access-Control-Allow-Origin': "'*'",
+      'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET'"
+    }
+  }]
+});
     
  
     /*
