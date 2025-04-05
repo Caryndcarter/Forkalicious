@@ -70,19 +70,28 @@ const initializeServer = async () => {
     await server.start();
     console.log('Apollo Server started');
 
-  app.use(
-    "/graphql",
-    expressMiddleware(server, {
-      context: graphQLAuthMiddleware,
-    })
-  );
+    // Mount GraphQL middleware
+    app.use(
+      "/graphql",
+      expressMiddleware(server, {
+        context: graphQLAuthMiddleware,
+      })
+    );
 
-  // Use your custom routes
-  app.use(routes);
+    // Use your custom routes
+    app.use(routes);
+    console.log('Routes mounted:', Object.keys(routes).join(', '));
 
-  // MongoDB Connection Error Handling
-  db.on("error", console.error.bind(console, "MongoDB connection error:"));
- } catch (error) {
+    // Log all registered routes
+    app._router.stack.forEach((r: any) => {
+      if (r.route && r.route.path) {
+        console.log('Registered route:', r.route.path);
+      }
+    });
+
+    // MongoDB Connection Error Handling
+    db.on("error", console.error.bind(console, "MongoDB connection error:"));
+  } catch (error) {
     console.error('Server initialization error:', error);
     throw error;
   }
@@ -92,12 +101,16 @@ let serverInitialized = false;
 
 export const handler = async (event: APIGatewayProxyEvent, context: Context, callback: any) => {
   try {
-    console.log('Lambda event:', JSON.stringify(event));
-    console.log('Lambda function starting - basic test log');
+    console.log('Lambda event:', JSON.stringify(event, null, 2));
+    console.log('Event path:', event.path);
+    console.log('Event httpMethod:', event.httpMethod);
+    console.log('Event headers:', JSON.stringify(event.headers, null, 2));
     
     if (!serverInitialized) {
+      console.log('Initializing server...');
       await initializeServer();
       serverInitialized = true;
+      console.log('Server initialized successfully');
     }
 
     const handler = serverlessExpress({ app });
@@ -106,7 +119,7 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context, cal
     console.error('Handler error:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal Server Error' })
+      body: JSON.stringify({ error: 'Internal Server Error', details: error.message })
     };
   }
 };
