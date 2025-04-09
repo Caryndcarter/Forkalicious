@@ -66,6 +66,10 @@ class AuthService {
 
     window.location.reload();
   }
+
+  deleteAccount() {
+    localStorageService.cleanLocalStorage();
+  }
 }
 
 export default new AuthService();

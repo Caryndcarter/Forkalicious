@@ -9,6 +9,7 @@ import { GET_SAVED_RECIPES } from "@/utils_graphQL/queries";
 import Auth from "@/utils_graphQL/auth";
 
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner"; // Import the new Spinner component
 import { LogIn, Search, BookOpen } from "lucide-react";
 
 export default function RecipeBook() {
@@ -119,13 +120,7 @@ export default function RecipeBook() {
           {isLoggedIn ? "My Recipe Book" : "Sample Recipe Book"}
         </h1>
 
-        {loading ? (
-          <div className="flex justify-center items-center min-h-[200px]">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#a84e24]" />
-          </div>
-        ) : (
-          renderContent()
-        )}
+        {loading ? <Spinner color="#a84e24" /> : renderContent()}
       </div>
     </div>
   );

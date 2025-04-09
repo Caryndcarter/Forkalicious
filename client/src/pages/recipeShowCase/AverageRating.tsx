@@ -41,14 +41,32 @@ const AverageRating = ({
     }
   }, [data]);
 
+  // Function to scroll to reviews section
+  const scrollToReviews = () => {
+    const reviewsSection = document.getElementById('reviews-section');
+    if (reviewsSection) {
+      reviewsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="flex items-center space-x-2 text-[#a84e24] mb-4">
-      {averageRating && (
+    <div 
+      className="flex items-center space-x-2 text-[#a84e24] mb-4 cursor-pointer hover:opacity-80 transition-opacity"
+      onClick={scrollToReviews}
+      title="Click to see reviews"
+    >
+      {averageRating ? (
         <>
           <p className="text-lg font-semibold">
             Average Rating: {averageRating}
           </p>
           <Star className="w-6 h-6 fill-yellow-400" />
+          <span className="text-sm italic">(Click to see reviews)</span>
+        </>
+      ) : (
+        <>
+          <p className="text-lg font-semibold">No ratings yet</p>
+          <span className="text-sm italic">(Click to add a review)</span>
         </>
       )}
     </div>

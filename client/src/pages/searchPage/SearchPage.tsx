@@ -12,8 +12,8 @@ import Results from "./Results";
 import localStorageService from "@/utils_graphQL/localStorageService";
 import { ActiveFilters } from "./ActiveFilters";
 import {
-  searchParamters,
-  DietaryNeeds,
+  type searchParamters,
+  type DietaryNeeds,
   defaultSearchParameters,
 } from "@/types";
 import { useLazyQuery } from "@apollo/client";
@@ -81,6 +81,7 @@ export default function AccountPage() {
   }, [data]);
 
   const handleSearch = async (queryText: string) => {
+    localStorageService.setQuery(queryText);
     setLoading(true);
 
     if (!queryText) {
@@ -164,8 +165,11 @@ export default function AccountPage() {
           </button>
         </div>
 
-        {/* Active Filters Display */}
-        <ActiveFilters filterValue={filterValue} />
+        {/* Active Filters Display - Now passing setFilterVisible */}
+        <ActiveFilters
+          filterValue={filterValue}
+          setFilterVisible={setFilterVisible}
+        />
 
         {/* Search Results */}
         <Results results={results} loading={loading} />
