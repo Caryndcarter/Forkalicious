@@ -77,8 +77,6 @@ jobs:
       - name: Build Server
         run: |
           npm run render-build:lambda
-          npm --prefix ./server install
-          npm --previx ./server run build:lambda
           mv server/node_modules server/dist/node_modules
 
       - name: Debug Directory Structure
