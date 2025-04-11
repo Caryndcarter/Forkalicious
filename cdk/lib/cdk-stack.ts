@@ -43,6 +43,7 @@ export class CdkStack extends cdk.Stack {
     const domainName = props.envName === 'dev' 
       ? 'dev.forkalicious.isawesome.xyz'
       : 'forkalicious.isawesome.xyz';
+  
     
     // The code that defines your stack goes here
     // 1. S3 Bucket
@@ -201,7 +202,10 @@ export class CdkStack extends cdk.Stack {
       accessLogFormat: apigateway.AccessLogFormat.clf(),
     },
     defaultCorsPreflightOptions: {
-      allowOrigins: apigateway.Cors.ALL_ORIGINS,
+      allowOrigins: [
+        'https://dev.forkalicious.isawesome.xyz',
+        'https://forkalicious.isawesome.xyz'
+      ],
       allowMethods: apigateway.Cors.ALL_METHODS,
       allowHeaders: [
         'Content-Type',
@@ -226,22 +230,22 @@ export class CdkStack extends cdk.Stack {
   // Make sure the integration is properly set up
   const backendIntegration = new apigateway.LambdaIntegration(backendFunction, {
     proxy: true,
-    integrationResponses: [{
-      statusCode: '200',
-      responseParameters: {
-        'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,Apollo-Require-Preflight,x-apollo-operation-name,x-apollo-operation-type'",
-        'method.response.header.Access-Control-Allow-Origin': "'*'",
-        'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET,PUT,DELETE'"
-      }
-    }, {
-      selectionPattern: '.*',
-      statusCode: '500',
-      responseParameters: {
-        'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,Apollo-Require-Preflight,x-apollo-operation-name,x-apollo-operation-type'",
-        'method.response.header.Access-Control-Allow-Origin': "'*'",
-        'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET,PUT,DELETE'"
-      }
-    }]
+    // integrationResponses: [{
+    //   statusCode: '200',
+    //   responseParameters: {
+    //     'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,Apollo-Require-Preflight,x-apollo-operation-name,x-apollo-operation-type'",
+    //     'method.response.header.Access-Control-Allow-Origin': "'*'",
+    //     'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET,PUT,DELETE'"
+    //   }
+    // }, {
+    //   selectionPattern: '.*',
+    //   statusCode: '500',
+    //   responseParameters: {
+    //     'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,Apollo-Require-Preflight,x-apollo-operation-name,x-apollo-operation-type'",
+    //     'method.response.header.Access-Control-Allow-Origin': "'*'",
+    //     'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET,PUT,DELETE'"
+    //   }
+    // }]
   });
 
   // Add a test endpoint to verify basic connectivity
@@ -266,45 +270,47 @@ export class CdkStack extends cdk.Stack {
 
   // Add GraphQL endpoint
   const graphqlResource = api.root.addResource('graphql');
-  graphqlResource.addMethod('POST', backendIntegration, {
-    methodResponses: [{
-      statusCode: '200',
-      responseParameters: {
-        'method.response.header.Access-Control-Allow-Headers': true,
-        'method.response.header.Access-Control-Allow-Origin': true,
-        'method.response.header.Access-Control-Allow-Methods': true
-      }
-    }, {
-      statusCode: '500',
-      responseParameters: {
-        'method.response.header.Access-Control-Allow-Headers': true,
-        'method.response.header.Access-Control-Allow-Origin': true,
-        'method.response.header.Access-Control-Allow-Methods': true
-      }
-    }]
-  });
+   graphqlResource.addMethod('POST', backendIntegration
+  // , {
+  //   methodResponses: [{
+  //     statusCode: '200',
+  //     responseParameters: {
+  //       'method.response.header.Access-Control-Allow-Headers': true,
+  //       'method.response.header.Access-Control-Allow-Origin': true,
+  //       'method.response.header.Access-Control-Allow-Methods': true
+  //     }
+  //   }, {
+  //     statusCode: '500',
+  //     responseParameters: {
+  //       'method.response.header.Access-Control-Allow-Headers': true,
+  //       'method.response.header.Access-Control-Allow-Origin': true,
+  //       'method.response.header.Access-Control-Allow-Methods': true
+  //     }
+  //   }]
+  // }
+  );
 
   // Add proxy integration for all other routes
   api.root.addProxy({
     defaultIntegration: backendIntegration,
     anyMethod: true,
-    defaultMethodOptions: {
-      methodResponses: [{
-        statusCode: '200',
-        responseParameters: {
-          'method.response.header.Access-Control-Allow-Headers': true,
-          'method.response.header.Access-Control-Allow-Origin': true,
-          'method.response.header.Access-Control-Allow-Methods': true
-        }
-      }, {
-        statusCode: '500',
-        responseParameters: {
-          'method.response.header.Access-Control-Allow-Headers': true,
-          'method.response.header.Access-Control-Allow-Origin': true,
-          'method.response.header.Access-Control-Allow-Methods': true
-        }
-      }]
-    }
+    // defaultMethodOptions: {
+    //   methodResponses: [{
+    //     statusCode: '200',
+    //     responseParameters: {
+    //       'method.response.header.Access-Control-Allow-Headers': true,
+    //       'method.response.header.Access-Control-Allow-Origin': true,
+    //       'method.response.header.Access-Control-Allow-Methods': true
+    //     }
+    //   }, {
+    //     statusCode: '500',
+    //     responseParameters: {
+    //       'method.response.header.Access-Control-Allow-Headers': true,
+    //       'method.response.header.Access-Control-Allow-Origin': true,
+    //       'method.response.header.Access-Control-Allow-Methods': true
+    //     }
+    //   }]
+    // }
   });
 
   new cdk.CfnOutput(this, 'ApiGatewayUrl', {
