@@ -250,7 +250,7 @@ export class CdkStack extends cdk.Stack {
     //     'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET,PUT,DELETE'"
     //   }
     // }]
-  });
+  // });
 
   // // Add a test endpoint to verify basic connectivity
   // const testResource = api.root.addResource('test');
