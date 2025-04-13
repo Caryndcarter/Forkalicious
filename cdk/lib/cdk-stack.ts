@@ -191,7 +191,6 @@ export class CdkStack extends cdk.Stack {
     restApiName: `${props.envName}BackendService`,
     deploy: true,
     deployOptions: {
-      stageName: 'prod',
       loggingLevel: apigateway.MethodLoggingLevel.INFO,
       dataTraceEnabled: true,
       accessLogDestination: new apigateway.LogGroupLogDestination(new logs.LogGroup(this, 'ApiGatewayAccessLogs', {
