@@ -193,13 +193,7 @@ export class CdkStack extends cdk.Stack {
     deployOptions: {
       stageName: 'prod',
       loggingLevel: apigateway.MethodLoggingLevel.INFO,
-      dataTraceEnabled: true,
-      accessLogDestination: new apigateway.LogGroupLogDestination(new logs.LogGroup(this, `${props.envName}ApiGatewayAccessLogs`, {
-        logGroupName: `/aws/apigateway/${props.envName}-forkalicious-access-logs`,
-        retention: logs.RetentionDays.ONE_WEEK,
-        removalPolicy: cdk.RemovalPolicy.DESTROY
-      })),
-      accessLogFormat: apigateway.AccessLogFormat.clf(),
+      dataTraceEnabled: true
     },
     defaultCorsPreflightOptions: {
       allowOrigins: apigateway.Cors.ALL_ORIGINS,
