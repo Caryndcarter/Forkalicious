@@ -58,7 +58,13 @@ export class CdkStack extends cdk.Stack {
       websiteIndexDocument: "index.html",
     });
 
-        // 2. Create the hosted zone
+    // Export the bucket name for use in GitHub Actions
+    new cdk.CfnOutput(this, 'BucketName', {
+      value: destinationBucket.bucketName,
+      description: 'Name of the S3 bucket for client files'
+    });
+
+    // 2. Create the hosted zone
     let hostedZone; 
     if (props.envName === "prod") {  
       hostedZone = new HostedZone(this, `HostedZone`, {
@@ -191,7 +197,7 @@ export class CdkStack extends cdk.Stack {
     restApiName: `${props.envName}BackendService`,
     deploy: true,
     deployOptions: {
-      stageName: 'prod',
+      stageName: 'prod',  // This is required by API Gateway
       loggingLevel: apigateway.MethodLoggingLevel.INFO,
       dataTraceEnabled: true
     },

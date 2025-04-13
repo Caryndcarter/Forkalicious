@@ -8,18 +8,8 @@ class spoonacularService {
   private apiKey?: string;
 
   constructor() {
-    if (!process.env.API_BASE_URL || !process.env.SPOONACULAR_API_KEY) {
-      console.error('Missing required environment variables:', {
-        API_BASE_URL: !!process.env.API_BASE_URL,
-        SPOONACULAR_API_KEY: !!process.env.SPOONACULAR_API_KEY
-      });
-    }
-    this.baseURL = process.env.API_BASE_URL;
-    this.apiKey = process.env.SPOONACULAR_API_KEY;
-    console.log('SpoonacularService initialized with:', {
-      baseURL: this.baseURL,
-      hasApiKey: !!this.apiKey
-    });
+    this.baseURL = process.env.API_BASE_URL || "";
+    this.apiKey = process.env.SPOONACULAR_API_KEY || "";
   }
 
   async findRecipes(input: searchInput) {
@@ -49,30 +39,16 @@ class spoonacularService {
 
   async findRandomRecipes() {
     try {
-      console.log('Starting findRandomRecipes with baseURL:', this.baseURL);
-      
-      // First API call for 10 recipes
+      // First API call for 10 recipes (spoonacular service only allows a max of 10 recipes in one call)
       const firstBatchURL = `${this.baseURL}/recipes/random?number=10&apiKey=${this.apiKey}`;
-      console.log('Making first request to:', firstBatchURL.replace(this.apiKey || '', '[REDACTED]'));
       const firstResponse = await fetch(firstBatchURL);
-      console.log('First response status:', firstResponse.status);
 
-      // Second API call for 2 recipes
+      // Second API call for 2 recipes (so that there are a total of 12 recipes displayed)
       const secondBatchURL = `${this.baseURL}/recipes/random?number=2&apiKey=${this.apiKey}`;
-      console.log('Making second request to:', secondBatchURL.replace(this.apiKey || '', '[REDACTED]'));
       const secondResponse = await fetch(secondBatchURL);
-      console.log('Second response status:', secondResponse.status);
 
       // Check if either request fails
       if (firstResponse.status !== 200 || secondResponse.status !== 200) {
-        const firstBody = await firstResponse.text();
-        const secondBody = await secondResponse.text();
-        console.error('API Error responses:', {
-          firstStatus: firstResponse.status,
-          firstBody,
-          secondStatus: secondResponse.status,
-          secondBody
-        });
         return { error: "Failed to fetch recipes" };
       }
 
@@ -88,7 +64,7 @@ class spoonacularService {
       const recipes = this.parseRandomRecipes(combinedRecipes);
       return recipes;
     } catch (error) {
-      console.error('Error in findRandomRecipes:', error);
+      console.log(error);
       return error;
     }
   }

@@ -116,38 +116,6 @@ jobs:
           role-to-assume: ${{ env.AWS_ROLE_ARN }}
           role-session-name: DeployRoleForGitHubSession
           aws-region: ${{ env.AWS_REGION }}
-     
-      # - name: Deploy CDK Stack
-      #   run: | 
-      #     npm --prefix cdk install
-      #     npm --prefix cdk run cdk deploy -- --require-approval never
-
-      # - name: Deploy CDK Stack
-      #   run: | 
-      #       cd cdk
-      #       npm install
-      #       npm run build  # Compiles TypeScript to JavaScript
-      #       # Add debugging to see the paths
-      #       echo "Current directory: $(pwd)"
-      #       echo "Parent directory contents:"
-      #       ls -la ../
-      #       echo "Server directory contents:"
-      #       ls -la ../server/
-      #       echo "Server dist contents:"
-      #       ls -la ../server/dist/
-      #       # Deploy with debug logging
-      #       npx cdk deploy --require-approval never --debug
-
-      - name: Verify Paths
-        run: |
-          echo "Current directory:"
-          pwd
-          echo "\nFull path to client/dist:"
-          realpath client/dist
-          echo "\nContents of client/dist:"
-          ls -la client/dist
-          echo "\nAbsolute path check:"
-          node -e "console.log(require('path').resolve(__dirname, 'client/dist'))"
 
       - name: Deploy CDK Stack
         run: | 
@@ -159,7 +127,7 @@ jobs:
           echo "\nVerifying absolute path:"
           realpath ../client/dist
           echo "\nAttempting CDK deploy..."
-            if [[ ${{ github.ref }} == refs/heads/cdk-dev-* ]]; then
+          if [[ ${{ github.ref }} == refs/heads/cdk-dev-* ]]; then
             echo "Deploying to development environment..."
             echo "Current AWS credentials:"
             aws sts get-caller-identity
@@ -178,3 +146,23 @@ jobs:
             npx cdk deploy ProdCdkStack --require-approval never --debug
           fi
 
+      - name: Sync Client to S3
+        run: |
+          if [[ ${{ github.ref }} == refs/heads/cdk-dev-* ]]; then
+            BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name DevCdkStack --query 'Stacks[0].Outputs[?OutputKey==`BucketName`].OutputValue' --output text)
+          else
+            BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name ProdCdkStack --query 'Stacks[0].Outputs[?OutputKey==`BucketName`].OutputValue' --output text)
+          fi
+          echo "Syncing client build to S3 bucket: $BUCKET_NAME"
+          aws s3 sync client/dist "s3://$BUCKET_NAME" --delete
+
+      - name: Verify Paths
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "\nFull path to client/dist:"
+          realpath client/dist
+          echo "\nContents of client/dist:"
+          ls -la client/dist
+          echo "\nAbsolute path check:"
+          node -e "console.log(require('path').resolve(__dirname, 'client/dist'))"

@@ -67,53 +67,32 @@ const server = new ApolloServer({
 // Initialize Apollo Server and set up routes
 const initializeServer = async () => {
   try {
-    // Log environment variables (without sensitive values)
-    console.log('Environment check:', {
-      hasJwtSecret: !!process.env.JWT_SECRET_KEY,
-      hasSpoonacularKey: !!process.env.SPOONACULAR_API_KEY,
-      apiBaseUrl: process.env.API_BASE_URL,
-      hasOpenAIKey: !!process.env.OPENAI_API_KEY,
-      hasMongoUri: !!process.env.MONGODB_URI,
-      nodeEnv: process.env.NODE_ENV
-    });
-
-    console.log('Starting Apollo Server...');
     await server.start();
-    console.log('Apollo Server started successfully');
-
-    console.log('Attempting MongoDB connection...');
-    await db.once('open', () => {
-      console.log('MongoDB connected successfully');
-    });
+    console.log('Apollo Server started');
 
     // Mount GraphQL middleware
-    console.log('Mounting GraphQL middleware...');
     app.use(
       "/graphql",
       expressMiddleware(server, {
         context: graphQLAuthMiddleware,
       })
     );
-    console.log('GraphQL middleware mounted');
 
     // Use your custom routes
-    console.log('Mounting custom routes...');
     app.use(routes);
-    console.log('Routes mounted successfully');
+    console.log('Routes mounted:', Object.keys(routes).join(', '));
 
     // Log all registered routes
-    console.log('Registered routes:');
     app._router.stack.forEach((r: any) => {
       if (r.route && r.route.path) {
-        console.log(`- ${r.route.path}`);
+        console.log('Registered route:', r.route.path);
       }
     });
 
+    // MongoDB Connection Error Handling
+    db.on("error", console.error.bind(console, "MongoDB connection error:"));
   } catch (error) {
     console.error('Server initialization error:', error);
-    if (error instanceof Error) {
-      console.error('Error stack:', error.stack);
-    }
     throw error;
   }
 };
@@ -122,40 +101,28 @@ let serverInitialized = false;
 
 export const handler = async (event: APIGatewayProxyEvent, context: Context, callback: any) => {
   try {
-    console.log('Lambda invocation started');
-    console.log('Event:', {
-      path: event.path,
-      method: event.httpMethod,
-      headers: event.headers,
-      queryParams: event.queryStringParameters,
-      body: event.body ? JSON.parse(event.body) : null
-    });
+    console.log('Lambda event:', JSON.stringify(event, null, 2));
+    console.log('Event path:', event.path);
+    console.log('Event httpMethod:', event.httpMethod);
+    console.log('Event headers:', JSON.stringify(event.headers, null, 2));
     
     if (!serverInitialized) {
-      console.log('Server not initialized, starting initialization...');
+      console.log('Initializing server...');
       await initializeServer();
       serverInitialized = true;
-      console.log('Server initialization completed');
+      console.log('Server initialized successfully');
     }
 
-    console.log('Creating serverless express handler...');
     const handler = serverlessExpress({ app });
-    console.log('Delegating to serverless express...');
     return await handler(event, context, callback);  
   } catch (error: any) {
     console.error('Handler error:', error);
-    console.error('Error stack:', error.stack);
     return {
       statusCode: 500,
       body: JSON.stringify({ 
         error: 'Internal Server Error', 
-        details: error?.message || 'Unknown error occurred',
-        stack: process.env.NODE_ENV === 'development' ? error?.stack : undefined
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      }
+        details: error?.message || 'Unknown error occurred'
+      })
     };
   }
 };
