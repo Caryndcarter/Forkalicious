@@ -186,136 +186,60 @@ export class CdkStack extends cdk.Stack {
     cloudWatchRoleArn: apiGatewayLoggingRole.roleArn
   });
 
-  const api = new apigateway.LambdaRestApi(this, `${props.envName}BackendApi`, {
-    handler: backendFunction,
+  // Create API Gateway
+  const api = new apigateway.RestApi(this, `${props.envName}BackendApi`, {
+    restApiName: `${props.envName}BackendService`,
+    deploy: true,
+    deployOptions: {
+      stageName: 'prod',
+      loggingLevel: apigateway.MethodLoggingLevel.INFO,
+      dataTraceEnabled: true,
+      accessLogDestination: new apigateway.LogGroupLogDestination(new logs.LogGroup(this, 'ApiGatewayAccessLogs', {
+        logGroupName: `/aws/apigateway/${props.envName}-forkalicious-access-logs`,
+        retention: logs.RetentionDays.ONE_WEEK,
+        removalPolicy: cdk.RemovalPolicy.DESTROY
+      })),
+      accessLogFormat: apigateway.AccessLogFormat.clf(),
+    },
+    defaultCorsPreflightOptions: {
+      allowOrigins: apigateway.Cors.ALL_ORIGINS,
+      allowMethods: apigateway.Cors.ALL_METHODS,
+      allowHeaders: [
+        'Content-Type',
+        'X-Amz-Date',
+        'Authorization',
+        'X-Api-Key',
+        'X-Amz-Security-Token',
+        'X-Amz-User-Agent',
+        'Apollo-Require-Preflight',
+        'x-apollo-operation-name',
+        'x-apollo-operation-type'
+      ],
+      allowCredentials: true
+    }
   });
-
-  // // Create API Gateway
-  // const api = new apigateway.RestApi(this, `${props.envName}BackendApi`, {
-  //   restApiName: `${props.envName}BackendService`,
-  //   deploy: true,
-  //   deployOptions: {
-  //     stageName: 'prod',
-  //     loggingLevel: apigateway.MethodLoggingLevel.INFO,
-  //     dataTraceEnabled: true,
-  //     accessLogDestination: new apigateway.LogGroupLogDestination(new logs.LogGroup(this, 'ApiGatewayAccessLogs', {
-  //       logGroupName: `/aws/apigateway/${props.envName}-forkalicious-access-logs`,
-  //       retention: logs.RetentionDays.ONE_WEEK,
-  //       removalPolicy: cdk.RemovalPolicy.DESTROY
-  //     })),
-  //     accessLogFormat: apigateway.AccessLogFormat.clf(),
-  //   },
-  //   defaultCorsPreflightOptions: {
-  //     allowOrigins: [
-  //       'https://dev.forkalicious.isawesome.xyz',
-  //       'https://forkalicious.isawesome.xyz'
-  //     ],
-  //     allowMethods: apigateway.Cors.ALL_METHODS,
-  //     allowHeaders: [
-  //       'Content-Type',
-  //       'X-Amz-Date',
-  //       'Authorization',
-  //       'X-Api-Key',
-  //       'X-Amz-Security-Token',
-  //       'X-Amz-User-Agent',
-  //       'Apollo-Require-Preflight',
-  //       'x-apollo-operation-name',
-  //       'x-apollo-operation-type',
-  //       'Access-Control-Allow-Origin',
-  //       'Access-Control-Allow-Headers'
-  //     ],
-  //     allowCredentials: true
-  //   }
-  // });
 
   // Add dependency to ensure account settings are created first
   api.node.addDependency(apiGatewayAccount);
 
-  // // Make sure the integration is properly set up
-  // const backendIntegration = new apigateway.LambdaIntegration(backendFunction, {
-  //   proxy: true,
-    // integrationResponses: [{
-    //   statusCode: '200',
-    //   responseParameters: {
-    //     'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,Apollo-Require-Preflight,x-apollo-operation-name,x-apollo-operation-type'",
-    //     'method.response.header.Access-Control-Allow-Origin': "'*'",
-    //     'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET,PUT,DELETE'"
-    //   }
-    // }, {
-    //   selectionPattern: '.*',
-    //   statusCode: '500',
-    //   responseParameters: {
-    //     'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,Apollo-Require-Preflight,x-apollo-operation-name,x-apollo-operation-type'",
-    //     'method.response.header.Access-Control-Allow-Origin': "'*'",
-    //     'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,POST,GET,PUT,DELETE'"
-    //   }
-    // }]
-  // });
+  // Make sure the integration is properly set up
+  const backendIntegration = new apigateway.LambdaIntegration(backendFunction, {
+    proxy: true
+  });
 
-  // // Add a test endpoint to verify basic connectivity
-  // const testResource = api.root.addResource('test');
-  // testResource.addMethod('GET', backendIntegration, {
-  //   methodResponses: [{
-  //     statusCode: '200',
-  //     responseParameters: {
-  //       'method.response.header.Access-Control-Allow-Headers': true,
-  //       'method.response.header.Access-Control-Allow-Origin': true,
-  //       'method.response.header.Access-Control-Allow-Methods': true
-  //     }
-  //   }, {
-  //     statusCode: '500',
-  //     responseParameters: {
-  //       'method.response.header.Access-Control-Allow-Headers': true,
-  //       'method.response.header.Access-Control-Allow-Origin': true,
-  //       'method.response.header.Access-Control-Allow-Methods': true
-  //     }
-  //   }]
-  // });
+  // Add a test endpoint to verify basic connectivity
+  const testResource = api.root.addResource('test');
+  testResource.addMethod('GET', backendIntegration);
 
-  // // Add GraphQL endpoint
-  // const graphqlResource = api.root.addResource('graphql');
-  //  graphqlResource.addMethod('POST', backendIntegration
-  // // , {
-  // //   methodResponses: [{
-  // //     statusCode: '200',
-  // //     responseParameters: {
-  // //       'method.response.header.Access-Control-Allow-Headers': true,
-  // //       'method.response.header.Access-Control-Allow-Origin': true,
-  // //       'method.response.header.Access-Control-Allow-Methods': true
-  // //     }
-  // //   }, {
-  // //     statusCode: '500',
-  // //     responseParameters: {
-  // //       'method.response.header.Access-Control-Allow-Headers': true,
-  // //       'method.response.header.Access-Control-Allow-Origin': true,
-  // //       'method.response.header.Access-Control-Allow-Methods': true
-  // //     }
-  // //   }]
-  // // }
-  // );
+  // Add GraphQL endpoint
+  const graphqlResource = api.root.addResource('graphql');
+  graphqlResource.addMethod('POST', backendIntegration);
 
-  // // Add proxy integration for all other routes
-  // api.root.addProxy({
-  //   defaultIntegration: backendIntegration,
-  //   anyMethod: true,
-  //   // defaultMethodOptions: {
-  //   //   methodResponses: [{
-  //   //     statusCode: '200',
-  //   //     responseParameters: {
-  //   //       'method.response.header.Access-Control-Allow-Headers': true,
-  //   //       'method.response.header.Access-Control-Allow-Origin': true,
-  //   //       'method.response.header.Access-Control-Allow-Methods': true
-  //   //     }
-  //   //   }, {
-  //   //     statusCode: '500',
-  //   //     responseParameters: {
-  //   //       'method.response.header.Access-Control-Allow-Headers': true,
-  //   //       'method.response.header.Access-Control-Allow-Origin': true,
-  //   //       'method.response.header.Access-Control-Allow-Methods': true
-  //   //     }
-  //   //   }]
-  //   // }
-  // });
+  // Add proxy integration for all other routes
+  api.root.addProxy({
+    defaultIntegration: backendIntegration,
+    anyMethod: true
+  });
 
   new cdk.CfnOutput(this, 'ApiGatewayUrl', {
     value: api.url,
