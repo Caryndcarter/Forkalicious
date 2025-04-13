@@ -191,10 +191,10 @@ export class CdkStack extends cdk.Stack {
     restApiName: `${props.envName}BackendService`,
     deploy: true,
     deployOptions: {
-      stageName: props.envName,  // 'dev' or 'prod' based on environment
+      stageName: 'prod',
       loggingLevel: apigateway.MethodLoggingLevel.INFO,
       dataTraceEnabled: true,
-      accessLogDestination: new apigateway.LogGroupLogDestination(new logs.LogGroup(this, 'ApiGatewayAccessLogs', {
+      accessLogDestination: new apigateway.LogGroupLogDestination(new logs.LogGroup(this, `${props.envName}ApiGatewayAccessLogs`, {
         logGroupName: `/aws/apigateway/${props.envName}-forkalicious-access-logs`,
         retention: logs.RetentionDays.ONE_WEEK,
         removalPolicy: cdk.RemovalPolicy.DESTROY
