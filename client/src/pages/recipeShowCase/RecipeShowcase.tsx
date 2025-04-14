@@ -1,5 +1,5 @@
 import { useNavigate, Link } from "react-router-dom";
-import { useContext, useLayoutEffect } from "react";
+import { useCallback, useContext, useLayoutEffect } from "react";
 import { currentRecipeContext } from "@/App";
 import { editingContext } from "@/App";
 import { useState, useEffect } from "react";
@@ -10,17 +10,19 @@ import ReviewSection from "./Reviews";
 import Summary from "./Summary";
 
 //new imports
-import { useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import {
   ADD_RECIPE,
   SAVE_RECIPE,
   REMOVE_RECIPE,
 } from "@/utils_graphQL/mutations";
-import { GET_SPECIFIC_RECIPE_ID } from "@/utils_graphQL/queries";
+import { GET_RECIPE, GET_SPECIFIC_RECIPE_ID } from "@/utils_graphQL/queries";
 import Auth from "@/utils_graphQL/auth";
 import AverageRating from "./AverageRating";
 
 import Heading from "./Heading";
+import { RecipeDetails } from "@/types";
+import apiService from "@/api/apiService";
 
 export default function RecipeShowcase() {
   const { currentRecipeDetails, setCurrentRecipeDetails } =
@@ -37,12 +39,14 @@ export default function RecipeShowcase() {
   }, [setCurrentRecipeDetails]);
 
   const [loginCheck, setLoginCheck] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [skipQuery, setSkipQuery] = useState<boolean>(true);
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const [isAuthor, setIsAuthor] = useState<boolean>(false);
   const [reviewCount, setReviewCount] = useState(0);
 
   //mutations and queries
+  const [recipeQuery] = useLazyQuery(GET_RECIPE);
   const [addRecipe] = useMutation(ADD_RECIPE);
   const [saveRecipe] = useMutation(SAVE_RECIPE);
   const [removeRecipe] = useMutation(REMOVE_RECIPE);
@@ -50,6 +54,38 @@ export default function RecipeShowcase() {
     variables: { recipeId: currentRecipeDetails._id },
     skip: skipQuery,
   });
+
+  const fetchRecipe = useCallback(async () => {
+    console.log("fetching...");
+    let response: RecipeDetails | null = null;
+
+    const { _id, spoonacularId } = localData.getCurrentCard();
+
+    if (Auth.loggedIn()) {
+      console.log("checking database...");
+      const { data } = await recipeQuery({
+        variables: { mongoID: _id, spoonacularId: spoonacularId },
+      });
+
+      response = data?.getRecipe?.recipe;
+    }
+
+    if (!response) {
+      console.log("using API...");
+      response = await apiService.forignInformationSearch(spoonacularId);
+    }
+
+    console.log("setting ");
+
+    localData.setCurrentRecipe(response);
+    setCurrentRecipeDetails(response);
+    setLoading(false);
+  }, []);
+
+  useLayoutEffect(() => {
+    setLoading(true);
+    fetchRecipe();
+  }, []);
 
   useLayoutEffect(() => {
     try {
@@ -63,6 +99,9 @@ export default function RecipeShowcase() {
       console.log("Auth error:", error);
       setLoginCheck(false);
       setSkipQuery(true);
+    }
+    if (false) {
+      fetchRecipe();
     }
   }, []);
 
@@ -178,6 +217,18 @@ export default function RecipeShowcase() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="bg-[#fef3d0] min-h-screen pt-24">
+        <div className="max-w-2xl mx-auto p-6 bg-[#fadaae] shadow-lg rounded-lg mt-10 border border-gray-200">
+          <Heading {...localData.getCurrentCard()} />
+          <div className="flex justify-center mt-6">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-amber-500 border-t-transparent"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="bg-[#fef3d0] min-h-screen pt-24">
       <div className="max-w-2xl mx-auto p-6 bg-[#fadaae] shadow-lg rounded-lg mt-10 border border-gray-200">

@@ -2,13 +2,7 @@
 
 import type Recipe from "../types/recipe";
 import { useNavigate } from "react-router-dom";
-import { useContext, useCallback } from "react";
-import { currentRecipeContext } from "../App";
-import apiService from "../api/apiService";
-import { useLazyQuery } from "@apollo/client";
-import { GET_RECIPE } from "@/utils_graphQL/queries";
-import type { RecipeDetails } from "@/types";
-import Auth from "@/utils_graphQL/auth";
+import { useCallback } from "react";
 import localData from "@/utils_graphQL/localStorageService";
 
 interface RecipeCardProps {
@@ -18,28 +12,27 @@ interface RecipeCardProps {
 export default function RecipeCard({
   recipe: { _id, spoonacularId, title, image },
 }: RecipeCardProps) {
-  const { setCurrentRecipeDetails } = useContext(currentRecipeContext);
-
-  const [fetchRecipe] = useLazyQuery(GET_RECIPE);
   const navigate = useNavigate();
 
   const handleSubmit = useCallback(async () => {
-    let response: RecipeDetails | null = null;
+    // let response: RecipeDetails | null = null;
 
-    if (Auth.loggedIn()) {
-      const { data } = await fetchRecipe({
-        variables: { mongoID: _id, spoonacularId: spoonacularId },
-      });
+    // if (Auth.loggedIn()) {
+    //   const { data } = await fetchRecipe({
+    //     variables: { mongoID: _id, spoonacularId: spoonacularId },
+    //   });
 
-      response = data?.getRecipe?.recipe;
-    }
+    //   response = data?.getRecipe?.recipe;
+    // }
 
-    if (!response) {
-      response = await apiService.forignInformationSearch(spoonacularId);
-    }
+    // if (!response) {
+    //   response = await apiService.forignInformationSearch(spoonacularId);
+    // }
 
-    localData.setCurrentRecipe(response);
-    setCurrentRecipeDetails(response);
+    // localData.setCurrentRecipe(response);
+    // setCurrentRecipeDetails(response);
+    localData.setCurrentCard({ _id, spoonacularId, title, image });
+    console.log(localData.getCurrentCard());
     navigate("/recipe-showcase");
   }, []);
 
