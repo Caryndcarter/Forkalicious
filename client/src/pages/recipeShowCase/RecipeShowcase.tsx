@@ -30,16 +30,8 @@ export default function RecipeShowcase() {
   const navigate = useNavigate();
   const { setIsEditing } = useContext(editingContext);
 
-  // Local storage fallback
-  useEffect(() => {
-    const storedRecipeDetails = localData.getCurrentRecipe();
-    if (storedRecipeDetails) {
-      setCurrentRecipeDetails(storedRecipeDetails);
-    }
-  }, [setCurrentRecipeDetails]);
-
   const [loginCheck, setLoginCheck] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [skipQuery, setSkipQuery] = useState<boolean>(true);
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const [isAuthor, setIsAuthor] = useState<boolean>(false);
@@ -56,13 +48,11 @@ export default function RecipeShowcase() {
   });
 
   const fetchRecipe = useCallback(async () => {
-    console.log("fetching...");
     let response: RecipeDetails | null = null;
 
     const { _id, spoonacularId } = localData.getCurrentCard();
 
     if (Auth.loggedIn()) {
-      console.log("checking database...");
       const { data } = await recipeQuery({
         variables: { mongoID: _id, spoonacularId: spoonacularId },
       });
@@ -71,11 +61,8 @@ export default function RecipeShowcase() {
     }
 
     if (!response) {
-      console.log("using API...");
       response = await apiService.forignInformationSearch(spoonacularId);
     }
-
-    console.log("setting ");
 
     localData.setCurrentRecipe(response);
     setCurrentRecipeDetails(response);
@@ -84,7 +71,14 @@ export default function RecipeShowcase() {
 
   useLayoutEffect(() => {
     setLoading(true);
-    fetchRecipe();
+
+    const storedRecipe = localData.getCurrentRecipe();
+    if (storedRecipe) {
+      setCurrentRecipeDetails(storedRecipe);
+      setLoading(false);
+    } else {
+      fetchRecipe();
+    }
   }, []);
 
   useLayoutEffect(() => {
@@ -99,9 +93,6 @@ export default function RecipeShowcase() {
       console.log("Auth error:", error);
       setLoginCheck(false);
       setSkipQuery(true);
-    }
-    if (false) {
-      fetchRecipe();
     }
   }, []);
 
