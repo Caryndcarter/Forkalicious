@@ -15,24 +15,14 @@ export default function RecipeCard({
   const navigate = useNavigate();
 
   const handleSubmit = useCallback(async () => {
-    // let response: RecipeDetails | null = null;
+    const thisCard = { _id, spoonacularId, title, image };
+    const storedCard = localData.getCurrentCard();
 
-    // if (Auth.loggedIn()) {
-    //   const { data } = await fetchRecipe({
-    //     variables: { mongoID: _id, spoonacularId: spoonacularId },
-    //   });
+    if (JSON.stringify(thisCard) != JSON.stringify(storedCard)) {
+      localData.setCurrentCard(thisCard);
+      localData.removeCurrentRecipe();
+    }
 
-    //   response = data?.getRecipe?.recipe;
-    // }
-
-    // if (!response) {
-    //   response = await apiService.forignInformationSearch(spoonacularId);
-    // }
-
-    // localData.setCurrentRecipe(response);
-    // setCurrentRecipeDetails(response);
-    localData.setCurrentCard({ _id, spoonacularId, title, image });
-    console.log(localData.getCurrentCard());
     navigate("/recipe-showcase");
   }, []);
 

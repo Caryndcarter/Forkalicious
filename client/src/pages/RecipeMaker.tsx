@@ -1,35 +1,37 @@
-import { useState, useContext, useLayoutEffect, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import type { RecipeDetails } from "@/types"
-import askService from "../api/askService"
-import { editingContext, userContext } from "@/App"
-import Auth from "@/utils_graphQL/auth"
+import { useState, useContext, useLayoutEffect, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { defaultRecipe, type RecipeDetails } from "@/types";
+import askService from "../api/askService";
+import { editingContext, userContext } from "@/App";
+import Auth from "@/utils_graphQL/auth";
 
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Sparkles, Loader2 } from "lucide-react"
-import { useMutation } from "@apollo/client"
-import { CREATE_RECIPE } from "@/utils_graphQL/mutations"
-import { SAVE_RECIPE } from "@/utils_graphQL/mutations"
-import localData from "@/utils_graphQL/localStorageService"
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Sparkles, Loader2 } from "lucide-react";
+import { useMutation } from "@apollo/client";
+import { CREATE_RECIPE } from "@/utils_graphQL/mutations";
+import { SAVE_RECIPE } from "@/utils_graphQL/mutations";
+import localData from "@/utils_graphQL/localStorageService";
 
-const LOCAL_STORAGE_KEY = "recipeFormProgress"
+const LOCAL_STORAGE_KEY = "recipeFormProgress";
 
 const RecipeMaker = () => {
-  const currentRecipeDetails = localData.getCurrentRecipe()
-  const { isEditing, setIsEditing } = useContext(editingContext)
-  const navigate = useNavigate()
-  const [errorMessage, setErrorMessage] = useState("")
-  const [prompt, setPrompt] = useState<string>("")
-  const [AILoading, setAILoading] = useState<boolean>(false)
-  const [createRecipe] = useMutation(CREATE_RECIPE)
-  const [saveRecipe] = useMutation(SAVE_RECIPE)
-  const isLoggedIn = Auth.loggedIn()
-  const [validationErrors, setValidationErrors] = useState<Record<string, boolean>>({})
+  const currentRecipeDetails = localData.getCurrentRecipe() || defaultRecipe;
+  const { isEditing, setIsEditing } = useContext(editingContext);
+  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState("");
+  const [prompt, setPrompt] = useState<string>("");
+  const [AILoading, setAILoading] = useState<boolean>(false);
+  const [createRecipe] = useMutation(CREATE_RECIPE);
+  const [saveRecipe] = useMutation(SAVE_RECIPE);
+  const isLoggedIn = Auth.loggedIn();
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, boolean>
+  >({});
 
-  const { userStatus } = useContext(userContext)
-  const loggedIn = userStatus !== "visiter"
+  const { userStatus } = useContext(userContext);
+  const loggedIn = userStatus !== "visiter";
 
   // Initialize recipe state with empty values
   const emptyRecipe: RecipeDetails = {
@@ -44,23 +46,23 @@ const RecipeMaker = () => {
     steps: [],
     diets: [],
     image: "",
-  }
+  };
 
-  const [recipe, setRecipe] = useState<RecipeDetails>(emptyRecipe)
+  const [recipe, setRecipe] = useState<RecipeDetails>(emptyRecipe);
 
   // Load saved form data from localStorage on component mount
   useEffect(() => {
-    const savedFormData = localStorage.getItem(LOCAL_STORAGE_KEY)
+    const savedFormData = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (savedFormData) {
       try {
-        const parsedData = JSON.parse(savedFormData)
-        setRecipe(parsedData)
+        const parsedData = JSON.parse(savedFormData);
+        setRecipe(parsedData);
         // Remove the part that sets the prompt
       } catch (error) {
-        console.error("Error parsing saved form data:", error)
+        console.error("Error parsing saved form data:", error);
       }
     }
-  }, [])
+  }, []);
 
   // Save form data to localStorage whenever recipe state changes
   useEffect(() => {
@@ -69,24 +71,24 @@ const RecipeMaker = () => {
       const dataToSave = {
         ...recipe,
         // Remove savedPrompt from being stored
-      }
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dataToSave))
+      };
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dataToSave));
     }
-  }, [recipe])
+  }, [recipe]);
 
   // If the user is editing an existing recipe, import that recipe's information
   useLayoutEffect(() => {
     // exits if the user isn't editing
     if (!isEditing) {
-      return
+      return;
     }
 
     // grab profile information
-    const userProfile = Auth.getProfile()
+    const userProfile = Auth.getProfile();
 
     // if the user is the author of the recipe, import normally
     if (userProfile._id == currentRecipeDetails.author) {
-      setRecipe(currentRecipeDetails)
+      setRecipe(currentRecipeDetails);
     }
 
     // if the user is adapting someone else's recipe, add their username
@@ -94,84 +96,89 @@ const RecipeMaker = () => {
       setRecipe({
         ...currentRecipeDetails,
         title: `${userProfile.userName}'s ${currentRecipeDetails.title}`,
-      })
+      });
     }
 
     // turn off editing
-    setIsEditing(false)
-  }, [])
+    setIsEditing(false);
+  }, []);
 
   const handleChange = (field: keyof RecipeDetails, value: any) => {
     setRecipe((prev) => ({
       ...prev,
       [field]: value,
-    }))
-  }
+    }));
+  };
 
-  const handleListChange = (field: keyof RecipeDetails, index: number, value: string) => {
-    const updatedList = [...(recipe[field] as string[])]
-    updatedList[index] = value
+  const handleListChange = (
+    field: keyof RecipeDetails,
+    index: number,
+    value: string
+  ) => {
+    const updatedList = [...(recipe[field] as string[])];
+    updatedList[index] = value;
     setRecipe((prev) => ({
       ...prev,
       [field]: updatedList,
-    }))
-  }
+    }));
+  };
 
   const handleAddItem = (field: keyof RecipeDetails) => {
     setRecipe((prev) => ({
       ...prev,
       [field]: [...(recipe[field] as string[]), ""],
-    }))
-  }
+    }));
+  };
 
   const handleRemoveItem = (field: keyof RecipeDetails, index: number) => {
-    const updatedList = [...(recipe[field] as string[])]
-    updatedList.splice(index, 1)
+    const updatedList = [...(recipe[field] as string[])];
+    updatedList.splice(index, 1);
     setRecipe((prev) => ({
       ...prev,
       [field]: updatedList,
-    }))
-  }
+    }));
+  };
 
   const getInputClasses = (fieldName: string) => {
     return `w-full p-2 border rounded ${
       validationErrors[fieldName]
         ? "border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,1)] focus:shadow-[0_0_0_2px_rgba(239,68,68,0.6)]"
         : ""
-    }`
-  }
+    }`;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // Validate required fields
-    const errors: Record<string, boolean> = {}
-    if (!recipe.title.trim()) errors.title = true
-    if (!recipe.summary.trim()) errors.summary = true
-    if (recipe.readyInMinutes <= 0) errors.readyInMinutes = true
-    if (recipe.servings <= 0) errors.servings = true
-    if (!recipe.ingredients[0]?.trim()) errors.ingredients = true
-    if (!recipe.instructions.trim()) errors.instructions = true
-    if (!recipe.steps || recipe.steps.length === 0 || !recipe.steps[0]?.trim()) errors.steps = true
+    const errors: Record<string, boolean> = {};
+    if (!recipe.title.trim()) errors.title = true;
+    if (!recipe.summary.trim()) errors.summary = true;
+    if (recipe.readyInMinutes <= 0) errors.readyInMinutes = true;
+    if (recipe.servings <= 0) errors.servings = true;
+    if (!recipe.ingredients[0]?.trim()) errors.ingredients = true;
+    if (!recipe.instructions.trim()) errors.instructions = true;
+    if (!recipe.steps || recipe.steps.length === 0 || !recipe.steps[0]?.trim())
+      errors.steps = true;
 
     // If there are validation errors, update state and stop submission
     if (Object.keys(errors).length > 0) {
-      setValidationErrors(errors)
+      setValidationErrors(errors);
       // Scroll to the first error
-      const firstErrorField = document.querySelector(".error-field")
+      const firstErrorField = document.querySelector(".error-field");
       if (firstErrorField) {
-        firstErrorField.scrollIntoView({ behavior: "smooth", block: "center" })
+        firstErrorField.scrollIntoView({ behavior: "smooth", block: "center" });
       }
-      return
+      return;
     }
 
     // Clear any previous validation errors
-    setValidationErrors({})
+    setValidationErrors({});
 
     if (recipe.image) {
       if (recipe.image.length > 250) {
-        setErrorMessage("Error: URL is too long")
-        return
+        setErrorMessage("Error: URL is too long");
+        return;
       }
     }
 
@@ -190,27 +197,27 @@ const RecipeMaker = () => {
           image: recipe.image,
         },
       },
-    })
+    });
 
     if (data?.createRecipe) {
       await saveRecipe({
         variables: {
           recipeId: data.createRecipe._id,
         },
-      })
+      });
 
       // Clear the saved form data after successful creation
-      localStorage.removeItem(LOCAL_STORAGE_KEY)
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
 
-    navigate("/recipe-book")
-  }
+    navigate("/recipe-book");
+  };
 
   const handleAiCall = async (e: any) => {
-    e.preventDefault()
-    setAILoading(true)
-    const response = await askService.askForRecipe(prompt)
-    const recipe = response.formattedResponse
+    e.preventDefault();
+    setAILoading(true);
+    const response = await askService.askForRecipe(prompt);
+    const recipe = response.formattedResponse;
     setRecipe((prev) => ({
       ...prev,
       title: recipe.title,
@@ -221,18 +228,18 @@ const RecipeMaker = () => {
       instructions: recipe.Instructions,
       diets: recipe.Diets.split(";"),
       steps: recipe.Steps.split(";"),
-    }))
-    setAILoading(false)
-  }
+    }));
+    setAILoading(false);
+  };
 
   // Function to clear saved form data
   const clearSavedFormData = () => {
-    localStorage.removeItem(LOCAL_STORAGE_KEY)
-    setRecipe(emptyRecipe)
-    setPrompt("")
-    setErrorMessage("")
-    setValidationErrors({})
-  }
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    setRecipe(emptyRecipe);
+    setPrompt("");
+    setErrorMessage("");
+    setValidationErrors({});
+  };
 
   return (
     <div className="bg-[#fef3d0] min-h-screen pt-24 px-6">
@@ -241,7 +248,9 @@ const RecipeMaker = () => {
       {/* Show a notification if there was saved data loaded */}
       {(recipe.title || recipe.summary || recipe.ingredients[0] !== "") && (
         <div className="w-full max-w-3xl mx-auto mb-4 p-4 bg-[#ffe8b3] border border-[#e7890c] rounded-lg flex justify-between items-center">
-          <p className="text-[#a84e24] font-medium">Your progress has been saved.</p>
+          <p className="text-[#a84e24] font-medium">
+            Your progress has been saved.
+          </p>
           <button
             onClick={clearSavedFormData}
             className="text-sm bg-[#ff9e40] text-white px-3 py-1 rounded hover:bg-[#e7890c] transition-colors"
@@ -259,13 +268,17 @@ const RecipeMaker = () => {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-[#a84e24]" />
-              <Label htmlFor="prompt" className="font-bold text-lg text-[#a84e24]">
+              <Label
+                htmlFor="prompt"
+                className="font-bold text-lg text-[#a84e24]"
+              >
                 Recipe AI Assistant
               </Label>
             </div>
 
             <p className="text-[#8e4220] text-sm">
-              Describe the recipe you want to create and our AI will generate it for you!
+              Describe the recipe you want to create and our AI will generate it
+              for you!
             </p>
 
             <div className="relative mt-2">
@@ -306,7 +319,9 @@ const RecipeMaker = () => {
               <p>Examples:</p>
               <button
                 type="button"
-                onClick={() => setPrompt("A healthy vegetarian dinner that's quick to make")}
+                onClick={() =>
+                  setPrompt("A healthy vegetarian dinner that's quick to make")
+                }
                 className="underline hover:text-[#a84e24]"
               >
                 Vegetarian dinner
@@ -325,16 +340,22 @@ const RecipeMaker = () => {
         <div className="w-full max-w-3xl mx-auto p-6 bg-[#fadaae] rounded-lg shadow-lg space-y-4 border border-[#e7890c]/20 mb-6">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="h-5 w-5 text-[#a84e24]" />
-            <h3 className="font-bold text-lg text-[#a84e24]">Recipe AI Assistant</h3>
+            <h3 className="font-bold text-lg text-[#a84e24]">
+              Recipe AI Assistant
+            </h3>
           </div>
 
           <div className="bg-white/80 p-4 rounded-md border border-[#e7890c]/30">
             <p className="text-[#8e4220] text-center">
-              Log in to use our AI recipe generator and create amazing recipes instantly!
+              Log in to use our AI recipe generator and create amazing recipes
+              instantly!
             </p>
           </div>
 
-          <Button onClick={() => navigate("/account")} className="w-full bg-[#ff9e40] hover:bg-[#e7890c] text-white">
+          <Button
+            onClick={() => navigate("/account")}
+            className="w-full bg-[#ff9e40] hover:bg-[#e7890c] text-white"
+          >
             Log In to Use AI
           </Button>
         </div>
@@ -350,14 +371,19 @@ const RecipeMaker = () => {
             type="text"
             value={recipe.title}
             onChange={(e) => {
-              handleChange("title", e.target.value)
+              handleChange("title", e.target.value);
               if (e.target.value.trim()) {
-                setValidationErrors((prev) => ({ ...prev, title: false }))
+                setValidationErrors((prev) => ({ ...prev, title: false }));
               }
             }}
-            className={getInputClasses("title") + (validationErrors.title ? " error-field" : "")}
+            className={
+              getInputClasses("title") +
+              (validationErrors.title ? " error-field" : "")
+            }
           />
-          {validationErrors.title && <p className="text-red-500 text-sm mt-1">Title is required</p>}
+          {validationErrors.title && (
+            <p className="text-red-500 text-sm mt-1">Title is required</p>
+          )}
         </div>
 
         <div>
@@ -365,14 +391,19 @@ const RecipeMaker = () => {
           <textarea
             value={recipe.summary}
             onChange={(e) => {
-              handleChange("summary", e.target.value)
+              handleChange("summary", e.target.value);
               if (e.target.value.trim()) {
-                setValidationErrors((prev) => ({ ...prev, summary: false }))
+                setValidationErrors((prev) => ({ ...prev, summary: false }));
               }
             }}
-            className={getInputClasses("summary") + (validationErrors.summary ? " error-field" : "")}
+            className={
+              getInputClasses("summary") +
+              (validationErrors.summary ? " error-field" : "")
+            }
           />
-          {validationErrors.summary && <p className="text-red-500 text-sm mt-1">Summary is required</p>}
+          {validationErrors.summary && (
+            <p className="text-red-500 text-sm mt-1">Summary is required</p>
+          )}
         </div>
 
         <div>
@@ -382,32 +413,46 @@ const RecipeMaker = () => {
             min="0"
             value={recipe.readyInMinutes}
             onChange={(e) => {
-              const value = e.target.value === "" ? 0 : +e.target.value
-              handleChange("readyInMinutes", value)
+              const value = e.target.value === "" ? 0 : +e.target.value;
+              handleChange("readyInMinutes", value);
               if (value > 0) {
-                setValidationErrors((prev) => ({ ...prev, readyInMinutes: false }))
+                setValidationErrors((prev) => ({
+                  ...prev,
+                  readyInMinutes: false,
+                }));
               }
             }}
             onKeyDown={(e) => {
               // Allow: backspace, delete, tab, escape, enter, decimal point
               if (
-                ["Backspace", "Delete", "Tab", "Escape", "Enter", "."].includes(e.key) ||
+                ["Backspace", "Delete", "Tab", "Escape", "Enter", "."].includes(
+                  e.key
+                ) ||
                 // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
-                (["a", "c", "v", "x"].includes(e.key.toLowerCase()) && (e.ctrlKey || e.metaKey)) ||
+                (["a", "c", "v", "x"].includes(e.key.toLowerCase()) &&
+                  (e.ctrlKey || e.metaKey)) ||
                 // Allow: home, end, left, right
                 ["Home", "End", "ArrowLeft", "ArrowRight"].includes(e.key)
               ) {
-                return
+                return;
               }
               // Ensure that it's a number or stop the keypress
-              if ((e.shiftKey || e.key < "0" || e.key > "9") && !["ArrowUp", "ArrowDown"].includes(e.key)) {
-                e.preventDefault()
+              if (
+                (e.shiftKey || e.key < "0" || e.key > "9") &&
+                !["ArrowUp", "ArrowDown"].includes(e.key)
+              ) {
+                e.preventDefault();
               }
             }}
-            className={getInputClasses("readyInMinutes") + (validationErrors.readyInMinutes ? " error-field" : "")}
+            className={
+              getInputClasses("readyInMinutes") +
+              (validationErrors.readyInMinutes ? " error-field" : "")
+            }
           />
           {validationErrors.readyInMinutes && (
-            <p className="text-red-500 text-sm mt-1">Ready in minutes must be greater than 0</p>
+            <p className="text-red-500 text-sm mt-1">
+              Ready in minutes must be greater than 0
+            </p>
           )}
         </div>
 
@@ -418,31 +463,44 @@ const RecipeMaker = () => {
             min="0"
             value={recipe.servings}
             onChange={(e) => {
-              const value = e.target.value === "" ? 0 : +e.target.value
-              handleChange("servings", value)
+              const value = e.target.value === "" ? 0 : +e.target.value;
+              handleChange("servings", value);
               if (value > 0) {
-                setValidationErrors((prev) => ({ ...prev, servings: false }))
+                setValidationErrors((prev) => ({ ...prev, servings: false }));
               }
             }}
             onKeyDown={(e) => {
               // Allow: backspace, delete, tab, escape, enter, decimal point
               if (
-                ["Backspace", "Delete", "Tab", "Escape", "Enter", "."].includes(e.key) ||
+                ["Backspace", "Delete", "Tab", "Escape", "Enter", "."].includes(
+                  e.key
+                ) ||
                 // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
-                (["a", "c", "v", "x"].includes(e.key.toLowerCase()) && (e.ctrlKey || e.metaKey)) ||
+                (["a", "c", "v", "x"].includes(e.key.toLowerCase()) &&
+                  (e.ctrlKey || e.metaKey)) ||
                 // Allow: home, end, left, right
                 ["Home", "End", "ArrowLeft", "ArrowRight"].includes(e.key)
               ) {
-                return
+                return;
               }
               // Ensure that it's a number or stop the keypress
-              if ((e.shiftKey || e.key < "0" || e.key > "9") && !["ArrowUp", "ArrowDown"].includes(e.key)) {
-                e.preventDefault()
+              if (
+                (e.shiftKey || e.key < "0" || e.key > "9") &&
+                !["ArrowUp", "ArrowDown"].includes(e.key)
+              ) {
+                e.preventDefault();
               }
             }}
-            className={getInputClasses("servings") + (validationErrors.servings ? " error-field" : "")}
+            className={
+              getInputClasses("servings") +
+              (validationErrors.servings ? " error-field" : "")
+            }
           />
-          {validationErrors.servings && <p className="text-red-500 text-sm mt-1">Servings must be greater than 0</p>}
+          {validationErrors.servings && (
+            <p className="text-red-500 text-sm mt-1">
+              Servings must be greater than 0
+            </p>
+          )}
         </div>
 
         <div>
@@ -453,9 +511,12 @@ const RecipeMaker = () => {
                 type="text"
                 value={ingredient}
                 onChange={(e) => {
-                  handleListChange("ingredients", index, e.target.value)
+                  handleListChange("ingredients", index, e.target.value);
                   if (index === 0 && e.target.value.trim()) {
-                    setValidationErrors((prev) => ({ ...prev, ingredients: false }))
+                    setValidationErrors((prev) => ({
+                      ...prev,
+                      ingredients: false,
+                    }));
                   }
                 }}
                 className={`flex-1 p-2 border rounded ${
@@ -464,16 +525,26 @@ const RecipeMaker = () => {
                     : ""
                 }`}
               />
-              <button type="button" onClick={() => handleRemoveItem("ingredients", index)} className="text-red-500">
+              <button
+                type="button"
+                onClick={() => handleRemoveItem("ingredients", index)}
+                className="text-red-500"
+              >
                 Remove
               </button>
             </div>
           ))}
-          <button type="button" onClick={() => handleAddItem("ingredients")} className="text-blue-500">
+          <button
+            type="button"
+            onClick={() => handleAddItem("ingredients")}
+            className="text-blue-500"
+          >
             Add Ingredient
           </button>
           {validationErrors.ingredients && (
-            <p className="text-red-500 text-sm mt-1">At least one ingredient is required</p>
+            <p className="text-red-500 text-sm mt-1">
+              At least one ingredient is required
+            </p>
           )}
         </div>
 
@@ -482,14 +553,24 @@ const RecipeMaker = () => {
           <textarea
             value={recipe.instructions}
             onChange={(e) => {
-              handleChange("instructions", e.target.value)
+              handleChange("instructions", e.target.value);
               if (e.target.value.trim()) {
-                setValidationErrors((prev) => ({ ...prev, instructions: false }))
+                setValidationErrors((prev) => ({
+                  ...prev,
+                  instructions: false,
+                }));
               }
             }}
-            className={getInputClasses("instructions") + (validationErrors.instructions ? " error-field" : "")}
+            className={
+              getInputClasses("instructions") +
+              (validationErrors.instructions ? " error-field" : "")
+            }
           />
-          {validationErrors.instructions && <p className="text-red-500 text-sm mt-1">Instructions are required</p>}
+          {validationErrors.instructions && (
+            <p className="text-red-500 text-sm mt-1">
+              Instructions are required
+            </p>
+          )}
         </div>
 
         {/* Diets Section */}
@@ -500,7 +581,9 @@ const RecipeMaker = () => {
               <select
                 id="diet"
                 className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm rounded-md"
-                onChange={(e) => handleListChange("diets", index, e.target.value)}
+                onChange={(e) =>
+                  handleListChange("diets", index, e.target.value)
+                }
                 value={diet}
               >
                 <option value="">None</option>
@@ -516,12 +599,20 @@ const RecipeMaker = () => {
                 <option value="Low FODMAP">Low FODMAP</option>
                 <option value="Whole30">Whole30</option>
               </select>
-              <button type="button" onClick={() => handleRemoveItem("diets", index)} className="text-red-500">
+              <button
+                type="button"
+                onClick={() => handleRemoveItem("diets", index)}
+                className="text-red-500"
+              >
                 Remove
               </button>
             </div>
           ))}
-          <button type="button" onClick={() => handleAddItem("diets")} className="text-blue-500">
+          <button
+            type="button"
+            onClick={() => handleAddItem("diets")}
+            className="text-blue-500"
+          >
             Add Diet
           </button>
         </div>
@@ -535,9 +626,9 @@ const RecipeMaker = () => {
                 type="text"
                 value={step}
                 onChange={(e) => {
-                  handleListChange("steps", index, e.target.value)
+                  handleListChange("steps", index, e.target.value);
                   if (index === 0 && e.target.value.trim()) {
-                    setValidationErrors((prev) => ({ ...prev, steps: false }))
+                    setValidationErrors((prev) => ({ ...prev, steps: false }));
                   }
                 }}
                 className={`flex-1 p-2 border rounded ${
@@ -546,15 +637,27 @@ const RecipeMaker = () => {
                     : ""
                 }`}
               />
-              <button type="button" onClick={() => handleRemoveItem("steps", index)} className="text-red-500">
+              <button
+                type="button"
+                onClick={() => handleRemoveItem("steps", index)}
+                className="text-red-500"
+              >
                 Remove
               </button>
             </div>
           ))}
-          <button type="button" onClick={() => handleAddItem("steps")} className="text-blue-500">
+          <button
+            type="button"
+            onClick={() => handleAddItem("steps")}
+            className="text-blue-500"
+          >
             Add Step
           </button>
-          {validationErrors.steps && <p className="text-red-500 text-sm mt-1">At least one step is required</p>}
+          {validationErrors.steps && (
+            <p className="text-red-500 text-sm mt-1">
+              At least one step is required
+            </p>
+          )}
         </div>
 
         <div>
@@ -563,15 +666,15 @@ const RecipeMaker = () => {
             type="text"
             value={recipe.image ?? ""} // Handle null value
             onClick={(event: any) => {
-              event.target.select()
+              event.target.select();
             }}
             onChange={(e) => {
-              const imageURL = e.target.value
-              setRecipe({ ...recipe, image: imageURL })
+              const imageURL = e.target.value;
+              setRecipe({ ...recipe, image: imageURL });
               if (imageURL.length > 250) {
-                setErrorMessage("Error: URL is too long")
+                setErrorMessage("Error: URL is too long");
               } else {
-                setErrorMessage("")
+                setErrorMessage("");
               }
             }}
             className="p-2 border rounded w-full"
@@ -588,7 +691,9 @@ const RecipeMaker = () => {
           </button>
         ) : (
           <div className="space-y-2">
-            <p className="text-center text-gray-700 font-medium">Log in to create this recipe</p>
+            <p className="text-center text-gray-700 font-medium">
+              Log in to create this recipe
+            </p>
             <button
               type="button"
               onClick={() => navigate("/account")}
@@ -600,8 +705,7 @@ const RecipeMaker = () => {
         )}
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default RecipeMaker
-
+export default RecipeMaker;

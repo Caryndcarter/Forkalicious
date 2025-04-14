@@ -1,10 +1,4 @@
-import {
-  RecipeDetails,
-  defaultRecipe,
-  DietaryNeeds,
-  searchParamters,
-  Recipe,
-} from "@/types";
+import { RecipeDetails, DietaryNeeds, searchParamters, Recipe } from "@/types";
 
 const expirationTimeMinutes = 1;
 
@@ -45,11 +39,11 @@ class LocalStorageService {
     localStorage.removeItem(recipeCardID);
   }
 
-  getCurrentRecipe(): RecipeDetails {
+  getCurrentRecipe(): RecipeDetails | null {
     const stringyRecipe = localStorage.getItem(currentRecipeID);
 
     if (!stringyRecipe) {
-      return defaultRecipe;
+      return null;
     }
 
     return JSON.parse(stringyRecipe);
