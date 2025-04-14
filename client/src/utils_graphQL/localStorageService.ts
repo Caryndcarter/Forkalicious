@@ -8,6 +8,7 @@ import {
 
 const expirationTimeMinutes = 1;
 
+const recipeCardID = "Recipe Card";
 const currentRecipeID = "Current Recipe";
 const tokenID = "Authentication Token";
 const accountDietID = "Dietary Needs",
@@ -23,6 +24,25 @@ class LocalStorageService {
     this.removeIDToken();
     this.removeAccountDiet();
     this.removeFilter();
+  }
+
+  getCurrentCard(): Recipe {
+    const stringyCard = localStorage.getItem(recipeCardID);
+
+    if (!stringyCard) {
+      return { _id: -1, spoonacularId: -1, title: "", image: "" };
+    }
+
+    return JSON.parse(stringyCard);
+  }
+
+  setCurrentCard(recipe: Recipe) {
+    const stringyRecipe = JSON.stringify(recipe);
+    localStorage.setItem(recipeCardID, stringyRecipe);
+  }
+
+  removeCurrentCard() {
+    localStorage.removeItem(recipeCardID);
   }
 
   getCurrentRecipe(): RecipeDetails {
