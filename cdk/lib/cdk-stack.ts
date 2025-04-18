@@ -76,6 +76,7 @@ export class CdkStack extends cdk.Stack {
       });
     }
 
+    
      // 3. ACM Certificate (must be in us-east-1 for CloudFront)
     const certificate = new acm.Certificate(this, `${props.envName}Certificate`, {
       domainName: domainName,
