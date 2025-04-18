@@ -202,7 +202,10 @@ export class CdkStack extends cdk.Stack {
       dataTraceEnabled: true
     },
     defaultCorsPreflightOptions: {
-      allowOrigins: apigateway.Cors.ALL_ORIGINS,
+      allowOrigins: [
+        'https://forkalicious.isawesome.xyz',
+        'https://dev.forkalicious.isawesome.xyz'
+      ],
       allowMethods: apigateway.Cors.ALL_METHODS,
       allowHeaders: [
         'Content-Type',
