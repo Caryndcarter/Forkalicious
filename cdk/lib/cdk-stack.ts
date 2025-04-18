@@ -35,74 +35,29 @@ export class CdkStack extends cdk.Stack {
       ? 'dev.forkalicious.isawesome.xyz'
       : 'forkalicious.isawesome.xyz';
   
-    // 1. S3 Bucket - Check if bucket exists, if not create it
+    // 1. S3 Bucket
     const bucketName = props.envName === 'dev'
       ? 'devcdkstack-devdestinationbucket69d16b35-v9x1dxx2c4gn'
       : 'prodcdkstack-proddestinationbucket69d16b35-xxxxx';
 
-    // Create a custom resource to check if bucket exists
-    const checkBucketFunction = new lambda.Function(this, 'CheckBucketFunction', {
-      runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromInline(`
-        const AWS = require('aws-sdk');
-        const s3 = new AWS.S3();
-        
-        exports.handler = async (event) => {
-          const bucketName = event.ResourceProperties.bucketName;
-          
-          try {
-            await s3.headBucket({ Bucket: bucketName }).promise();
-            return { bucketExists: true };
-          } catch (error) {
-            if (error.code === 'NotFound') {
-              return { bucketExists: false };
-            }
-            throw error;
-          }
-        };
-      `),
+    const destinationBucket = new s3.Bucket(this, `${props.envName}DestinationBucket`, {
+      bucketName: bucketName,
+      accessControl: s3.BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
+      publicReadAccess: true,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      websiteErrorDocument: "index.html",
+      websiteIndexDocument: "index.html",
     });
 
-    checkBucketFunction.addToRolePolicy(
-      new iam.PolicyStatement({
-        actions: ['s3:HeadBucket'],
-        resources: ['*'],
-      })
+    // Grant permissions to GitHub Actions role
+    const githubActionsRole = iam.Role.fromRoleName(
+      this,
+      'GitHubActionsRole',
+      'github-actions-oidc-provider-GitHubDeployIamRole-M86kYZnz1zuV'
     );
 
-    const checkBucket = new cdk.CustomResource(this, 'CheckBucket', {
-      serviceToken: new cdk.CustomResourceProvider(this, 'CheckBucketProvider', {
-        runtime: cdk.CustomResourceProviderRuntime.NODEJS_20_X,
-        codeDirectory: path.join(__dirname, 'custom-resource'),
-        handler: 'index.handler',
-      }).serviceToken,
-      properties: {
-        bucketName: bucketName,
-      },
-    });
-
-    let destinationBucket: s3.IBucket;
-
-    // If bucket doesn't exist, create it
-    if (!checkBucket.getAttString('bucketExists')) {
-      destinationBucket = new s3.Bucket(this, `${props.envName}DestinationBucket`, {
-        bucketName: bucketName,
-        accessControl: s3.BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
-        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
-        publicReadAccess: true,
-        removalPolicy: cdk.RemovalPolicy.RETAIN,
-        websiteErrorDocument: "index.html",
-        websiteIndexDocument: "index.html",
-      });
-    } else {
-      // Use existing bucket
-      destinationBucket = s3.Bucket.fromBucketName(
-        this,
-        `${props.envName}ExistingBucket`,
-        bucketName
-      );
-    }
+    destinationBucket.grantReadWrite(githubActionsRole);
 
     // Export the bucket name for use in GitHub Actions
     new cdk.CfnOutput(this, 'BucketName', {
