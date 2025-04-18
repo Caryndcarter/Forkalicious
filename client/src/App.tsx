@@ -20,7 +20,7 @@ import { defaultRecipe } from "@/types";
 
 // Apollo Client setup
 const httpLink = createHttpLink({
-  uri: "https://333otwehe9.execute-api.us-east-1.amazonaws.com/prod/graphql",
+  uri: import.meta.env.VITE_GRAPHQL_URL,
 });
 
 // Construct request middleware that will attach the JWT token to every request as an `authorization` header
