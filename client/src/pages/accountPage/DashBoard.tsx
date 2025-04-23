@@ -1,5 +1,3 @@
-"use client"
-
 import auth from "@/utils_graphQL/auth"
 import { useLocation } from "react-router-dom"
 import { useEffect, useState } from "react"
