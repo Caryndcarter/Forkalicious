@@ -1,10 +1,9 @@
 import { useState } from "react";
-//import { authService } from "../api/authentication";
-//import UserLogin from "../types/UserLogin";
 import { useMutation } from "@apollo/client";
 import { LOGIN_USER } from "@/utils_graphQL/mutations";
 import type { ChangeEvent, FormEvent } from "react";
 import AuthService from "@/utils_graphQL/auth";
+import { useNavigate } from "react-router-dom";
 
 interface loginFormProps {
   setSignIn: React.Dispatch<React.SetStateAction<boolean>>;
@@ -17,6 +16,9 @@ export default function LoginForm({ setSignIn }: loginFormProps) {
     userEmail: "",
   });
   const [errorMessage, setErrorMessage] = useState("");
+  
+  // Use React Router's navigate hook
+  const navigate = useNavigate();
 
   // Set up mutation hook
   const [login] = useMutation(LOGIN_USER);
@@ -31,11 +33,11 @@ export default function LoginForm({ setSignIn }: loginFormProps) {
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!checkEmail) {
+    if (!checkEmail()) {
       return;
     }
 
-    if (!checkPassword) {
+    if (!checkPassword()) {
       return;
     }
 
@@ -54,6 +56,10 @@ export default function LoginForm({ setSignIn }: loginFormProps) {
 
       const { token, user } = data.login;
       AuthService.login(token, user);
+      
+      // Simply navigate back to the previous page in history
+      navigate(-1);
+      
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes("Wrong password")) {
@@ -62,7 +68,6 @@ export default function LoginForm({ setSignIn }: loginFormProps) {
           setErrorMessage("Incorrect email or password.");
         } else {
           setErrorMessage("An unexpected error occurred.");
-          //console.error(err);
         }
       } else {
         setErrorMessage("An unexpected error occurred.");
@@ -91,8 +96,10 @@ export default function LoginForm({ setSignIn }: loginFormProps) {
     const inputPassword = formValues.userPassword;
     if (inputPassword === "") {
       setErrorMessage("Please enter a password.");
+      return false;
     } else {
       setErrorMessage("");
+      return true;
     }
   };
 

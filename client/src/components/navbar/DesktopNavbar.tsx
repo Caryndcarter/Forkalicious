@@ -13,6 +13,7 @@ import {
   CircleOff,
   UserCog,
   User,
+  Trophy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { page } from ".";
@@ -67,6 +68,8 @@ export default function DesktopNavbar({
         return <BookPlus className="w-5 h-5" />;
       case "userCog":
         return <UserCog className="w-5 h-5" />;
+      case "trophy":
+        return <Trophy className="w-5 h-5" />;
       default:
         return <CircleOff className="w-5 h-5" />;
     }
@@ -138,6 +141,20 @@ export default function DesktopNavbar({
               <span className="text-xs mt-1">{page.name}</span>
             </Link>
           ))}
+
+          {/* Top Ten Recipes Link */}
+          <Link
+            key="/top-recipes"
+            to="/top-recipes"
+            id="nav-top-ten-recipes-link"
+            className={`text-white p-2 rounded-md hover:bg-white/20 flex flex-col items-center mx-4 ${
+              location.pathname === "/top-recipes" ? "bg-white/20" : ""
+            }`}
+            title="Top Recipes"
+          >
+            <Trophy className="w-5 h-5" />
+            <span className="text-xs mt-1">Top Ten</span>
+          </Link>
 
           <Link
             key="/account"
