@@ -142,7 +142,7 @@ export default function DesktopNavbar({
             </Link>
           ))}
 
-          {/* Top Ten Recipes Link */}
+          {/* Top Ten Recipes Link
           <Link
             key="/top-recipes"
             to="/top-recipes"
@@ -154,7 +154,7 @@ export default function DesktopNavbar({
           >
             <Trophy className="w-5 h-5" />
             <span className="text-xs mt-1">Top Ten</span>
-          </Link>
+          </Link> */}
 
           <Link
             key="/account"
