@@ -18,9 +18,13 @@ import ScrollToTop from "./components/ScrollToTop";
 import AuthTracker from "./components/AuthTracker.js";
 import { defaultRecipe } from "@/types";
 
+// Debug: Log environment variables
+console.log('Current environment:', import.meta.env.MODE);
+console.log('GraphQL URL:', import.meta.env.VITE_GRAPHQL_URL);
+
 // Apollo Client setup
 const httpLink = createHttpLink({
-  uri: import.meta.env.VITE_GRAPHQL_URL,
+  uri: import.meta.env.VITE_GRAPHQL_URL
 });
 
 // Construct request middleware that will attach the JWT token to every request as an `authorization` header
