@@ -70,11 +70,25 @@ const initializeServer = async () => {
     await server.start();
     console.log('Apollo Server started');
 
-    // Mount GraphQL middleware
-    app.use(
+     // Mount GraphQL middleware with a custom context function
+     app.use(
       "/graphql",
       expressMiddleware(server, {
-        context: graphQLAuthMiddleware,
+        context: async ({ req }) => {
+          try {
+            // Call your authentication middleware
+            const result = graphQLAuthMiddleware({ req });
+            
+            // Extract user data from the result
+            const user = result.user || null;
+            
+            // Return a simple context object with just the user data
+            return { user };
+          } catch (error) {
+            console.error('Error in context function:', error);
+            return { user: null }; // Default context to avoid breaking the request
+          }
+        },
       })
     );
 
