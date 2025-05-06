@@ -12,19 +12,25 @@ if (!secretKey) {
 }
 
 export const authenticateToken = ({ req }: any) => {
-
-  // Temporarily disable authentication for all requests in AWS
-  if (process.env.NODE_ENV === 'production') {
-    console.log('Authentication temporarily disabled in production');
-    return { user: null };
-  }
+    // Check if we're in production (AWS)
+    const isProduction = process.env.NODE_ENV === 'production';
   
+    // For debugging
+    console.log(`Environment: ${isProduction ? 'Production' : 'Development'}`);
+    
+    // Temporarily disable authentication for all requests in AWS
+    if (isProduction) {
+      console.log('Authentication temporarily disabled in production');
+      return { user: null };
+    }
+
+
   // skips authentication process if loging in or signing up
   if (
     req.body.query.includes("loginUser") ||
     req.body.query.includes("signUp")
   ) {
-    return req;
+    return isProduction ? { user: null } : req;
   }
 
   // Collects token from req.body, req.query, or req.headers
