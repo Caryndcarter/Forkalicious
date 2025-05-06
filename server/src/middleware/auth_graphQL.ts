@@ -46,7 +46,12 @@ export const authenticateToken = ({ req }: any) => {
     const { data }: any = jwt.verify(token, process.env.JWT_SECRET_KEY || "");
      // In production, return a context object with the user data
     // In development, return the request object as before
-    return isProduction ? { user: data } : req;
+    if (isProduction) {
+      return { user: data };
+    } else {
+      req.user = data;  // Attach the user data to req
+      return req;
+  }
   } catch (err) {
     // If the token is invalid, log an error message
     throw new GraphQLError("Invalid or expired token", {

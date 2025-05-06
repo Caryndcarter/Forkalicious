@@ -76,23 +76,13 @@ const initializeServer = async () => {
       expressMiddleware(server, {
         context: async ({ req }) => {
           try {
-
-             // Log the request for debugging
-            console.log('GraphQL request path:', req.path);
-            console.log('GraphQL request method:', req.method);
-            console.log('GraphQL request headers:', JSON.stringify(req.headers, null, 2));
-            console.log('GraphQL request body:', JSON.stringify(req.body, null, 2));
+    
             // Call your authentication middleware
             const result = graphQLAuthMiddleware({ req });
         
             // Create a context object that mimics the structure expected by your resolvers
             let user = null; 
-
-             // Log the result for debugging
-            console.log('Auth middleware result type:', typeof result);
-            console.log('Auth middleware result:', JSON.stringify(result, null, 2));
-        
-
+    
             if (result) {
               if (result.user) {
                 // If result has a user property (AWS environment)
