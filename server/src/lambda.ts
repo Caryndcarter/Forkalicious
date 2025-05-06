@@ -78,18 +78,33 @@ const initializeServer = async () => {
           try {
             // Call your authentication middleware
             const result = graphQLAuthMiddleware({ req });
+        
+            // Create a context object that mimics the structure expected by your resolvers
+            let user = null; 
+
+            if (result) {
+              if (result.user) {
+                // If result has a user property (AWS environment)
+                user = result.user; 
+              } else if (result.user === undefined) {
+                // If result is the req object (local environment)
+                // Extract user from req and add it to context
+                user = result.user;
+              }
+            }
             
             // Extract user data from the result
-            const user = result.user || null;
+            //const user = result.user || null;
             
             // Return a simple context object with just the user data
-            return { user };
+            //return { user };
+            return { user }; 
           } catch (error) {
             console.error('Error in context function:', error);
             return { user: null }; // Default context to avoid breaking the request
           }
         },
-      })
+      }) 
     );
 
     // Use your custom routes

@@ -17,8 +17,6 @@ export const authenticateToken = ({ req }: any) => {
   
     // For debugging
     console.log(`Environment: ${isProduction ? 'Production' : 'Development'}`);
-    
-
 
   // skips authentication process if loging in or signing up
   if (
