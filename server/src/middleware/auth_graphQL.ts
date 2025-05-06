@@ -18,11 +18,6 @@ export const authenticateToken = ({ req }: any) => {
     // For debugging
     console.log(`Environment: ${isProduction ? 'Production' : 'Development'}`);
     
-    // Temporarily disable authentication for all requests in AWS
-    if (isProduction) {
-      console.log('Authentication temporarily disabled in production');
-      return { user: null };
-    }
 
 
   // skips authentication process if loging in or signing up
@@ -51,16 +46,15 @@ export const authenticateToken = ({ req }: any) => {
   try {
     // If the token is valid, attach the user data to the request object
     const { data }: any = jwt.verify(token, process.env.JWT_SECRET_KEY || "");
-    req.user = data;
+     // In production, return a context object with the user data
+    // In development, return the request object as before
+    return isProduction ? { user: data } : req;
   } catch (err) {
     // If the token is invalid, log an error message
     throw new GraphQLError("Invalid or expired token", {
       extensions: { code: "UNAUTHENTICATED" },
     });
   }
-
-  // Return the request object after verifying the token
-  return req;
 };
 
 export const signToken = (
