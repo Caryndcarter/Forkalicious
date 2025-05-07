@@ -172,6 +172,12 @@ const RecipeMaker = () => {
       return;
     }
 
+    // ensure the author's ID value can be tracked:
+    const authorID: string | null = Auth.getProfile()?._id;
+    if (!authorID) {
+      setErrorMessage("could not validate you identity. Please log in again.");
+    }
+
     // Clear any previous validation errors
     setValidationErrors({});
 
@@ -187,7 +193,7 @@ const RecipeMaker = () => {
         recipeInput: {
           title: recipe.title,
           summary: recipe.summary,
-          author: recipe.author,
+          author: authorID,
           readyInMinutes: recipe.readyInMinutes,
           servings: recipe.servings,
           ingredients: recipe.ingredients,
