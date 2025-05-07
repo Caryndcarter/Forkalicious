@@ -6,26 +6,81 @@ import { useState } from "react";
 import { DropDownMultiSelect } from "@/components/forms";
 import { dietOptions } from "@/types";
 import { InputMultiSelect } from "@/components/forms";
+import Heading from "../Heading";
+import localStorageService from "@/utils_graphQL/localStorageService";
 
 interface updateFormProps {
   recipe: RecipeDetails;
   setRecipe: any;
   setUpdateVisible: any;
+  updateRecipe: any;
 }
 
 export default function UpdateForm({
   recipe,
   setRecipe,
   setUpdateVisible,
+  updateRecipe,
 }: updateFormProps) {
   const [updatedRecipe, setUpdatedRecipe] = useState<RecipeDetails>(recipe);
+  const [loadingUpdate, setLoadingUpdate] = useState<boolean>(false);
 
-  const submitRecipeUpdate = (event: any) => {
+  const submitRecipeUpdate = async (event: any) => {
     event.preventDefault();
+    window.scrollTo(0, 0);
+
+    setLoadingUpdate(true);
+    const { data } = await updateRecipe({
+      variables: {
+        mongoID: recipe._id,
+        update: {
+          title: updatedRecipe.title,
+          summary: updatedRecipe.summary,
+          readyInMinutes: updatedRecipe.readyInMinutes,
+          servings: updatedRecipe.servings,
+          ingredients: updatedRecipe.ingredients,
+          instructions: updatedRecipe.instructions,
+          steps: updatedRecipe.steps,
+          diet: updatedRecipe.diets,
+          image: updatedRecipe.image,
+          sourceUrl: updatedRecipe.sourceUrl,
+          spoonacularId: updatedRecipe.spoonacularId,
+          spoonacularSourceUrl: updatedRecipe.spoonacularSourceUrl,
+        },
+      },
+    });
+
+    if (!data) {
+      console.error("Failed to update recipe");
+      // error handling...
+      return;
+    }
+
+    console.log(JSON.stringify(data.updateRecipe));
+
+    setRecipe({
+      ...recipe,
+      ...data.updateRecipe,
+    });
+
+    localStorageService.setCurrentRecipe({ ...recipe, ...data.updateRecipe });
+
+    setLoadingUpdate(false);
     setUpdateVisible(false);
     return;
     setRecipe;
   };
+
+  if (loadingUpdate) {
+    return (
+      <>
+        <Heading {...updatedRecipe} />
+        <div className="flex justify-center mt-6">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-amber-500 border-t-transparent"></div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

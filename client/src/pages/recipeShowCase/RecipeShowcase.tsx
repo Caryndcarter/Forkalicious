@@ -16,6 +16,7 @@ import {
   ADD_RECIPE,
   SAVE_RECIPE,
   REMOVE_RECIPE,
+  UPDATE_RECIPE,
 } from "@/utils_graphQL/mutations";
 import { GET_RECIPE, GET_SPECIFIC_RECIPE_ID } from "@/utils_graphQL/queries";
 import Auth from "@/utils_graphQL/auth";
@@ -44,6 +45,7 @@ export default function RecipeShowcase() {
   const [addRecipe] = useMutation(ADD_RECIPE);
   const [saveRecipe] = useMutation(SAVE_RECIPE);
   const [removeRecipe] = useMutation(REMOVE_RECIPE);
+  const [updateRecipe] = useMutation(UPDATE_RECIPE);
   const { data, refetch } = useQuery(GET_SPECIFIC_RECIPE_ID, {
     variables: { recipeId: currentRecipeDetails._id },
     skip: skipQuery,
@@ -231,6 +233,7 @@ export default function RecipeShowcase() {
             recipe={currentRecipeDetails}
             setRecipe={setCurrentRecipeDetails}
             setUpdateVisible={setUpdateVisible}
+            updateRecipe={updateRecipe}
           ></UpdateForm>
         </div>
       </div>
