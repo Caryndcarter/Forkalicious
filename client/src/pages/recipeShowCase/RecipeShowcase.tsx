@@ -126,7 +126,7 @@ export default function RecipeShowcase() {
 
     if (currentRecipeDetails.author == id && loginCheck) {
       setIsAuthor(true);
-    }
+    } else setIsAuthor(false);
   }, [data, loginCheck, currentRecipeDetails.author]);
 
   // Function to save recipe
