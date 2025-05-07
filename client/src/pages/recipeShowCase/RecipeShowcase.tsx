@@ -3,7 +3,7 @@ import { useCallback, useContext, useLayoutEffect } from "react";
 import { currentRecipeContext } from "@/App";
 import { editingContext } from "@/App";
 import { useState, useEffect } from "react";
-import UpdateForm from "./UpdateForm";
+import UpdateForm from "./updateRecipeForm/UpdateForm";
 import ButtonManager from "./ButtonManager";
 import localData from "@/utils_graphQL/localStorageService";
 import ReviewSection from "./Reviews";
@@ -33,8 +33,6 @@ export default function RecipeShowcase() {
 
   const [loginCheck, setLoginCheck] = useState(false);
   const [updateVisible, setUpdateVisible] = useState<boolean>(false);
-  const [updateValues, setUpdateValues] =
-    useState<RecipeDetails>(currentRecipeDetails);
   const [loading, setLoading] = useState<boolean>(true);
   const [skipQuery, setSkipQuery] = useState<boolean>(true);
   const [isSaved, setIsSaved] = useState<boolean>(false);
@@ -230,8 +228,8 @@ export default function RecipeShowcase() {
       <div className="bg-[#fef3d0] min-h-screen pt-24">
         <div className="max-w-2xl mx-auto p-6 bg-[#fadaae] shadow-lg rounded-lg mt-10 border border-gray-200">
           <UpdateForm
-            updateValues={updateValues}
-            setUpdateValues={setUpdateValues}
+            recipe={currentRecipeDetails}
+            setRecipe={setCurrentRecipeDetails}
             setUpdateVisible={setUpdateVisible}
           ></UpdateForm>
         </div>
