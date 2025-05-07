@@ -1,7 +1,5 @@
 import { RecipeDetails } from "@/types";
 import { Pencil } from "lucide-react";
-import { DropDownMultiSelect } from "@/components/forms";
-import { dietOptions } from "@/types";
 
 interface editableHeadingProps {
   recipe: RecipeDetails;
@@ -79,14 +77,6 @@ export default function EditableHeading({
           />
         </span>
       </h4>
-
-      {/* Diets */}
-      <DropDownMultiSelect
-        name="diets"
-        placeholder="Select the diets"
-        options={dietOptions}
-        initialSelection={recipe.diets ?? []}
-      />
     </>
   );
 }

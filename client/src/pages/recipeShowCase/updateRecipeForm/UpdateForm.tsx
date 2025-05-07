@@ -3,6 +3,9 @@ import type { RecipeDetails } from "@/types";
 // import { dietOptions, intoleranceOptions } from "@/types";
 import EditableHeading from "./EditableHeading";
 import { useState } from "react";
+import { DropDownMultiSelect } from "@/components/forms";
+import { dietOptions } from "@/types";
+import { InputMultiSelect } from "@/components/forms";
 
 interface updateFormProps {
   recipe: RecipeDetails;
@@ -42,6 +45,56 @@ export default function UpdateForm({
         >
           Cancel Edits
         </button>
+
+        {/* Diets */}
+        <DropDownMultiSelect
+          name="diets"
+          placeholder="Select the diets"
+          options={dietOptions}
+          initialSelection={updatedRecipe.diets ?? []}
+        />
+
+        {/* Summary */}
+        <div>
+          <label className="block font-bold mb-1">Summary*</label>
+          <textarea
+            id="update-summary"
+            value={updatedRecipe.summary}
+            className="w-full h-full"
+            onChange={(event) => {
+              const text = event.target.value;
+              setUpdatedRecipe({ ...updatedRecipe, summary: text });
+            }}
+          />
+        </div>
+
+        {/* Ingredients */}
+        <InputMultiSelect
+          name="Ingredient"
+          placeholder="Enter the ingredients used in this recipe"
+          initialSelection={updatedRecipe.ingredients}
+        ></InputMultiSelect>
+
+        {/* Instructions */}
+        <div>
+          <label className="block font-bold mb-1">Instructions*</label>
+          <textarea
+            id="update-instructions"
+            value={updatedRecipe.instructions}
+            className="w-full h-full"
+            onChange={(event) => {
+              const text = event.target.value;
+              setUpdatedRecipe({ ...updatedRecipe, instructions: text });
+            }}
+          />
+        </div>
+
+        {/* Steps */}
+        <InputMultiSelect
+          name="Steps"
+          placeholder="Enter the steps to make this recipe"
+          initialSelection={updatedRecipe.ingredients}
+        ></InputMultiSelect>
 
         <button
           type="submit"
