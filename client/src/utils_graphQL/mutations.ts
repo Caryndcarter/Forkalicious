@@ -141,3 +141,12 @@ export const DELETE_USER = gql`
     }
   }
 `;
+
+export const UPDATE_RECIPE = gql`
+  mutation updateRecipe($mongoID: ID!, $update: updateInfo) {
+    updateRecipe(mongoID: $mongoID, update: $update) {
+      title
+      _id
+    }
+  }
+`;
