@@ -10,6 +10,7 @@ import saveReviewToRecipe from "./saveReviewToRecipe.js";
 import saveReviewToUser from "./saveReviewToUser.js";
 import signUp from "./signUp.js";
 import updatePreferences from "./updatePreferences.js";
+import updateRecipe from "./updateRecipe.js";
 
 export default {
   ...addRecipe,
@@ -24,4 +25,5 @@ export default {
   ...saveReviewToUser,
   ...signUp,
   ...updatePreferences,
+  ...updateRecipe,
 };
