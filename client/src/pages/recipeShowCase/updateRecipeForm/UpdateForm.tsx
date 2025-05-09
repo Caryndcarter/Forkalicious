@@ -1,11 +1,10 @@
-import type { RecipeDetails } from "@/types";
-// import { DropDownMultiSelect, DropDownSelection } from "@/components/forms";
+import type { diet, RecipeDetails } from "@/types";
 // import { dietOptions, intoleranceOptions } from "@/types";
 import EditableHeading from "./EditableHeading";
 import { useState } from "react";
-import { DropDownMultiSelect } from "@/components/forms";
+import OnChangeDropDownMultiSelect from "@/components/forms/OnChangeDropDownMultiSelect";
+import OnChangeInputMultiSelect from "@/components/forms/OnChangeInputMultiSelect";
 import { dietOptions } from "@/types";
-import { InputMultiSelect } from "@/components/forms";
 import Heading from "../Heading";
 import localStorageService from "@/utils_graphQL/localStorageService";
 
@@ -102,11 +101,14 @@ export default function UpdateForm({
         </button>
 
         {/* Diets */}
-        <DropDownMultiSelect
+        <OnChangeDropDownMultiSelect
           name="diets"
           placeholder="Select the diets"
           options={dietOptions}
-          initialSelection={updatedRecipe.diets ?? []}
+          selection={updatedRecipe.diets ?? []}
+          setSelection={(newDiets: diet[]) => {
+            setUpdatedRecipe({ ...updatedRecipe, diets: newDiets });
+          }}
         />
 
         {/* Summary */}
@@ -124,11 +126,14 @@ export default function UpdateForm({
         </div>
 
         {/* Ingredients */}
-        <InputMultiSelect
+        <OnChangeInputMultiSelect
           name="Ingredient"
           placeholder="Enter the ingredients used in this recipe"
-          initialSelection={updatedRecipe.ingredients}
-        ></InputMultiSelect>
+          selection={updatedRecipe.ingredients}
+          setSelection={(ingredients: string[]) => {
+            setUpdatedRecipe({ ...updatedRecipe, ingredients: ingredients });
+          }}
+        />
 
         {/* Instructions */}
         <div>
@@ -145,11 +150,14 @@ export default function UpdateForm({
         </div>
 
         {/* Steps */}
-        <InputMultiSelect
+        <OnChangeInputMultiSelect
           name="Steps"
           placeholder="Enter the steps to make this recipe"
-          initialSelection={updatedRecipe.ingredients}
-        ></InputMultiSelect>
+          selection={updatedRecipe.steps ?? []}
+          setSelection={(steps: string[]) => {
+            setUpdatedRecipe({ ...updatedRecipe, steps: steps });
+          }}
+        />
 
         <button
           type="submit"
