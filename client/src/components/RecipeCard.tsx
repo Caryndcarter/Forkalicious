@@ -1,5 +1,3 @@
-"use client";
-
 import type Recipe from "../types/recipe";
 import { useNavigate } from "react-router-dom";
 import { useCallback } from "react";
@@ -26,13 +24,28 @@ export default function RecipeCard({
     navigate("/recipe-showcase");
   }, []);
 
+  // Function to ensure image URL has a jpg extension
+  const ensureJpgExtension = (imageUrl: string | undefined): string => {
+    if (!imageUrl) return "/public/Utitled design.jpg";
+    
+    // Check if the URL ends with a file extension
+    const hasFileExtension = /\.\w+$/.test(imageUrl);
+    
+    // If it has a period but no recognized image extension, append jpg
+    if (imageUrl.includes('.') && !hasFileExtension) {
+      return `${imageUrl}jpg`;
+    }
+    
+    return imageUrl;
+  };
+
   return (
     <div className="flex flex-col bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-transform transform hover:scale-105 h-full">
       {/* Recipe Image */}
       <div className="w-full h-56 flex-shrink-0 relative overflow-hidden">
         {image ? (
           <img
-            src={image || "/placeholder.svg"}
+            src={ensureJpgExtension(image)}
             alt={title}
             className="absolute inset-0 w-full h-full object-cover object-center"
           />
