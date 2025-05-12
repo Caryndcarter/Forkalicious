@@ -8,13 +8,18 @@ export default function ButtonManager({
   isAuthor,
   editRecipe,
   isSaved,
+  setUpdateVisible,
   deleteCurrentRecipe,
   saveCurrentRecipe,
 }: any) {
   return (
     <div className="flex flex-wrap gap-2 mt-4">
       {isAuthor ? (
-        <EditRecipeButton onClick={editRecipe} />
+        <EditRecipeButton
+          onClick={() => {
+            setUpdateVisible(true);
+          }}
+        />
       ) : (
         <CopyRecipeButton onClick={editRecipe} />
       )}

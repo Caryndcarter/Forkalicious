@@ -1,13 +1,8 @@
-import {
-  RecipeDetails,
-  defaultRecipe,
-  DietaryNeeds,
-  searchParamters,
-  Recipe,
-} from "@/types";
+import { RecipeDetails, DietaryNeeds, searchParamters, Recipe } from "@/types";
 
 const expirationTimeMinutes = 1;
 
+const recipeCardID = "Recipe Card";
 const currentRecipeID = "Current Recipe";
 const tokenID = "Authentication Token";
 const accountDietID = "Dietary Needs",
@@ -25,11 +20,30 @@ class LocalStorageService {
     this.removeFilter();
   }
 
-  getCurrentRecipe(): RecipeDetails {
+  getCurrentCard(): Recipe {
+    const stringyCard = localStorage.getItem(recipeCardID);
+
+    if (!stringyCard) {
+      return { _id: -1, spoonacularId: -1, title: "", image: "" };
+    }
+
+    return JSON.parse(stringyCard);
+  }
+
+  setCurrentCard(recipe: Recipe) {
+    const stringyRecipe = JSON.stringify(recipe);
+    localStorage.setItem(recipeCardID, stringyRecipe);
+  }
+
+  removeCurrentCard() {
+    localStorage.removeItem(recipeCardID);
+  }
+
+  getCurrentRecipe(): RecipeDetails | null {
     const stringyRecipe = localStorage.getItem(currentRecipeID);
 
     if (!stringyRecipe) {
-      return defaultRecipe;
+      return null;
     }
 
     return JSON.parse(stringyRecipe);

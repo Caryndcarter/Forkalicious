@@ -22,6 +22,7 @@ const typeDefs = `
     saveReviewToUser(reviewId: ID!): User
     saveReviewToRecipe(recipeId: ID!, reviewId: ID!): Recipe
     deleteReview(reviewId: ID!): User!
+    updateRecipe(mongoID: ID!, update: updateInfo): Recipe
   }
 
   type Mutation {
@@ -76,6 +77,21 @@ const typeDefs = `
     ingredients: [String!]!
     instructions: String!
     steps: [String!]!
+    diet: [String]
+    image: String
+    sourceUrl: String
+    spoonacularId: Int
+    spoonacularSourceUrl: String
+  }
+
+  input updateInfo {
+    title: String
+    summary: String
+    readyInMinutes: Int
+    servings: Int
+    ingredients: [String]
+    instructions: String
+    steps: [String]
     diet: [String]
     image: String
     sourceUrl: String

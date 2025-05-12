@@ -141,3 +141,23 @@ export const DELETE_USER = gql`
     }
   }
 `;
+
+export const UPDATE_RECIPE = gql`
+  mutation updateRecipe($mongoID: ID!, $update: updateInfo) {
+    updateRecipe(mongoID: $mongoID, update: $update) {
+      title
+      summary
+      readyInMinutes
+      servings
+      ingredients
+      instructions
+      steps
+      diet
+      image
+      sourceUrl
+      spoonacularId
+      spoonacularSourceUrl
+      reviews
+    }
+  }
+`;
