@@ -1,9 +1,10 @@
-"use client";
-
 import type Recipe from "../types/recipe";
 import { useNavigate } from "react-router-dom";
 import { useCallback } from "react";
 import localData from "@/utils_graphQL/localStorageService";
+
+// Import the default image properly
+import defaultImage from "/src/assets/Untitled design.jpg"; // Adjust path as needed
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -18,29 +19,46 @@ export default function RecipeCard({
     const thisCard = { _id, spoonacularId, title, image };
     const storedCard = localData.getCurrentCard();
 
-    if (JSON.stringify(thisCard) != JSON.stringify(storedCard)) {
+    if (JSON.stringify(thisCard) !== JSON.stringify(storedCard)) {
       localData.setCurrentCard(thisCard);
       localData.removeCurrentRecipe();
     }
 
     navigate("/recipe-showcase");
-  }, []);
+  }, [_id, spoonacularId, title, image, navigate]);
+
+  // Function to ensure image URL has a jpg extension
+  const ensureJpgExtension = (imageUrl: string | undefined): string => {
+    if (!imageUrl) return defaultImage;
+    
+    // Check if the URL ends with a file extension
+    const hasFileExtension = /\.\w+$/.test(imageUrl);
+    
+    // If it has a period but no recognized image extension, append jpg
+    if (imageUrl.includes('.') && !hasFileExtension) {
+      return `${imageUrl}jpg`;
+    }
+    
+    return imageUrl;
+  };
 
   return (
     <div className="flex flex-col bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-transform transform hover:scale-105 h-full">
       {/* Recipe Image */}
       <div className="w-full h-56 flex-shrink-0 relative overflow-hidden">
         {image ? (
-          <img
-            src={image || "/placeholder.svg"}
-            alt={title}
-            className="absolute inset-0 w-full h-full object-cover object-center"
-          />
-        ) : (
-          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-            <span className="text-gray-400">No image</span>
-          </div>
-        )}
+            <img
+              src={ensureJpgExtension(image)}
+              alt={title}
+              className="absolute inset-0 w-full h-full object-cover object-center"
+            />
+          ) : (
+            <img
+              src={defaultImage}
+              alt="Default recipe image"
+              className="absolute inset-0 w-full h-full object-cover object-center"
+            />
+          )}
       </div>
 
       {/* Content Area - Using flex-grow to fill remaining space */}
