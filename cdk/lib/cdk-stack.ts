@@ -141,7 +141,7 @@ export class CdkStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY // or RETAIN if you want to keep logs after stack deletion
     });
 
-\  // 9 .Create Lambda function for your backend
+// 9 .Create Lambda function for your backend
   const backendFunction = new lambda.Function(this, 'BackendFunction', {
     functionName: `${props.envName}-forkalicious-backend`,
     runtime: lambda.Runtime.NODEJS_20_X,
