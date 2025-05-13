@@ -7,6 +7,21 @@
 // }
 import defaultImage from "/src/assets/Untitled design.jpg"
 
+// Function to ensure image URL has a jpg extension
+  const ensureJpgExtension = (imageUrl: string | undefined): string => {
+    if (!imageUrl) return defaultImage;
+    
+    // Check if the URL ends with a file extension
+    const hasFileExtension = /\.\w+$/.test(imageUrl);
+    
+    // If it has a period but no recognized image extension, append jpg
+    if (imageUrl.includes('.') && !hasFileExtension) {
+      return `${imageUrl}jpg`;
+    }
+    
+    return imageUrl;
+  };
+
 export default function Heading({
   image,
   title,
@@ -18,9 +33,9 @@ export default function Heading({
     <>
       {/* Recipe Image */}
       <div className="mb-6 space-y-6">
-       {image ? (
+        {image ? (
             <img
-              src={image}
+              src={ensureJpgExtension(image)}
               alt={title}
               className="w-full h-64 object-cover rounded-md"
             />

@@ -1,10 +1,26 @@
 import { RecipeDetails } from "@/types";
 import { Pencil } from "lucide-react";
+import defaultImage from "/src/assets/Untitled design.jpg"
 
 interface editableHeadingProps {
   recipe: RecipeDetails;
   setRecipe: any;
 }
+
+// Function to ensure image URL has a jpg extension
+  const ensureJpgExtension = (imageUrl: string | undefined): string => {
+    if (!imageUrl) return defaultImage;
+    
+    // Check if the URL ends with a file extension
+    const hasFileExtension = /\.\w+$/.test(imageUrl);
+    
+    // If it has a period but no recognized image extension, append jpg
+    if (imageUrl.includes('.') && !hasFileExtension) {
+      return `${imageUrl}jpg`;
+    }
+    
+    return imageUrl;
+  };
 
 export default function EditableHeading({
   recipe,
@@ -22,11 +38,19 @@ export default function EditableHeading({
     <>
       {/* Recipe Image */}
       <div className="relative group cursor-pointer" onClick={handleImageClick}>
-        <img
-          src={recipe.image ?? "./placeholder.svg"}
-          alt="Recipe"
-          className="w-full h-64 object-cover rounded-md"
-        />
+        {Image ? (
+            <img
+              src={ensureJpgExtension(recipe.image || "")}
+              alt={recipe.title}
+              className="w-full h-64 object-cover rounded-md"
+            />
+          ) : (
+            <img
+              src={defaultImage}
+              alt="Default recipe image"
+              className="w-full h-64 object-cover rounded-md"
+            />
+          )}
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md">
           <Pencil className="h-8 w-8 text-white" />
         </div>
