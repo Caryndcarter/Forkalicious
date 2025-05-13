@@ -5,6 +5,7 @@
 //   servings: number;
 //   diets: [];
 // }
+import defaultImage from "/src/assets/Untitled design.jpg"
 
 export default function Heading({
   image,
@@ -17,13 +18,21 @@ export default function Heading({
     <>
       {/* Recipe Image */}
       <div className="mb-6 space-y-6">
-        <img
-          src={image ?? "./placeholder.svg"}
-          alt="Recipe"
-          className="w-full h-64 object-cover rounded-md"
-        />
+       {image ? (
+            <img
+              src={image}
+              alt={title}
+              className="w-full h-64 object-cover rounded-md"
+            />
+          ) : (
+            <img
+              src={defaultImage}
+              alt="Default recipe image"
+              className="w-full h-64 object-cover rounded-md"
+            />
+          )}
       </div>
-
+      
       {/* Recipe Title */}
       <h2 className="text-3xl font-bold text-[#a84e24] mb-4">{title}</h2>
 
