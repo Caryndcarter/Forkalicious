@@ -3,6 +3,7 @@ import { useCallback, useContext, useLayoutEffect } from "react";
 import { currentRecipeContext } from "@/App";
 import { editingContext } from "@/App";
 import { useState, useEffect } from "react";
+import UpdateForm from "./updateRecipeForm/UpdateForm";
 import ButtonManager from "./ButtonManager";
 import localData from "@/utils_graphQL/localStorageService";
 import ReviewSection from "./Reviews";
@@ -15,6 +16,7 @@ import {
   ADD_RECIPE,
   SAVE_RECIPE,
   REMOVE_RECIPE,
+  UPDATE_RECIPE,
 } from "@/utils_graphQL/mutations";
 import { GET_RECIPE, GET_SPECIFIC_RECIPE_ID } from "@/utils_graphQL/queries";
 import Auth from "@/utils_graphQL/auth";
@@ -31,6 +33,7 @@ export default function RecipeShowcase() {
   const { setIsEditing } = useContext(editingContext);
 
   const [loginCheck, setLoginCheck] = useState(false);
+  const [updateVisible, setUpdateVisible] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [skipQuery, setSkipQuery] = useState<boolean>(true);
   const [isSaved, setIsSaved] = useState<boolean>(false);
@@ -42,6 +45,7 @@ export default function RecipeShowcase() {
   const [addRecipe] = useMutation(ADD_RECIPE);
   const [saveRecipe] = useMutation(SAVE_RECIPE);
   const [removeRecipe] = useMutation(REMOVE_RECIPE);
+  const [updateRecipe] = useMutation(UPDATE_RECIPE);
   const { data, refetch } = useQuery(GET_SPECIFIC_RECIPE_ID, {
     variables: { recipeId: currentRecipeDetails._id },
     skip: skipQuery,
@@ -126,7 +130,7 @@ export default function RecipeShowcase() {
 
     if (currentRecipeDetails.author == id && loginCheck) {
       setIsAuthor(true);
-    }
+    } else setIsAuthor(false);
   }, [data, loginCheck, currentRecipeDetails.author]);
 
   // Function to save recipe
@@ -220,6 +224,21 @@ export default function RecipeShowcase() {
       </div>
     );
   }
+
+  if (updateVisible) {
+    return (
+      <div className="bg-[#fef3d0] min-h-screen pt-24">
+        <div className="max-w-2xl mx-auto p-6 bg-[#fadaae] shadow-lg rounded-lg mt-10 border border-gray-200">
+          <UpdateForm
+            recipe={currentRecipeDetails}
+            setRecipe={setCurrentRecipeDetails}
+            setUpdateVisible={setUpdateVisible}
+            updateRecipe={updateRecipe}
+          ></UpdateForm>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="bg-[#fef3d0] min-h-screen pt-24">
       <div className="max-w-2xl mx-auto p-6 bg-[#fadaae] shadow-lg rounded-lg mt-10 border border-gray-200">
@@ -236,6 +255,7 @@ export default function RecipeShowcase() {
             isAuthor={isAuthor}
             editRecipe={editRecipe}
             isSaved={isSaved}
+            setUpdateVisible={setUpdateVisible}
             deleteCurrentRecipe={deleteCurrentRecipe}
             saveCurrentRecipe={saveCurrentRecipe}
           />
