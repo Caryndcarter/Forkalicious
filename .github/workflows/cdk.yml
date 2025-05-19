@@ -153,10 +153,8 @@ jobs:
       - name: Sync Client to S3
         run: |
           if [[ ${{ github.ref }} == refs/heads/cdk-dev-* ]]; then
-        # For dev branches, use the known dev bucket name
             BUCKET_NAME="devcdkstack-devdestinationbucket69d16b35-v9x1dxx2c4gn"
           else
-        # For production, use the known production bucket name
             BUCKET_NAME="cdkstack-destinationbucket4becdb47-pbugoqquu3wy"
           fi
     
