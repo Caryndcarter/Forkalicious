@@ -152,88 +152,16 @@ jobs:
 
       - name: Sync Client to S3
         run: |
-
-          echo "Current branch: ${{ github.ref }}"
-          
-          # List all available CloudFormation stacks
-          echo "Available CloudFormation stacks:"
-          aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE | grep StackName
-          
           if [[ ${{ github.ref }} == refs/heads/cdk-dev-* ]]; then
-            STACK_NAME="DevCdkStack"
+        # For dev branches, use the known dev bucket name
+            BUCKET_NAME="devcdkstack-devdestinationbucket69d16b35-v9x1dxx2c4gn"
           else
-            STACK_NAME="CdkStack"
+        # For production, use the known production bucket name
+            BUCKET_NAME="cdkstack-destinationbucket4becdb47-pbugoqquu3wy"
           fi
-          
-          echo "Using stack name: $STACK_NAME"
-          
-          # Check if the stack exists
-          if aws cloudformation describe-stacks --stack-name $STACK_NAME &> /dev/null; then
-            echo "Stack $STACK_NAME exists"
-            
-            # Get stack outputs
-            echo "Stack outputs:"
-            aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output json
-            
-            # Try different case variations of the output key
-            echo "Trying different case variations of the output key..."
-            BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs[?OutputKey==`BucketName`].OutputValue' --output text)
-            
-            if [ -z "$BUCKET_NAME" ]; then
-              echo "Trying 'bucketname'..."
-              BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs[?OutputKey==`bucketname`].OutputValue' --output text)
-            fi
-            
-            if [ -z "$BUCKET_NAME" ]; then
-              echo "Trying 'Bucket'..."
-              BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs[?OutputKey==`Bucket`].OutputValue' --output text)
-            fi
-            
-            if [ -z "$BUCKET_NAME" ]; then
-              echo "Trying 'bucket'..."
-              BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs[?OutputKey==`bucket`].OutputValue' --output text)
-            fi
-            
-            echo "Bucket name from stack output: '$BUCKET_NAME'"
-            
-            if [ -z "$BUCKET_NAME" ]; then
-              echo "ERROR: Bucket name is empty. Checking all stack outputs..."
-              
-              # Get all outputs
-              ALL_OUTPUTS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output json)
-              echo "All outputs: $ALL_OUTPUTS"
-              
-              # List S3 buckets as a fallback
-              echo "Available S3 buckets:"
-              aws s3 ls
-              
-              # Try to find a bucket with a name that matches the stack
-              echo "Looking for buckets with names containing '$STACK_NAME'..."
-              POTENTIAL_BUCKET=$(aws s3 ls | grep -i $STACK_NAME | awk '{print $3}')
-              if [ ! -z "$POTENTIAL_BUCKET" ]; then
-                echo "Found potential bucket: $POTENTIAL_BUCKET"
-                BUCKET_NAME=$POTENTIAL_BUCKET
-              else
-                echo "No matching bucket found. Looking for any bucket..."
-                # Just use the first bucket as a last resort
-                POTENTIAL_BUCKET=$(aws s3 ls | head -n 1 | awk '{print $3}')
-                if [ ! -z "$POTENTIAL_BUCKET" ]; then
-                  echo "Using first available bucket: $POTENTIAL_BUCKET"
-                  BUCKET_NAME=$POTENTIAL_BUCKET
-                else
-                  echo "No buckets found. Cannot proceed."
-                  exit 1
-                fi
-              fi
-            fi
-            
-            echo "Syncing client build to S3 bucket: $BUCKET_NAME"
-            aws s3 sync client/dist "s3://$BUCKET_NAME" --delete
-          else
-            echo "ERROR: Stack $STACK_NAME does not exist"
-            exit 1
-          fi
-
+    
+          echo "Syncing client build to S3 bucket: $BUCKET_NAME"
+          aws s3 sync client/dist "s3://$BUCKET_NAME" --delete
 
       - name: Verify Paths
         run: |
