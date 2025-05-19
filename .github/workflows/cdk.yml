@@ -147,7 +147,10 @@ jobs:
             }
           else
             echo "Deploying to production environment..."
-            npx cdk deploy CdkStack --require-approval never --debug
+             npx cdk deploy CdkStack --require-approval never --debug --force || {
+              echo "CDK deploy failed with exit code $?"
+              exit 1
+              }
           fi
 
       - name: Sync Client to S3
