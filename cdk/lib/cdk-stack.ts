@@ -64,12 +64,13 @@ export class CdkStack extends cdk.Stack {
       description: 'Name of the S3 bucket for client files'
     });
 
-    // 2. Create the hosted zone
-    const hostedZone = HostedZone.fromLookup(this, 'ExistingHostedZone', {
-      domainName: 'forkalicious.isawesome.xyz',
+   // 2. Create the hosted zone
+    const hostedZone = HostedZone.fromHostedZoneAttributes(this, `${props.envName}HostedZone`, {
+      zoneName: 'forkalicious.isawesome.xyz',
+      hostedZoneId: props.envName === 'dev' 
+        ? 'Z01066421TRSX14SGMI3U'  // Use the second zone ID for dev
+        : 'Z07581513ITHH80T66E66'  // Use the first zone ID for prod
     });
-
-
     
      // 3. ACM Certificate (must be in us-east-1 for CloudFront)
     const certificate = new acm.Certificate(this, `${props.envName}Certificate`, {
