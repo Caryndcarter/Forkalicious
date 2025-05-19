@@ -7,6 +7,7 @@
     "test": "npx cypress run --spec cypress/e2e/allTests.cy.js",
     "test:dev": "npx cypress open",
     "dev": "npm i && npm run seed && npm run build && npm run start:dev",
+    "dev:hot": "concurrently \"npm run server:dev\" \"wait-on tcp:3001 && cd client && npm run dev:local\"", 
     "start": "npm run build && npm run server",
     "start:dev": "npm run build:dev && npm run server",
     "start:aws": "npm run build:aws && npm run server",

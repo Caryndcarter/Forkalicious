@@ -71,7 +71,11 @@ jobs:
         run: |
           cd client
           npm install
-          npm run build
+          if [[ ${{ github.ref }} == refs/heads/cdk-dev-* ]]; then
+            npm run build:aws  # Use .env.dev-aws for AWS-dev
+          else
+            npm run build      # Use .env.production for AWS-prod
+          fi
           cd ..
 
       - name: Build Server
@@ -143,7 +147,7 @@ jobs:
             }
           else
             echo "Deploying to production environment..."
-            npx cdk deploy ProdCdkStack --require-approval never --debug
+            npx cdk deploy CdkStack --require-approval never --debug
           fi
 
       - name: Sync Client to S3
@@ -151,7 +155,7 @@ jobs:
           if [[ ${{ github.ref }} == refs/heads/cdk-dev-* ]]; then
             BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name DevCdkStack --query 'Stacks[0].Outputs[?OutputKey==`BucketName`].OutputValue' --output text)
           else
-            BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name ProdCdkStack --query 'Stacks[0].Outputs[?OutputKey==`BucketName`].OutputValue' --output text)
+            BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name CdkStack --query 'Stacks[0].Outputs[?OutputKey==`BucketName`].OutputValue' --output text)
           fi
           echo "Syncing client build to S3 bucket: $BUCKET_NAME"
           aws s3 sync client/dist "s3://$BUCKET_NAME" --delete
