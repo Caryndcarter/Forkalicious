@@ -121,12 +121,6 @@ jobs:
           role-session-name: DeployRoleForGitHubSession
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Check AWS Permissions
-        run: |
-          echo "Checking AWS permissions..."
-          aws sts get-caller-identity
-          aws s3 ls
-
       - name: Deploy CDK Stack
         run: | 
           cd cdk
