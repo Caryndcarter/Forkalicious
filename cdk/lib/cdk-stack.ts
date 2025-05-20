@@ -71,6 +71,20 @@ export class CdkStack extends cdk.Stack {
         ? 'Z01066421TRSX14SGMI3U'  // Use the second zone ID for dev
         : 'Z07581513ITHH80T66E66'  // Use the first zone ID for prod
     });
+
+     // Add this code to retain the hosted zone
+    // Try to find the hosted zone resource by its ID
+    const cfnHostedZone = this.node.tryFindChild('isAwesomeHostedZone79684184');
+    if (cfnHostedZone) {
+      (cfnHostedZone as cdk.CfnResource).applyRemovalPolicy(cdk.RemovalPolicy.RETAIN);
+    }
+
+    // Also check for a dev hosted zone if it exists
+    const devHostedZone = this.node.tryFindChild('DevHostedZone');
+    if (devHostedZone) {
+      (devHostedZone as cdk.CfnResource).applyRemovalPolicy(cdk.RemovalPolicy.RETAIN);
+    }
+
     
      // 3. ACM Certificate (must be in us-east-1 for CloudFront)
     const certificate = new acm.Certificate(this, `${props.envName}Certificate`, {
