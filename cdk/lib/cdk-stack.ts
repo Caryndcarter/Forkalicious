@@ -98,16 +98,21 @@ export class CdkStack extends cdk.Stack {
       })
     );
 
-// 6. Create CloudFront distribution
-   const distribution = new cloudfront.Distribution(this, `${props.envName}CloudFrontDist`, {
-      defaultBehavior: {
-        cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
-        origin: new origins.S3Origin(destinationBucket, { originAccessIdentity: oai }),
-        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-      },
-      domainNames: [domainName],
-      certificate,
-    });
+// 6. Use existing CloudFront distributions
+let distribution;
+if (props.envName === 'prod') {
+  // Use existing CloudFront distribution for production
+  distribution = cloudfront.Distribution.fromDistributionAttributes(this, 'ExistingProdCloudFrontDist', {
+    distributionId: 'E3FJ1705O81MGW', 
+    domainName: 'forkalicious.isawesome.xyz',
+  });
+} else {
+  // Use existing CloudFront distribution for dev
+  distribution = cloudfront.Distribution.fromDistributionAttributes(this, 'ExistingDevCloudFrontDist', {
+    distributionId: 'E217MWERN2BFNB', 
+    domainName: 'dev.forkalicious.isawesome.xyz',
+  });
+}
 
  // 7. Create Route53 record
       new route53.ARecord(this, `${props.envName}CloudFrontAliasRecord`, {
@@ -123,7 +128,7 @@ export class CdkStack extends cdk.Stack {
     new s3deploy.BucketDeployment(this, 'clientDeploy', {
       sources: [s3deploy.Source.asset(path.resolve(__dirname, '../../client/dist'))],
       destinationBucket: destinationBucket,
-      distribution: distribution,
+      distribution,
       distributionPaths: ['/*'], // invalidate CloudFront cache after deploy
       prune: true,
       memoryLimit: 1024, // Increase memory limit
