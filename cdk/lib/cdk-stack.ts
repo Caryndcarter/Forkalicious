@@ -114,12 +114,12 @@ if (props.envName === 'prod') {
   });
 }
 
- // 7. Create Route53 record
-      new route53.ARecord(this, `${props.envName}CloudFrontAliasRecord`, {
-        zone: hostedZone,
-        recordName: props.envName === 'dev' ? 'dev' : '', // 'dev' subdomain for dev, root for prod
-        target: route53.RecordTarget.fromAlias(new route53_targets.CloudFrontTarget(distribution)),
-      });
+//  // 7. Create Route53 record
+//       new route53.ARecord(this, `${props.envName}CloudFrontAliasRecord`, {
+//         zone: hostedZone,
+//         recordName: props.envName === 'dev' ? 'dev' : '', // 'dev' subdomain for dev, root for prod
+//         target: route53.RecordTarget.fromAlias(new route53_targets.CloudFrontTarget(distribution)),
+//       });
 
   console.log('Current working directory:', process.cwd());
   console.log('Asset path being used:', path.join(__dirname, '../../client/dist'));
