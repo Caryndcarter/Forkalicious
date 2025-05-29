@@ -1,8 +1,4 @@
 import { useState } from "react";
-//import UserLogin from "../types/UserLogin";
-//import { authService } from "../api/authentication";
-
-//new imports
 import type { ChangeEvent, FormEvent } from "react";
 import { useMutation } from "@apollo/client";
 import { SIGN_UP } from "@/utils_graphQL/mutations";
@@ -32,22 +28,92 @@ export default function SignUpForm({ setSignIn }: loginFormProps) {
     });
   };
 
+  // Helper function to parse GraphQL errors and provide specific messages
+  const getSpecificErrorMessage = (error: any): string => {
+    // Function to check for MongoDB duplicate key errors
+    const parseMongoDuplicateError = (message: string): string | null => {
+      if (message.includes('E11000 duplicate key error')) {
+        if (message.includes('userEmail_1') || message.includes('userEmail:')) {
+          return "An account with this email already exists. Please use a different email or try signing in.";
+        }
+        if (message.includes('userName_1') || message.includes('userName:')) {
+          return "This username is already taken. Please choose a different username.";
+        }
+        // Generic duplicate key error
+        return "An account with this information already exists. Please try different details.";
+      }
+      return null;
+    };
+
+    // Check if it's a GraphQL error with extensions
+    if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+      const graphQLError = error.graphQLErrors[0];
+      
+      // First check for MongoDB duplicate key errors in the message
+      if (graphQLError.message) {
+        const mongoError = parseMongoDuplicateError(graphQLError.message);
+        if (mongoError) {
+          return mongoError;
+        }
+      }
+      
+      // Check for specific error codes or messages from your backend
+      if (graphQLError.extensions?.code === 'EMAIL_EXISTS' || 
+          graphQLError.message?.toLowerCase().includes('email already exists') ||
+          graphQLError.message?.toLowerCase().includes('email is already registered')) {
+        return "An account with this email already exists. Please use a different email or try signing in.";
+      }
+      
+      if (graphQLError.extensions?.code === 'USERNAME_EXISTS' || 
+          graphQLError.message?.toLowerCase().includes('username already exists') ||
+          graphQLError.message?.toLowerCase().includes('username is already taken')) {
+        return "This username is already taken. Please choose a different username.";
+      }
+      
+      // Check for validation errors
+      if (graphQLError.extensions?.code === 'VALIDATION_ERROR') {
+        return graphQLError.message || "Please check your input and try again.";
+      }
+      
+      // Return the specific GraphQL error message if available (but avoid showing raw MongoDB errors)
+      if (graphQLError.message && !graphQLError.message.includes('E11000')) {
+        return graphQLError.message;
+      }
+    }
+    
+    // Check the main error message for MongoDB duplicate key errors
+    if (error.message) {
+      const mongoError = parseMongoDuplicateError(error.message);
+      if (mongoError) {
+        return mongoError;
+      }
+    }
+    
+    // Check for network errors
+    if (error.networkError) {
+      return "Network error. Please check your connection and try again.";
+    }
+    
+    // Fallback to generic error
+    return "Failed to create an account. Please try again.";
+  };
+
   const handleSignUp = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!checkUsername) {
+    if (!checkUsername()) {
       return;
     }
 
-    if (!checkEmail) {
+    if (!checkEmail()) {
       return;
     }
 
-    if (!checkPassword) {
+    if (!checkPassword()) {
       return;
     }
 
-    if (formValues.userPassword != formValues.confirmPassword) {
+    if (formValues.userPassword !== formValues.confirmPassword) {
       setErrorMessage("Your passwords do not match");
       return;
     }
@@ -68,7 +134,9 @@ export default function SignUpForm({ setSignIn }: loginFormProps) {
       const { token } = data.signUp;
       Auth.signUp(token);
     } catch (error) {
-      setErrorMessage("Failed to create an account. Please try again.");
+      console.error('Sign up error:', error); // For debugging
+      const specificErrorMessage = getSpecificErrorMessage(error);
+      setErrorMessage(specificErrorMessage);
     }
   };
 
@@ -114,8 +182,10 @@ export default function SignUpForm({ setSignIn }: loginFormProps) {
     const inputPassword = formValues.userPassword;
     if (inputPassword === "") {
       setErrorMessage("Please enter a password.");
+      return false;
     } else {
       setErrorMessage("");
+      return true;
     }
   };
 
@@ -181,29 +251,6 @@ export default function SignUpForm({ setSignIn }: loginFormProps) {
           />
         </div>
 
-        {/* <div className="mb-4">
-                <label className="block text-gray-700 mb-2" htmlFor="allergies">
-                    Allergies/Intolerances
-                </label>
-                <input
-                    type="text"
-                    id="allergies"
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-[#a84e24]"
-                    placeholder="List any allergies or intolerances"
-                />
-            </div>
-
-            <div className="mb-6">
-                <label className="block text-gray-700 mb-2" htmlFor="diet">
-                    Dieting (If any)
-                </label>
-                <input
-                    type="text"
-                    id="diet"
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-[#a84e24]"
-                    placeholder="Specify your diet, e.g., vegan, keto"
-                />
-            </div> */}
         <button
           type="submit"
           id="sign-up-submit"
