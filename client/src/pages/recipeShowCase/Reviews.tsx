@@ -1,10 +1,11 @@
 import { useState, useEffect, useContext } from "react"
 import { Link } from "react-router-dom"
-import { Star } from "lucide-react"
+import { Star, AlertCircle } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useMutation, useQuery } from "@apollo/client"
 import { ADD_REVIEW, SAVE_REVIEW_TO_USER, SAVE_REVIEW_TO_RECIPE } from "@/utils_graphQL/mutations"
 import { GET_REVIEWS } from "@/utils_graphQL/queries"
@@ -37,6 +38,8 @@ export default function ReviewSection({
   const [submitted, setSubmitted] = useState(false)
   const [hoveredRating, setHoveredRating] = useState(0)
   const [activeTab, setActiveTab] = useState("write")
+  const [ratingError, setRatingError] = useState("")
+  const [showAlert, setShowAlert] = useState(false)
 
   const { currentRecipeDetails, setCurrentRecipeDetails } = useContext(currentRecipeContext)
 
@@ -73,9 +76,30 @@ export default function ReviewSection({
     if (submitted) {
       setComment("")
       setRating(0)
+      setRatingError("")
+      setShowAlert(false)
       setSubmitted(false)
     }
   }, [submitted])
+
+  // Clear rating error when user selects a rating
+  useEffect(() => {
+    if (rating > 0 && ratingError) {
+      setRatingError("")
+      setShowAlert(false)
+    }
+  }, [rating, ratingError])
+
+  // Auto-hide alert after 5 seconds
+  useEffect(() => {
+    if (showAlert) {
+      const timer = setTimeout(() => {
+        setShowAlert(false)
+        setRatingError("")
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [showAlert])
 
   // Function to add the new review to the context
   const addReviewToContext = (newReview: string) => {
@@ -87,6 +111,13 @@ export default function ReviewSection({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Validate rating
+    if (rating === 0) {
+      setRatingError("Please select a star rating before submitting your review.")
+      setShowAlert(true)
+      return
+    }
 
     if (!recipeId) {
       console.error("Cannot submit review: Recipe ID is null")
@@ -232,10 +263,24 @@ export default function ReviewSection({
           </TabsList>
 
           <TabsContent value="write" className="mt-4">
+            {showAlert && (
+              <Alert className="mb-4 border-red-200 bg-red-50">
+                <AlertCircle className="h-4 w-4 text-red-600" />
+                <AlertDescription className="text-red-800 font-medium">
+                  {ratingError}
+                </AlertDescription>
+              </Alert>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">Your Rating</label>
-                <div className="flex gap-1">{renderStars(rating, hoveredRating)}</div>
+                <div className={`flex gap-1 ${ratingError ? 'ring-2 ring-red-300 rounded-md p-2 bg-red-50' : ''}`}>
+                  {renderStars(rating, hoveredRating)}
+                </div>
+                {ratingError && (
+                  <p className="text-red-600 text-sm font-medium">{ratingError}</p>
+                )}
               </div>
 
               <div className="space-y-2">
