@@ -14,13 +14,14 @@ new CdkStack(app, 'DevCdkStack', {
 });
 
 // Production stack
-new CdkStack(app, 'ProdCdkStack', {
+new CdkStack(app, 'CdkStack', {
   envName: 'prod',
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION
   }
 });
+
 
 /*
 new CdkStack(app, 'CdkStack', {

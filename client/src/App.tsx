@@ -18,9 +18,13 @@ import ScrollToTop from "./components/ScrollToTop";
 import AuthTracker from "./components/AuthTracker.js";
 import { defaultRecipe } from "@/types";
 
+// Debug: Log environment variables
+console.log('Current environment:', import.meta.env.MODE);
+console.log('GraphQL URL:', import.meta.env.VITE_GRAPHQL_URL);
+
 // Apollo Client setup
 const httpLink = createHttpLink({
-  uri: "/graphql",
+  uri: import.meta.env.VITE_GRAPHQL_URL
 });
 
 // Construct request middleware that will attach the JWT token to every request as an `authorization` header
@@ -29,7 +33,7 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      authorization: token ? token : "",
+      authorization: token ? `Bearer ${token}` : "",
     },
   };
 });
@@ -38,6 +42,16 @@ const authLink = setContext((_, { headers }) => {
 const client = new ApolloClient({
   link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: 'network-only',
+      errorPolicy: 'ignore',
+    },
+    query: {
+      fetchPolicy: 'network-only',
+      errorPolicy: 'all',
+    },
+  },
 });
 
 export const currentRecipeContext = createContext({

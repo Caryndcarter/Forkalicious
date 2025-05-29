@@ -12,12 +12,18 @@ if (!secretKey) {
 }
 
 export const authenticateToken = ({ req }: any) => {
+    // Check if we're in production (AWS)
+    const isProduction = process.env.NODE_ENV === 'production';
+  
+    // For debugging
+    console.log(`Environment: ${isProduction ? 'Production' : 'Development'}`);
+
   // skips authentication process if loging in or signing up
   if (
     req.body.query.includes("loginUser") ||
     req.body.query.includes("signUp")
   ) {
-    return req;
+    return isProduction ? { user: null } : req;
   }
 
   // Collects token from req.body, req.query, or req.headers
@@ -38,16 +44,20 @@ export const authenticateToken = ({ req }: any) => {
   try {
     // If the token is valid, attach the user data to the request object
     const { data }: any = jwt.verify(token, process.env.JWT_SECRET_KEY || "");
-    req.user = data;
+     // In production, return a context object with the user data
+    // In development, return the request object as before
+    if (isProduction) {
+      return { user: data };
+    } else {
+      req.user = data;  // Attach the user data to req
+      return req;
+  }
   } catch (err) {
     // If the token is invalid, log an error message
     throw new GraphQLError("Invalid or expired token", {
       extensions: { code: "UNAUTHENTICATED" },
     });
   }
-
-  // Return the request object after verifying the token
-  return req;
 };
 
 export const signToken = (
