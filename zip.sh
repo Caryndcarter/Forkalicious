@@ -1,0 +1,1 @@
+zip -r forktastic.zip . --exclude ".env" "./server/env" "node_modules/*" "./server/node_modules/*" "./server/dist/*" "./client/node_modules/*" "./client/dist/*"
