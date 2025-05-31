@@ -8,5 +8,6 @@ module.exports = defineConfig({
       // implement node event listeners here
     },
     baseUrl: `http://localhost:${PORT}`,
+    pageLoadTimeout: 6000,
   },
 });
