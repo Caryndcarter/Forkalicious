@@ -53,7 +53,7 @@ export default function HomePage() {
         {/* Sample Recipes Section */}
         <div className="pt-20 px-4">
           <div className="flex flex-col items-center mb-8">
-            <h1 className="text-4xl font-bold text-[#a84e24] mb-4 text-center">
+            <h1 id="homepage-call-to-action" className="text-4xl font-bold text-[#a84e24] mb-4 text-center">
               {loggedIn
                 ? "Save New Recipes to Your Recipe Book"
                 : "Sample Recipes"}
