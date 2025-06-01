@@ -1,1 +1,0 @@
-docker run --env-file .env -p "$PORT:$PORT" my-app:latest

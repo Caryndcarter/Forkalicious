@@ -16,3 +16,4 @@ server/.gitignore
 
 # Env files
 .env
+run_my_docker.sh
