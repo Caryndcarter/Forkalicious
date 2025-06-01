@@ -8,7 +8,7 @@ import Auth from "@/utils_graphQL/auth";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, Copy } from "lucide-react";
 import { useMutation } from "@apollo/client";
 import { CREATE_RECIPE } from "@/utils_graphQL/mutations";
 import { SAVE_RECIPE } from "@/utils_graphQL/mutations";
@@ -26,11 +26,14 @@ const RecipeMaker = () => {
   const [createRecipe] = useMutation(CREATE_RECIPE);
   const [saveRecipe] = useMutation(SAVE_RECIPE);
   const isLoggedIn = Auth.loggedIn();
-  const [validationErrors, setValidationErrors] = useState<
-    Record<string, boolean>
-  >({});
+const [validationErrors, setValidationErrors] = useState<
+  Record<string, boolean>
+>({});
 
-  const { userStatus } = useContext(userContext);
+const [suggestions, setSuggestions] = useState<Record<string, string>>({});
+const [loading, setLoading] = useState<Record<string, boolean>>({});
+
+const { userStatus } = useContext(userContext);
   const loggedIn = userStatus !== "visiter";
 
   // Initialize recipe state with empty values
@@ -102,6 +105,57 @@ const RecipeMaker = () => {
     // turn off editing
     setIsEditing(false);
   }, []);
+
+  const listFields = ['ingredients', 'steps', 'diets'];
+
+  const generateField = async (field: string) => {
+    setLoading((prev) => ({ ...prev, [field]: true }));
+
+    const preparedRecipe = {
+      title: recipe.title,
+      summary: recipe.summary,
+      readyInMinutes: recipe.readyInMinutes.toString(),
+      servings: recipe.servings.toString(),
+      ingredients: recipe.ingredients.join('; '),
+      instructions: recipe.instructions,
+      steps: recipe.steps?.join('; ') || '',
+      diets: recipe.diets?.join('; ') || '',
+    };
+
+    try {
+      const value = await askService.generateComponent(field, preparedRecipe);
+      setSuggestions((prev) => ({ ...prev, [field]: value }));
+    } catch (err) {
+      console.error(err);
+    }
+
+    setLoading((prev) => ({ ...prev, [field]: false }));
+  };
+
+  const applySuggestion = (field: string) => {
+    const value = suggestions[field];
+    if (listFields.includes(field)) {
+      setRecipe((prev) => ({
+        ...prev,
+        [field]: value.split('; ').map((s) => s.trim()).filter((s) => s),
+      }));
+    } else if (['readyInMinutes', 'servings'].includes(field)) {
+      setRecipe((prev) => ({ ...prev, [field]: parseInt(value) || 0 }));
+    } else {
+      setRecipe((prev) => ({ ...prev, [field]: value }));
+    }
+    setSuggestions((prev) => {
+      const newS = { ...prev };
+      delete newS[field];
+      return newS;
+    });
+  };
+
+  const copySuggestion = (field: string) => {
+    const value = suggestions[field];
+    navigator.clipboard.writeText(value);
+    // Optionally, show a toast or something
+  };
 
   const handleChange = (field: keyof RecipeDetails, value: any) => {
     setRecipe((prev) => ({
@@ -372,7 +426,42 @@ const RecipeMaker = () => {
         className="max-w-3xl mx-auto bg-[#fadaae] p-6 shadow-lg rounded-lg space-y-4 border border-gray-200"
       >
         <div>
-          <label className="block font-bold mb-1">Title*</label>
+          <div className="flex justify-between items-center mb-1">
+            <label className="font-bold">Title*</label>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => generateField('title')}
+              disabled={loading['title']}
+            >
+              {loading['title'] ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          {suggestions['title'] && (
+            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
+              <span>{suggestions['title']}</span>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copySuggestion('title')}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => applySuggestion('title')}
+                >
+                  Replace
+                </Button>
+              </div>
+            </div>
+          )}
           <input
             type="text"
             value={recipe.title}
@@ -393,7 +482,42 @@ const RecipeMaker = () => {
         </div>
 
         <div>
-          <label className="block font-bold mb-1">Summary*</label>
+          <div className="flex justify-between items-center mb-1">
+            <label className="font-bold">Summary*</label>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => generateField('summary')}
+              disabled={loading['summary']}
+            >
+              {loading['summary'] ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          {suggestions['summary'] && (
+            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
+              <span>{suggestions['summary']}</span>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copySuggestion('summary')}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => applySuggestion('summary')}
+                >
+                  Replace
+                </Button>
+              </div>
+            </div>
+          )}
           <textarea
             value={recipe.summary}
             onChange={(e) => {
@@ -413,7 +537,42 @@ const RecipeMaker = () => {
         </div>
 
         <div>
-          <label className="block font-bold mb-1">Ready In Minutes*</label>
+          <div className="flex justify-between items-center mb-1">
+            <label className="font-bold">Ready In Minutes*</label>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => generateField('readyInMinutes')}
+              disabled={loading['readyInMinutes']}
+            >
+              {loading['readyInMinutes'] ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          {suggestions['readyInMinutes'] && (
+            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
+              <span>{suggestions['readyInMinutes']}</span>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copySuggestion('readyInMinutes')}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => applySuggestion('readyInMinutes')}
+                >
+                  Replace
+                </Button>
+              </div>
+            </div>
+          )}
           <input
             type="number"
             min="0"
@@ -463,7 +622,42 @@ const RecipeMaker = () => {
         </div>
 
         <div>
-          <label className="block font-bold mb-1">Servings*</label>
+          <div className="flex justify-between items-center mb-1">
+            <label className="font-bold">Servings*</label>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => generateField('servings')}
+              disabled={loading['servings']}
+            >
+              {loading['servings'] ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          {suggestions['servings'] && (
+            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
+              <span>{suggestions['servings']}</span>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copySuggestion('servings')}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => applySuggestion('servings')}
+                >
+                  Replace
+                </Button>
+              </div>
+            </div>
+          )}
           <input
             type="number"
             min="0"
@@ -510,7 +704,42 @@ const RecipeMaker = () => {
         </div>
 
         <div>
-          <label className="block font-bold mb-1">Ingredients*</label>
+          <div className="flex justify-between items-center mb-1">
+            <label className="font-bold">Ingredients*</label>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => generateField('ingredients')}
+              disabled={loading['ingredients']}
+            >
+              {loading['ingredients'] ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          {suggestions['ingredients'] && (
+            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
+              <span>{suggestions['ingredients']}</span>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copySuggestion('ingredients')}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => applySuggestion('ingredients')}
+                >
+                  Replace
+                </Button>
+              </div>
+            </div>
+          )}
           {recipe.ingredients.map((ingredient, index) => (
             <div key={index} className="flex items-center space-x-2 mb-2">
               <input
@@ -555,7 +784,42 @@ const RecipeMaker = () => {
         </div>
 
         <div>
-          <label className="block font-bold mb-1">Instructions*</label>
+          <div className="flex justify-between items-center mb-1">
+            <label className="font-bold">Instructions*</label>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => generateField('instructions')}
+              disabled={loading['instructions']}
+            >
+              {loading['instructions'] ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          {suggestions['instructions'] && (
+            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
+              <span>{suggestions['instructions']}</span>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copySuggestion('instructions')}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => applySuggestion('instructions')}
+                >
+                  Replace
+                </Button>
+              </div>
+            </div>
+          )}
           <textarea
             value={recipe.instructions}
             onChange={(e) => {
@@ -581,7 +845,42 @@ const RecipeMaker = () => {
 
         {/* Diets Section */}
         <div>
-          <label className="block font-bold mb-1">Diets</label>
+          <div className="flex justify-between items-center mb-1">
+            <label className="font-bold">Diets</label>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => generateField('diets')}
+              disabled={loading['diets']}
+            >
+              {loading['diets'] ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          {suggestions['diets'] && (
+            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
+              <span>{suggestions['diets']}</span>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copySuggestion('diets')}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => applySuggestion('diets')}
+                >
+                  Replace
+                </Button>
+              </div>
+            </div>
+          )}
           {(recipe.diets ?? []).map((diet, index) => (
             <div key={index} className="flex items-center space-x-2 mb-2">
               <select
@@ -625,7 +924,42 @@ const RecipeMaker = () => {
 
         {/* Steps Section */}
         <div>
-          <label className="block font-bold mb-1">Steps*</label>
+          <div className="flex justify-between items-center mb-1">
+            <label className="font-bold">Steps*</label>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => generateField('steps')}
+              disabled={loading['steps']}
+            >
+              {loading['steps'] ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          {suggestions['steps'] && (
+            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
+              <span>{suggestions['steps']}</span>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copySuggestion('steps')}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => applySuggestion('steps')}
+                >
+                  Replace
+                </Button>
+              </div>
+            </div>
+          )}
           {(recipe.steps ?? []).map((step, index) => (
             <div key={index} className="flex items-center space-x-2 mb-2">
               <input
