@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import spoonacularService from "../service/spoonacularService.js";
 import { searchInput } from "../types/index.js";
-import { askQuestion } from "../service/langChainService.js";
+import { askQuestion, generateComponent } from "../service/langChainService.js";
 
 const router = Router();
 
@@ -38,7 +38,7 @@ router.post("/recipes", async (req: Request, res: Response) => {
   }
 });
 
-// post /open/ask
 router.post("/ask", askQuestion);
+router.post("/ask/component", generateComponent);
 
 export default router;
