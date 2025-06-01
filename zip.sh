@@ -1,1 +1,1 @@
-zip -r forktastic . --exclude "*.env" ".git" "*node_modules/*" "*/dist/*" "./zip.sh"
+zip -r forktastic . --exclude "*.env" ".git/*" "*node_modules/*" "*/dist/*" "./zip.sh"
