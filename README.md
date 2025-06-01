@@ -3,22 +3,34 @@
 
 ![OpenAI](https://img.shields.io/badge/ChatGPT-Integration-%2316A180?logo=openai) ![MongoDB](https://img.shields.io/badge/MongoDB-%23429E47?logo=mongoDB&logoColor=white) ![Mongoose](https://img.shields.io/badge/Mongoose-%23880000?logo=Mongoose&logoColor=white) ![GraphQL](https://img.shields.io/badge/GraphQL-%23F25CC0?logo=graphql) ![React](https://img.shields.io/badge/React-%2361DAFB?logo=react&logoColor=white) ![Express](https://img.shields.io/badge/Express-%23F0D951?logo=express&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-%232D79C7?logo=typescript&logoColor=white)
 
-## Running with Docker
+## How to run using Docker
 
-it's very simple to generate a docker image and run it, or run the tests.
+1.  **Build the Docker Image**
+    * `./build_docker.sh`
+    * You may need to enable executable permissions on shell files: `chmod +x */.sh`
 
-1. Make all .sh files executable: ```chmod +x *.sh```
+2.  **Inject Enviornment Variables into the Run Command**
+    * This app requires context that is unique to each developer. 
+    * The context is injected when running the container, so that you don't need to re-build the image each time you alter the variables.
+    * Please follow the instructions in the next section to get your enviornment variables.
+    * modify the `run_docker.sh` file by copying your variables into the empty fileds.
 
-2. Use the executable to build the docker image: ```./build_docker.sh```
+3.  **Run a Container from the Image**
+    * `./run_docker.sh`
 
-3. Create your .env file (see instructions below)
+4. **Use the Tests or the App**
+    * in the shell terminal created by your container, use the following commands:
+    * testing: `./run_tests.sh`
+    * full app: `npm run start:dev`
 
-4. Run your container from the image: ```./run_docker.sh```
+## Generating your Enviornment Variables
+In order to run this application, you'll need to fill in enviornment variables located in the `run_docker.sh` file:
 
-5. Run tests: ```./run_tests```
+1.  Connection to Spoonacular thourgh the `SPOONACULAR_API_KEY` 
+2.  Connection to a Mongo Database through the `MONGODB_URI`
+3.  **OPTIONAL:** If you want to use the Chat-GPT integration in this app, you need to fill in the `OPENAI_API_KEY` with a key that has access to the `gpt-4o-mini` model.
 
-## Creating an .env file
-In order to run this application, you'll need to create an `.env` file like the `.env.example` shown. Follow these steps and fill in the `.env` file with valid values. the Open AI API key will require you to buy some tokens to run correctly. Use the .env values with the docker command shown below.
+Currently, this app only works with port 3001, so do not change the `PORT` variable. Do not change the `SPOONACULAR_API_KEY` variable, or else the API calls will break. `JWT_SECRET_KEY` can be any value, so change it to a random string if you want.
 
 ### Generate your Spoonacular API key
 
@@ -89,11 +101,3 @@ In order to run this application, you'll need to create an `.env` file like the 
 6.  **Set Up Billing and Usage Limits**
     * OpenAI API usage isn't free. To ensure uninterrupted access, navigate to the "**Billing**" section (usually in the left-hand menu) to add a payment method.
     * Buy a very small number of tokens to make sure the API key can be used in this app.
-
-## Running from the image:
-
-The `-p` value is the port. You can change this to whichever port you want, but make sure it matches the one in your .env file.
-
-```sh
-sudo docker run -p 3001:3001 my-app:latest
-```
