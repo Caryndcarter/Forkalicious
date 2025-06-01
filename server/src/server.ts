@@ -17,7 +17,7 @@ import { typeDefs, resolvers } from "./schemas_graphQL/index.js";
 //Authentication Middleware
 import { authenticateToken as graphQLAuthMiddleware } from "./middleware/auth_graphQL.js";
 
-dotenv.config();
+dotenv.config({ path: "../.env" });
 
 const app = express();
 const PORT = process.env.PORT || 3001;

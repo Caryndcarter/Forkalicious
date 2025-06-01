@@ -5,7 +5,7 @@ import { dietValues } from "../types/index.js";
 import { Request, Response } from "express";
 
 // Retrive API key
-dotenv.config();
+dotenv.config({ path: "../.env" });
 const apiKey = process.env.OPENAI_API_KEY;
 
 // Define response schema

@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import recipe from "../types/recipe.js";
-dotenv.config();
+dotenv.config({ path: "../.env" });
 import searchInput from "../types/searchInput";
 
 class spoonacularService {

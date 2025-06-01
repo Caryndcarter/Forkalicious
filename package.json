@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx cypress run --spec cypress/e2e/allTests.cy.js",
+    "test": "dotenv -- sh -c 'start-server-and-test start http://localhost:$PORT test:cypress'",
+    "test:cypress": "npx cypress run --spec cypress/e2e/homePage/basic.cy.js",
     "test:dev": "npx cypress open",
     "dev": "npm i && npm run seed && npm run build && npm run start:dev",
     "dev:hot": "concurrently \"npm run server:dev\" \"wait-on tcp:3001 && cd client && npm run dev:local\"",
@@ -37,7 +38,9 @@
     "@types/node": "^22.9.0",
     "concurrently": "^8.2.2",
     "cypress": "^14.0.3",
+    "dotenv-cli": "^8.0.0",
     "nodemon": "^3.1.3",
+    "start-server-and-test": "^2.0.12",
     "wait-on": "^7.2.0"
   },
   "dependencies": {
