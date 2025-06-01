@@ -3,139 +3,97 @@
 
 ![OpenAI](https://img.shields.io/badge/ChatGPT-Integration-%2316A180?logo=openai) ![MongoDB](https://img.shields.io/badge/MongoDB-%23429E47?logo=mongoDB&logoColor=white) ![Mongoose](https://img.shields.io/badge/Mongoose-%23880000?logo=Mongoose&logoColor=white) ![GraphQL](https://img.shields.io/badge/GraphQL-%23F25CC0?logo=graphql) ![React](https://img.shields.io/badge/React-%2361DAFB?logo=react&logoColor=white) ![Express](https://img.shields.io/badge/Express-%23F0D951?logo=express&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-%232D79C7?logo=typescript&logoColor=white)
 
-## Description
+## Running with Docker
 
-Forkalicious is your AI-powered recipe companion, designed to help you discover, save, customize, and create delicious recipes with ease. Whether you're exploring new dishes from our vast Spoonacular API, fine-tuning your favorite meals, or generating entirely new recipes using AI, Forkalicious has you covered.
+it's very simple to generate a docker image and run it, or run the tests.
 
-## 🚀 Tech Stack
+1. Make all .sh files executable: ```chmod +x *.sh```
 
-This project is built using a state-of-the-art stack to ensure scalability, performance, and developer-friendly features:
+2. Use the executable to build the docker image: ```./build_docker.sh```
 
-- **Frontend:** React, TypeScript, Tailwind CSS
-- **Backend:** Express.js, GraphQL, Mongoose, MongoDB
-- **AI Integration:** OpenAI (ChatGPT) for intelligent recipe generation
-- **External API:** Spoonacular API for fetching recipes
-- **Authentication:** JSON Web Tokens (JWT)
-- **Deployment:** Github Actions, Cloud hosting
+3. Create your .env file (see instructions below)
 
-## 📁 Table of Contents
+4. Run your container from the image: ```./run_docker.sh```
 
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
+5. Run tests: ```./run_tests```
 
-## Usage
+## Creating an .env file
+In order to run this application, you'll need to create an `.env` file like the `.env.example` shown. Follow these steps and fill in the `.env` file with valid values. the Open AI API key will require you to buy some tokens to run correctly. Use the .env values with the docker command shown below.
 
-1. View, Save, and Review Recipies
+### Generate your Spoonacular API key
 
-<img src="assets/RecipeView.gif"/>
+1.  **Generate a Spoonacular API Key**
+    * Navigate to the [Spoonacular Food API Console](https://spoonacular.com/food-api/console#Dashboard).
+    * Sign up for a new account (or log in if you already have one).
+    * Follow the instructions on the dashboard to generate your API key.
+    * **Important:** Paste it into the `SPOONACULAR_API_KEY` value in the `.env` file.
 
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
+### Generate your MongoDB URI
 
-2. Change Account Information
+1.  **Set Up Your MongoDB Atlas Account and Cluster**
+    * Navigate to the [MongoDB Atlas website](https://account.mongodb.com/account/login).
+    * Sign up for a new account (or log in if you already have one).
+    * Follow the prompts to create a new **free-tier** cluster.
 
-<img src="assets/AccountUpdate.gif"/>
+2.  **Configure Database Access**
+    * Once your cluster is created, go to the `Database Access` section in the left-hand navigation pane.
+    * Ensure you have an admin user set up. If not, click `Add New Database User` to create one.
+    * **Important:** Note down the username and password for this admin user. You will need them later for your connection string.
 
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
+3.  **Configure Network Access**
+    * In the left-hand navigation pane, go to `Network Access`.
+    * Click `Add IP Address`.
+    * Select `Add Current IP Address` to allow connections from your machine. Confirm the addition.
 
-3. Search for Recipes
+4.  **Create Your Database and Collections**
+    * Go back to the `Clusters` overview page.
+    * Click on the `Browse Collections` button for your cluster.
+    * Click `Add My Own Data` (or `Create Database` if it's your first time).
+    * Enter a name for your new database (e.g., `tutorialDB` or `recipeApp`).
+    * Create a collection called `recipes`.
+    * Repeat the process to create two more collections within the *same database*: `reviews` and `users`.
 
-<img src="assets/RecipeSearch.gif"/>
+5.  **Obtain and Customize Your Connection URI**
+    * Return to the `Clusters` overview page.
+    * Click the `Connect` button for your cluster.
+    * Select `Connect your application`.
+    * Under `Choose your driver version`, select `Node.js` and `6.7 or later`.
+    * Copy the connection string (URI) that is generated.
+    * Paste this URI into a text editor and fill in the blanks (`<USERNAME>`, `<PASSWORD>`, and `<DATABASE NAME>`) using the credentials you noted earlier and the database name you created.
+    * Your final URI should look similar to this example: `mongodb+srv://<USERNAME>:<PASSWORD>@cluster0.mlhsd.mongodb.net/<DATABASE NAME>?retryWrites=true&w=majority&appName=cluster0`
 
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
+### Generate your Open AI API key
 
-4. Edit and Creating Recipes
+1.  **Navigate to the OpenAI Platform**
+    * Open your web browser and go to the official [OpenAI Platform website](https://platform.openai.com/). This is the central hub for managing your OpenAI API access, usage, and billing.
 
-<img src="assets/RecipeEdit.gif"/>
+2.  **Sign Up or Log In to Your Account**
+    * If you don't have an OpenAI account, click the "**Sign Up**" button.
+    * If you already have an account, simply click "**Log In**" and enter your credentials.
 
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
+3.  **Access the API Keys Section**
+    * Once you're successfully logged in, select `dashboard` in the top navbar.
+    * From the left menu, select the option labeled "**API keys**" or "**View API keys**". This will take you to a dedicated page where all your existing API keys are listed and new ones can be generated.
 
-5. AI Custom Recipies
+4.  **Create a New Secret Key**
+    * On the API keys page, you'll see a button, typically labeled `+ Create new secret key` or similar. Click this button to initiate the key generation process.
+    * A pop-up window or form might appear, asking you to name your key (e.g., "MyTutorialAppKey"). Giving it a descriptive name can help you identify its purpose later, especially if you create multiple keys.
+    * You might also see options for setting permissions or associating the key with a specific project if your account is part of an organization. Make sure that this key is enabled to use the `gpt-4o-mini` model.
 
-<img src="assets/AIRecipe.gif"/>
+5.  **Copy and Secure Your API Key**
+    * After clicking "**Create secret key**", your brand-new API key will be generated and displayed ***only once*** on the screen.
+    * **CRITICAL:** Immediately copy this entire key string. There will typically be a "Copy" button next to it.
+    * **Do not close this window or navigate away until you have copied the key.** For security reasons, OpenAI doesn't allow you to view the full key again after this initial display. If you lose it, you'll have to revoke it and generate a new one.
+    * Paste the copied key into the `.env` file.
 
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
+6.  **Set Up Billing and Usage Limits**
+    * OpenAI API usage isn't free. To ensure uninterrupted access, navigate to the "**Billing**" section (usually in the left-hand menu) to add a payment method.
+    * Buy a very small number of tokens to make sure the API key can be used in this app.
 
-6. Deleting a Recipe
+## Running from the image:
 
-<img src="assets/RecipeDelete.gif"/>
+The `-p` value is the port. You can change this to whichever port you want, but make sure it matches the one in your .env file.
 
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-
-## Installation
-
-please visit [our deployed site](https://forkalicious.onrender.com) to access the application. If you want to run the application from your local machine, follow these instructions:
-
-Ensure you have the Node Package Manager and MongoDB installed on your machine. You will need a JWT Secret Key, a Spoonacular API key, and optionally an OpenAI API key.
-
-- [Node.js](https://nodejs.org)
-- [MongoDB installation guide](https://www.mongodb.com/docs/manual/installation/)
-- [Generate a JWT Secret Key](https://pinetools.com/random-string-generator)
-- [Spoonacular API Key](https://spoonacular.com/food-api/console#Dashboard)
-- [OpenAI API Key](https://platform.openai.com/settings/organization/api-keys)
-
-```shell
-# Step 1: clone this repository, and go to the root directory
-git clone https://github.com/Dan-Swarts/Forktacular.git
-cd Forkalicious
-
-# Step 2: Ensure you have node installed, then use the Node
-# Package Manager to install dependencies:
-node -v
-# Example output: v20.17.0
-npm install
-
-# Step 3: Ensure you have MongoDB installed on your machine.
-# If needed, followed the MongoDB installation guide shown above.
-
-# Step 4: remove the '.example' from .env.EXAMPLE. Fill in the
-# .env file with the valid MongoDB URI for the installation in
-# step 3, (the default is mongodb://127.0.0.1:27017/) JWT Secret
-# Key, Spoonacular API Key, and optionally fill in the port
-# number and/or the OpenAI API Key.
-
-# Step 5: start the application:
-npm run build && npm run start
-
-# step 6: acess the application through your web browser
-# http://localhost:3001/
+```sh
+sudo docker run -p 3001:3001 my-app:latest
 ```
-
-## Contributing
-
-> [!IMPORTANT]
-> Whether you have feedback on features, have encountered any bugs, or have suggestions for enhancements, we're eager to hear from you. Your insights help us make the Forkalicious library more robust and user-friendly.
-
-Please feel free to contribute by [joining the discussions](https://github.com/Caryndcarter/Forkalicious/discussions). Each contribution helps us grow and improve.
-
-We appreciate your support and look forward to making our product even better with your help!
