@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/*
+client/node_modules/*
+server/node_modules/*
+
+# Builds
+dist/*
+client/dist/*
+server/dist/*
+
+# Git context
+.git/*
+.gitignore
+client/.gitignore
+server/.gitignore
+
+# Env files
+.env
