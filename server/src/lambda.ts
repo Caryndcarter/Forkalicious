@@ -12,7 +12,7 @@ import { typeDefs, resolvers } from "./schemas_graphQL/index.js";
 import routes from "./routes/index.js";
 import { authenticateToken as graphQLAuthMiddleware } from "./middleware/auth_graphQL.js";
 
-dotenv.config();
+dotenv.config({ path: "../.env" });
 
 const app = express();
 

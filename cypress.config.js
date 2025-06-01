@@ -1,5 +1,5 @@
 const { defineConfig } = require("cypress");
-require('dotenv').config({ path: 'server/.env' });
+require('dotenv').config();
 const PORT = process.env.PORT || 3001;
 
 module.exports = defineConfig({

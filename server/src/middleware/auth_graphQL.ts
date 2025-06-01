@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { GraphQLError } from "graphql";
 import { user } from "../types";
 
-dotenv.config();
+dotenv.config({ path: "../.env" });
 
 const secretKey = process.env.JWT_SECRET_KEY;
 
