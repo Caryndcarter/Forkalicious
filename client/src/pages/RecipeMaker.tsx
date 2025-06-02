@@ -13,7 +13,8 @@ import { useMutation } from "@apollo/client";
 import { CREATE_RECIPE } from "@/utils_graphQL/mutations";
 import { SAVE_RECIPE } from "@/utils_graphQL/mutations";
 import localData from "@/utils_graphQL/localStorageService";
-import { GenerateButton, SuggestionBox } from "@/components/recipe-ai/AiHelpers";
+import GenerateButton from "@/components/recipe-ai/GenerateButton";
+import SuggestionBox from "@/components/recipe-ai/SuggestionBox";
 
 const LOCAL_STORAGE_KEY = "recipeFormProgress";
 

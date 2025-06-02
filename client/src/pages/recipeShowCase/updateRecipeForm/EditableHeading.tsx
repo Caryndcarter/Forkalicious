@@ -1,7 +1,8 @@
 import { RecipeDetails } from "@/types";
 import { Pencil } from "lucide-react";
 import defaultImage from "/src/assets/Untitled design.jpg"
-import { GenerateButton, SuggestionBox } from "@/components/recipe-ai/AiHelpers";  // Add this import
+import GenerateButton from "@/components/recipe-ai/GenerateButton";
+import SuggestionBox from "@/components/recipe-ai/SuggestionBox";
 
 interface editableHeadingProps {
   recipe: RecipeDetails;

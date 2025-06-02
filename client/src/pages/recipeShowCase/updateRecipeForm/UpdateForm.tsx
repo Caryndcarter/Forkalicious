@@ -8,7 +8,8 @@ import { dietOptions } from "@/types";
 import Heading from "../Heading";
 import localStorageService from "@/utils_graphQL/localStorageService";
 import askService from "@/api/askService";
-import { GenerateButton, SuggestionBox } from "@/components/recipe-ai/AiHelpers";  // Add this import
+import GenerateButton from "@/components/recipe-ai/GenerateButton";
+import SuggestionBox from "@/components/recipe-ai/SuggestionBox";
 
 interface updateFormProps {
   recipe: RecipeDetails;
