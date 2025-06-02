@@ -18,10 +18,22 @@
 3.  **Run a Container from the Image**
     * `./run_docker.sh`
 
-4. **Use the Tests or the App**
-    * in the shell terminal created by your container, use the following commands:
-    * testing: `./run_tests.sh`
+4. **Use the App**
+    * in the shell terminal created by your container, use the following command:
     * full app: `npm run start:dev`
+
+5.  **Seeding Database**
+    * In order to run the tests, you will need to populate the connected MongoDB with a testing account, and create one recipe
+    * To do this, first find the file located at `cypress/e2e/testingAssets/accountCredentials.js`
+    * Note down the `email` and `password` associated with the testing credentials
+    * Run the full app as seen in the previous step 
+    * Navigate to the `Account Settings` page and sign up using the credientials you noted down
+    * Navigate to the `Recipe Maker` page, fill in the fields, and click on `Create Recipe`
+    * Navigate to the `Recipe Book` page, and confirm that the recipe has been saved to your account
+    * **IMPORTANT:** your recipe book should have exactly 1 recipe that you created
+
+6.  **Running Tests**
+    * testing: `./run_tests.sh`
 
 ## Generating your Enviornment Variables
 In order to run this application, you'll need to fill in enviornment variables located in the `run_docker.sh` file:
