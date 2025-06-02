@@ -8,8 +8,7 @@ import { dietOptions } from "@/types";
 import Heading from "../Heading";
 import localStorageService from "@/utils_graphQL/localStorageService";
 import askService from "@/api/askService";
-import { Button } from "@/components/ui/button";
-import { Sparkles, Loader2, Copy } from "lucide-react";
+import { GenerateButton, SuggestionBox } from "@/components/recipe-ai/AiHelpers";  // Add this import
 
 interface updateFormProps {
   recipe: RecipeDetails;
@@ -160,58 +159,29 @@ export default function UpdateForm({
           Cancel Edits
         </button>
 
-        {/* Diets */}
-        <OnChangeDropDownMultiSelect
-          name="diets"
-          placeholder="Select the diets"
-          options={dietOptions}
-          selection={updatedRecipe.diets ?? []}
-          setSelection={(newDiets: diet[]) => {
-            setUpdatedRecipe({ ...updatedRecipe, diets: newDiets });
-          }}
-        />
+        <div id="editable-diets">
+          <OnChangeDropDownMultiSelect
+            name="diets"
+            placeholder="Select the diets"
+            options={dietOptions}
+            selection={updatedRecipe.diets ?? []}
+            setSelection={(newDiets: diet[]) => {
+              setUpdatedRecipe({ ...updatedRecipe, diets: newDiets });
+            }}
+          />
+        </div>
 
-        {/* Summary */}
-        <div>
+        <div id="editable-summary">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Summary*</label>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => generateField('summary')}
-              disabled={loading['summary']}
-            >
-              {loading['summary'] ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-            </Button>
+            <GenerateButton field="summary" loading={loading} generateField={generateField} />  // Replaced with reusable component
           </div>
-          {suggestions['summary'] && (
-            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['summary']}</span>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    copySuggestion('summary')
-                  }}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => applySuggestion('summary')}
-                >
-                  Replace
-                </Button>
-              </div>
-            </div>
-          )}
+          <SuggestionBox  // Replaced with reusable component
+            field="summary"
+            suggestions={suggestions}
+            copySuggestion={copySuggestion}
+            applySuggestion={applySuggestion}
+          />
           <textarea
             id="update-summary"
             value={updatedRecipe.summary}
@@ -223,45 +193,17 @@ export default function UpdateForm({
           />
         </div>
 
-        {/* Ingredients */}
-        <div>
+        <div id="editable-ingredients">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Ingredients*</label>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => generateField('ingredients')}
-              disabled={loading['ingredients']}
-            >
-              {loading['ingredients'] ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-            </Button>
+            <GenerateButton field="ingredients" loading={loading} generateField={generateField} />  // Replaced with reusable component
           </div>
-          {suggestions['ingredients'] && (
-            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['ingredients']}</span>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  type="button"
-                  onClick={() => copySuggestion('ingredients')}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => applySuggestion('ingredients')}
-                >
-                  Replace
-                </Button>
-              </div>
-            </div>
-          )}
+          <SuggestionBox  // Replaced with reusable component
+            field="ingredients"
+            suggestions={suggestions}
+            copySuggestion={copySuggestion}
+            applySuggestion={applySuggestion}
+          />
           <OnChangeInputMultiSelect
             name="Ingredient"
             placeholder="Enter the ingredients used in this recipe"
@@ -272,44 +214,17 @@ export default function UpdateForm({
           />
         </div>
 
-        {/* Instructions */}
-        <div>
+        <div id="editable-instructions">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Instructions*</label>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => generateField('instructions')}
-              disabled={loading['instructions']}
-            >
-              {loading['instructions'] ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-            </Button>
+            <GenerateButton field="instructions" loading={loading} generateField={generateField} />  // Replaced with reusable component
           </div>
-          {suggestions['instructions'] && (
-            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['instructions']}</span>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => copySuggestion('instructions')}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => applySuggestion('instructions')}
-                >
-                  Replace
-                </Button>
-              </div>
-            </div>
-          )}
+          <SuggestionBox  // Replaced with reusable component
+            field="instructions"
+            suggestions={suggestions}
+            copySuggestion={copySuggestion}
+            applySuggestion={applySuggestion}
+          />
           <textarea
             id="update-instructions"
             value={updatedRecipe.instructions}
@@ -321,44 +236,17 @@ export default function UpdateForm({
           />
         </div>
 
-        {/* Steps */}
-        <div>
+        <div id="editable-steps">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Steps*</label>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => generateField('steps')}
-              disabled={loading['steps']}
-            >
-              {loading['steps'] ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-            </Button>
+            <GenerateButton field="steps" loading={loading} generateField={generateField} />  // Replaced with reusable component
           </div>
-          {suggestions['steps'] && (
-            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['steps']}</span>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => copySuggestion('steps')}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => applySuggestion('steps')}
-                >
-                  Replace
-                </Button>
-              </div>
-            </div>
-          )}
+          <SuggestionBox  // Replaced with reusable component
+            field="steps"
+            suggestions={suggestions}
+            copySuggestion={copySuggestion}
+            applySuggestion={applySuggestion}
+          />
           <OnChangeInputMultiSelect
             name="Steps"
             placeholder="Enter the steps to make this recipe"

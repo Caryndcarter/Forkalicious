@@ -13,6 +13,7 @@ import { useMutation } from "@apollo/client";
 import { CREATE_RECIPE } from "@/utils_graphQL/mutations";
 import { SAVE_RECIPE } from "@/utils_graphQL/mutations";
 import localData from "@/utils_graphQL/localStorageService";
+import { GenerateButton, SuggestionBox } from "@/components/recipe-ai/AiHelpers";
 
 const LOCAL_STORAGE_KEY = "recipeFormProgress";
 
@@ -429,40 +430,14 @@ const { userStatus } = useContext(userContext);
         <div id="maker-input-title">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Title*</label>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => generateField('title')}
-              disabled={loading['title']}
-            >
-              {loading['title'] ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-            </Button>
+            <GenerateButton field="title" loading={loading} generateField={generateField} />  // Replaced with reusable component
           </div>
-          {suggestions['title'] && (
-            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['title']}</span>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => copySuggestion('title')}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => applySuggestion('title')}
-                >
-                  Replace
-                </Button>
-              </div>
-            </div>
-          )}
+          <SuggestionBox  // Replaced with reusable component
+            field="title"
+            suggestions={suggestions}
+            copySuggestion={copySuggestion}
+            applySuggestion={applySuggestion}
+          />
           <input
             type="text"
             value={recipe.title}
@@ -485,40 +460,14 @@ const { userStatus } = useContext(userContext);
         <div id="maker-input-summary">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Summary*</label>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => generateField('summary')}
-              disabled={loading['summary']}
-            >
-              {loading['summary'] ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-            </Button>
+            <GenerateButton field="summary" loading={loading} generateField={generateField} />  // Replaced with reusable component
           </div>
-          {suggestions['summary'] && (
-            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['summary']}</span>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => copySuggestion('summary')}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => applySuggestion('summary')}
-                >
-                  Replace
-                </Button>
-              </div>
-            </div>
-          )}
+          <SuggestionBox  // Replaced with reusable component
+            field="summary"
+            suggestions={suggestions}
+            copySuggestion={copySuggestion}
+            applySuggestion={applySuggestion}
+          />
           <textarea
             value={recipe.summary}
             onChange={(e) => {
