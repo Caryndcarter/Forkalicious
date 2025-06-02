@@ -1,7 +1,7 @@
 import { RecipeDetails } from "@/types";
-import { Pencil, Sparkles, Loader2, Copy } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
 import defaultImage from "/src/assets/Untitled design.jpg"
+import AiFieldSuggestion from "@/components/AiFieldSuggestion";
 
 interface editableHeadingProps {
   recipe: RecipeDetails;
@@ -69,42 +69,14 @@ export default function EditableHeading({
 
       {/* Recipe Title */}
       <div id="editable-recipe-title" className="mb-4">
-        <div className="flex justify-between items-center mb-1">
-          <span className="text-sm font-bold text-[#a84e24]">Title</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => generateField('title')}
-            disabled={loading['title']}
-          >
-            {loading['title'] ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Sparkles className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-        {suggestions['title'] && (
-          <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-            <span className="text-sm">{suggestions['title']}</span>
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => copySuggestion('title')}
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => applySuggestion('title')}
-              >
-                Replace
-              </Button>
-            </div>
-          </div>
-        )}
+        <AiFieldSuggestion
+          fieldName="Title"
+          suggestion={suggestions['title']}
+          loading={loading['title']}
+          onGenerate={() => generateField('title')}
+          onApply={() => applySuggestion('title')}
+          onCopy={() => copySuggestion('title')}
+        />
         <input
           type="text"
           value={recipe.title || ""}
@@ -118,42 +90,14 @@ export default function EditableHeading({
 
       {/* Ready in Minutes */}
       <div id="editable-recipe-ready-in-minutes" className="mb-2">
-        <div className="flex justify-between items-center mb-1">
-          <span className="text-sm font-bold text-[#a84e24]">Ready in Minutes</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => generateField('readyInMinutes')}
-            disabled={loading['readyInMinutes']}
-          >
-            {loading['readyInMinutes'] ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Sparkles className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-        {suggestions['readyInMinutes'] && (
-          <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-            <span className="text-sm">{suggestions['readyInMinutes']}</span>
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => copySuggestion('readyInMinutes')}
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => applySuggestion('readyInMinutes')}
-              >
-                Replace
-              </Button>
-            </div>
-          </div>
-        )}
+        <AiFieldSuggestion
+          fieldName="Ready in Minutes"
+          suggestion={suggestions['readyInMinutes']}
+          loading={loading['readyInMinutes']}
+          onGenerate={() => generateField('readyInMinutes')}
+          onApply={() => applySuggestion('readyInMinutes')}
+          onCopy={() => copySuggestion('readyInMinutes')}
+        />
         <h4 className="text-lg font-bold text-[#a84e24] flex items-center gap-2">
           Ready in:{" "}
           <span className="text-black font-medium flex items-center">
@@ -174,42 +118,14 @@ export default function EditableHeading({
 
       {/* Servings */}
       <div id="editable-recipe-servings" className="mb-2">
-        <div className="flex justify-between items-center mb-1">
-          <span className="text-sm font-bold text-[#a84e24]">Servings</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => generateField('servings')}
-            disabled={loading['servings']}
-          >
-            {loading['servings'] ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Sparkles className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-        {suggestions['servings'] && (
-          <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-            <span className="text-sm">{suggestions['servings']}</span>
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => copySuggestion('servings')}
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => applySuggestion('servings')}
-              >
-                Replace
-              </Button>
-            </div>
-          </div>
-        )}
+        <AiFieldSuggestion
+          fieldName="Servings"
+          suggestion={suggestions['servings']}
+          loading={loading['servings']}
+          onGenerate={() => generateField('servings')}
+          onApply={() => applySuggestion('servings')}
+          onCopy={() => copySuggestion('servings')}
+        />
         <h4 className="text-lg font-bold text-[#a84e24] flex items-center gap-2">
           Servings:{" "}
           <span className="text-black font-medium">
