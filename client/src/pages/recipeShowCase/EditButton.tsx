@@ -8,6 +8,7 @@ interface EditRecipeButtonProps {
 export default function EditRecipeButton({ onClick }: EditRecipeButtonProps) {
   return (
     <Button
+      id="edit-button"
       onClick={onClick}
       className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50"
     >

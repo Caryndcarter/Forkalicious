@@ -99,7 +99,7 @@ export default function RecipeBook() {
     }
 
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div id="saved-recipes" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {recipes.map((recipe, index) => (
           <RecipeCard key={recipe._id || index} recipe={recipe} />
         ))}

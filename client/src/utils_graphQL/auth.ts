@@ -58,7 +58,6 @@ class AuthService {
 
     localStorageService.setAccountDiet(diet);
 
-    window.location.assign("/");
   }
 
   logout() {

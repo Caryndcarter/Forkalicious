@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "dotenv -- sh -c 'start-server-and-test start http://localhost:$PORT test:cypress'",
+    "test": "dotenv -- sh -c 'start-server-and-test start:dev http://localhost:$PORT test:cypress'",
     "test:cypress": "npx cypress run --spec cypress/e2e/tests/index.cy.js",
     "test:dev": "npx cypress open",
     "dev": "npm i && npm run seed && npm run build && npm run start:dev",

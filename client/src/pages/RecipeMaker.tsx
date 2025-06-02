@@ -422,10 +422,11 @@ const { userStatus } = useContext(userContext);
       )}
 
       <form
+        id="recipe-maker-form"
         onSubmit={handleSubmit}
         className="max-w-3xl mx-auto bg-[#fadaae] p-6 shadow-lg rounded-lg space-y-4 border border-gray-200"
       >
-        <div>
+        <div id="maker-input-title">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Title*</label>
             <Button
@@ -481,7 +482,7 @@ const { userStatus } = useContext(userContext);
           )}
         </div>
 
-        <div>
+        <div id="maker-input-summary">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Summary*</label>
             <Button
@@ -536,7 +537,7 @@ const { userStatus } = useContext(userContext);
           )}
         </div>
 
-        <div>
+        <div id="maker-input-ready-in-minutes">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Ready In Minutes*</label>
             <Button
@@ -621,7 +622,7 @@ const { userStatus } = useContext(userContext);
           )}
         </div>
 
-        <div>
+        <div id="maker-input-servings">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Servings*</label>
             <Button
@@ -703,7 +704,7 @@ const { userStatus } = useContext(userContext);
           )}
         </div>
 
-        <div>
+        <div id="maker-input-ingredients">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Ingredients*</label>
             <Button
@@ -783,7 +784,7 @@ const { userStatus } = useContext(userContext);
           )}
         </div>
 
-        <div>
+        <div id="maker-input-instructions">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Instructions*</label>
             <Button
@@ -843,8 +844,7 @@ const { userStatus } = useContext(userContext);
           )}
         </div>
 
-        {/* Diets Section */}
-        <div>
+        <div id="maker-input-diets">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Diets</label>
             <Button
@@ -922,8 +922,7 @@ const { userStatus } = useContext(userContext);
           </button>
         </div>
 
-        {/* Steps Section */}
-        <div>
+        <div id="maker-input-steps">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Steps*</label>
             <Button
@@ -1000,7 +999,7 @@ const { userStatus } = useContext(userContext);
           )}
         </div>
 
-        <div>
+        <div id="maker-input-image">
           <label className="block font-bold mb-1">Image URL</label>
           <input
             type="text"

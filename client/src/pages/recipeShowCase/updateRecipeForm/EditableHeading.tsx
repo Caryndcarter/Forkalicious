@@ -48,7 +48,7 @@ export default function EditableHeading({
   return (
     <>
       {/* Recipe Image */}
-      <div className="relative group cursor-pointer" onClick={handleImageClick}>
+      <div id="editable-recipe-image" className="relative group cursor-pointer" onClick={handleImageClick}>
         {Image ? (
             <img
               src={ensureJpgExtension(recipe.image || "")}
@@ -68,7 +68,7 @@ export default function EditableHeading({
       </div>
 
       {/* Recipe Title */}
-      <div className="mb-4">
+      <div id="editable-recipe-title" className="mb-4">
         <div className="flex justify-between items-center mb-1">
           <span className="text-sm font-bold text-[#a84e24]">Title</span>
           <Button
@@ -117,7 +117,7 @@ export default function EditableHeading({
       </div>
 
       {/* Ready in Minutes */}
-      <div className="mb-2">
+      <div id="editable-recipe-ready-in-minutes" className="mb-2">
         <div className="flex justify-between items-center mb-1">
           <span className="text-sm font-bold text-[#a84e24]">Ready in Minutes</span>
           <Button
@@ -173,7 +173,7 @@ export default function EditableHeading({
       </div>
 
       {/* Servings */}
-      <div className="mb-2">
+      <div id="editable-recipe-servings" className="mb-2">
         <div className="flex justify-between items-center mb-1">
           <span className="text-sm font-bold text-[#a84e24]">Servings</span>
           <Button
