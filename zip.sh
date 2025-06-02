@@ -1,1 +1,1 @@
-zip -r forktastic . --exclude "*.env" ".git/*" "*node_modules/*" "*/dist/*" "./zip.sh" "run_my_docker.sh"
+zip -r forktastic_DA_postedit . --exclude "*.env" ".git/*" "*node_modules/*" "*/dist/*" "./zip.sh" "run_my_docker.sh"
