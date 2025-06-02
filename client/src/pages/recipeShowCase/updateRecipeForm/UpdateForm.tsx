@@ -160,19 +160,19 @@ export default function UpdateForm({
           Cancel Edits
         </button>
 
-        {/* Diets */}
-        <OnChangeDropDownMultiSelect
-          name="diets"
-          placeholder="Select the diets"
-          options={dietOptions}
-          selection={updatedRecipe.diets ?? []}
-          setSelection={(newDiets: diet[]) => {
-            setUpdatedRecipe({ ...updatedRecipe, diets: newDiets });
-          }}
-        />
+        <div id="editable-diets">
+          <OnChangeDropDownMultiSelect
+            name="diets"
+            placeholder="Select the diets"
+            options={dietOptions}
+            selection={updatedRecipe.diets ?? []}
+            setSelection={(newDiets: diet[]) => {
+              setUpdatedRecipe({ ...updatedRecipe, diets: newDiets });
+            }}
+          />
+        </div>
 
-        {/* Summary */}
-        <div>
+        <div id="editable-summary">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Summary*</label>
             <Button
@@ -223,8 +223,7 @@ export default function UpdateForm({
           />
         </div>
 
-        {/* Ingredients */}
-        <div>
+        <div id="editable-ingredients">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Ingredients*</label>
             <Button
@@ -272,8 +271,7 @@ export default function UpdateForm({
           />
         </div>
 
-        {/* Instructions */}
-        <div>
+        <div id="editable-instructions">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Instructions*</label>
             <Button
@@ -321,8 +319,7 @@ export default function UpdateForm({
           />
         </div>
 
-        {/* Steps */}
-        <div>
+        <div id="editable-steps">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Steps*</label>
             <Button
