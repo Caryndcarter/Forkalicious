@@ -13,6 +13,7 @@ import { useMutation } from "@apollo/client";
 import { CREATE_RECIPE } from "@/utils_graphQL/mutations";
 import { SAVE_RECIPE } from "@/utils_graphQL/mutations";
 import localData from "@/utils_graphQL/localStorageService";
+import AiFieldSuggestion from "@/components/AiFieldSuggestion";
 
 const LOCAL_STORAGE_KEY = "recipeFormProgress";
 
@@ -426,43 +427,16 @@ const { userStatus } = useContext(userContext);
         onSubmit={handleSubmit}
         className="max-w-3xl mx-auto bg-[#fadaae] p-6 shadow-lg rounded-lg space-y-4 border border-gray-200"
       >
+
         <div id="maker-input-title">
-          <div className="flex justify-between items-center mb-1">
-            <label className="font-bold">Title*</label>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => generateField('title')}
-              disabled={loading['title']}
-            >
-              {loading['title'] ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-          {suggestions['title'] && (
-            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['title']}</span>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => copySuggestion('title')}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => applySuggestion('title')}
-                >
-                  Replace
-                </Button>
-              </div>
-            </div>
-          )}
+          <AiFieldSuggestion
+            fieldName="Title"
+            suggestion={suggestions['title']}
+            loading={loading['title']}
+            onGenerate={() => generateField('title')}
+            onApply={() => applySuggestion('title')}
+            onCopy={() => copySuggestion('title')}
+          />
           <input
             type="text"
             value={recipe.title}
@@ -483,42 +457,14 @@ const { userStatus } = useContext(userContext);
         </div>
 
         <div id="maker-input-summary">
-          <div className="flex justify-between items-center mb-1">
-            <label className="font-bold">Summary*</label>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => generateField('summary')}
-              disabled={loading['summary']}
-            >
-              {loading['summary'] ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-          {suggestions['summary'] && (
-            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['summary']}</span>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => copySuggestion('summary')}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => applySuggestion('summary')}
-                >
-                  Replace
-                </Button>
-              </div>
-            </div>
-          )}
+          <AiFieldSuggestion
+            fieldName="Summary"
+            suggestion={suggestions['summary']}
+            loading={loading['summary']}
+            onGenerate={() => generateField('summary')}
+            onApply={() => applySuggestion('summary')}
+            onCopy={() => copySuggestion('summary')}
+          />
           <textarea
             value={recipe.summary}
             onChange={(e) => {
@@ -538,42 +484,14 @@ const { userStatus } = useContext(userContext);
         </div>
 
         <div id="maker-input-ready-in-minutes">
-          <div className="flex justify-between items-center mb-1">
-            <label className="font-bold">Ready In Minutes*</label>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => generateField('readyInMinutes')}
-              disabled={loading['readyInMinutes']}
-            >
-              {loading['readyInMinutes'] ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-          {suggestions['readyInMinutes'] && (
-            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['readyInMinutes']}</span>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => copySuggestion('readyInMinutes')}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => applySuggestion('readyInMinutes')}
-                >
-                  Replace
-                </Button>
-              </div>
-            </div>
-          )}
+          <AiFieldSuggestion
+            fieldName="Ready In Minutes"
+            suggestion={suggestions['readyInMinutes']}
+            loading={loading['readyInMinutes']}
+            onGenerate={() => generateField('readyInMinutes')}
+            onApply={() => applySuggestion('readyInMinutes')}
+            onCopy={() => copySuggestion('readyInMinutes')}
+          />
           <input
             type="number"
             min="0"

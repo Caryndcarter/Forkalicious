@@ -8,8 +8,7 @@ import { dietOptions } from "@/types";
 import Heading from "../Heading";
 import localStorageService from "@/utils_graphQL/localStorageService";
 import askService from "@/api/askService";
-import { Button } from "@/components/ui/button";
-import { Sparkles, Loader2, Copy } from "lucide-react";
+import AiFieldSuggestion from "@/components/AiFieldSuggestion";
 
 interface updateFormProps {
   recipe: RecipeDetails;
@@ -154,64 +153,34 @@ export default function UpdateForm({
         ></EditableHeading>
 
         <button
+          type="button"
           onClick={() => setUpdateVisible(false)}
           className="font-semibold py-2 px-4 rounded transition-colors duration-300 bg-red-500 hover:bg-red-600 text-white"
         >
           Cancel Edits
         </button>
 
-        <div id="editable-diets">
-          <OnChangeDropDownMultiSelect
-            name="diets"
-            placeholder="Select the diets"
-            options={dietOptions}
-            selection={updatedRecipe.diets ?? []}
-            setSelection={(newDiets: diet[]) => {
-              setUpdatedRecipe({ ...updatedRecipe, diets: newDiets });
-            }}
-          />
-        </div>
+        {/* Diets */}
+        <OnChangeDropDownMultiSelect
+          name="diets"
+          placeholder="Select the diets"
+          options={dietOptions}
+          selection={updatedRecipe.diets ?? []}
+          setSelection={(newDiets: diet[]) => {
+            setUpdatedRecipe({ ...updatedRecipe, diets: newDiets });
+          }}
+        />
 
-        <div id="editable-summary">
-          <div className="flex justify-between items-center mb-1">
-            <label className="font-bold">Summary*</label>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => generateField('summary')}
-              disabled={loading['summary']}
-            >
-              {loading['summary'] ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-          {suggestions['summary'] && (
-            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['summary']}</span>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    copySuggestion('summary')
-                  }}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => applySuggestion('summary')}
-                >
-                  Replace
-                </Button>
-              </div>
-            </div>
-          )}
+        {/* Summary */}
+        <div>
+          <AiFieldSuggestion
+            fieldName="Summary"
+            suggestion={suggestions['summary']}
+            loading={loading['summary']}
+            onGenerate={() => generateField('summary')}
+            onApply={() => applySuggestion('summary')}
+            onCopy={() => copySuggestion('summary')}
+          />
           <textarea
             id="update-summary"
             value={updatedRecipe.summary}
@@ -223,44 +192,16 @@ export default function UpdateForm({
           />
         </div>
 
-        <div id="editable-ingredients">
-          <div className="flex justify-between items-center mb-1">
-            <label className="font-bold">Ingredients*</label>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => generateField('ingredients')}
-              disabled={loading['ingredients']}
-            >
-              {loading['ingredients'] ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-          {suggestions['ingredients'] && (
-            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['ingredients']}</span>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  type="button"
-                  onClick={() => copySuggestion('ingredients')}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => applySuggestion('ingredients')}
-                >
-                  Replace
-                </Button>
-              </div>
-            </div>
-          )}
+        {/* Ingredients */}
+        <div>
+          <AiFieldSuggestion
+            fieldName="Ingredients"
+            suggestion={suggestions['ingredients']}
+            loading={loading['ingredients']}
+            onGenerate={() => generateField('ingredients')}
+            onApply={() => applySuggestion('ingredients')}
+            onCopy={() => copySuggestion('ingredients')}
+          />
           <OnChangeInputMultiSelect
             name="Ingredient"
             placeholder="Enter the ingredients used in this recipe"
@@ -271,43 +212,16 @@ export default function UpdateForm({
           />
         </div>
 
-        <div id="editable-instructions">
-          <div className="flex justify-between items-center mb-1">
-            <label className="font-bold">Instructions*</label>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => generateField('instructions')}
-              disabled={loading['instructions']}
-            >
-              {loading['instructions'] ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-          {suggestions['instructions'] && (
-            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['instructions']}</span>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => copySuggestion('instructions')}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => applySuggestion('instructions')}
-                >
-                  Replace
-                </Button>
-              </div>
-            </div>
-          )}
+        {/* Instructions */}
+        <div>
+          <AiFieldSuggestion
+            fieldName="Instructions"
+            suggestion={suggestions['instructions']}
+            loading={loading['instructions']}
+            onGenerate={() => generateField('instructions')}
+            onApply={() => applySuggestion('instructions')}
+            onCopy={() => copySuggestion('instructions')}
+          />
           <textarea
             id="update-instructions"
             value={updatedRecipe.instructions}
@@ -319,43 +233,16 @@ export default function UpdateForm({
           />
         </div>
 
-        <div id="editable-steps">
-          <div className="flex justify-between items-center mb-1">
-            <label className="font-bold">Steps*</label>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => generateField('steps')}
-              disabled={loading['steps']}
-            >
-              {loading['steps'] ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-          {suggestions['steps'] && (
-            <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['steps']}</span>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => copySuggestion('steps')}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => applySuggestion('steps')}
-                >
-                  Replace
-                </Button>
-              </div>
-            </div>
-          )}
+        {/* Steps */}
+        <div>
+          <AiFieldSuggestion
+            fieldName="Steps"
+            suggestion={suggestions['steps']}
+            loading={loading['steps']}
+            onGenerate={() => generateField('steps')}
+            onApply={() => applySuggestion('steps')}
+            onCopy={() => copySuggestion('steps')}
+          />
           <OnChangeInputMultiSelect
             name="Steps"
             placeholder="Enter the steps to make this recipe"
