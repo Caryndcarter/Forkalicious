@@ -72,9 +72,9 @@ export default function EditableHeading({
       <div id="editable-recipe-title" className="mb-4">
         <div className="flex justify-between items-center mb-1">
           <span className="text-sm font-bold text-[#a84e24]">Title</span>
-          <GenerateButton field="title" loading={loading} generateField={generateField} />  // Replaced with reusable component
+          <GenerateButton field="title" loading={loading} generateField={generateField} />
         </div>
-        <SuggestionBox  // Replaced with reusable component
+        <SuggestionBox
           field="title"
           suggestions={suggestions}
           copySuggestion={copySuggestion}
@@ -96,9 +96,9 @@ export default function EditableHeading({
       <div id="editable-recipe-ready-in-minutes" className="mb-2">
         <div className="flex justify-between items-center mb-1">
           <span className="text-sm font-bold text-[#a84e24]">Ready in Minutes</span>
-          <GenerateButton field="readyInMinutes" loading={loading} generateField={generateField} />  // Replaced with reusable component
+          <GenerateButton field="readyInMinutes" loading={loading} generateField={generateField} />
         </div>
-        <SuggestionBox  // Replaced with reusable component
+        <SuggestionBox
           field="readyInMinutes"
           suggestions={suggestions}
           copySuggestion={copySuggestion}
@@ -127,9 +127,9 @@ export default function EditableHeading({
       <div id="editable-recipe-servings" className="mb-2">
         <div className="flex justify-between items-center mb-1">
           <span className="text-sm font-bold text-[#a84e24]">Servings</span>
-          <GenerateButton field="servings" loading={loading} generateField={generateField} />  // Replaced with reusable component
+          <GenerateButton field="servings" loading={loading} generateField={generateField} />
         </div>
-        <SuggestionBox  // Replaced with reusable component
+        <SuggestionBox
           field="servings"
           suggestions={suggestions}
           copySuggestion={copySuggestion}

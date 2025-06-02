@@ -175,9 +175,9 @@ export default function UpdateForm({
         <div id="editable-summary">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Summary*</label>
-            <GenerateButton field="summary" loading={loading} generateField={generateField} />  // Replaced with reusable component
+            <GenerateButton field="summary" loading={loading} generateField={generateField} />
           </div>
-          <SuggestionBox  // Replaced with reusable component
+          <SuggestionBox
             field="summary"
             suggestions={suggestions}
             copySuggestion={copySuggestion}
@@ -197,9 +197,9 @@ export default function UpdateForm({
         <div id="editable-ingredients">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Ingredients*</label>
-            <GenerateButton field="ingredients" loading={loading} generateField={generateField} />  // Replaced with reusable component
+            <GenerateButton field="ingredients" loading={loading} generateField={generateField} />
           </div>
-          <SuggestionBox  // Replaced with reusable component
+          <SuggestionBox
             field="ingredients"
             suggestions={suggestions}
             copySuggestion={copySuggestion}
@@ -218,9 +218,9 @@ export default function UpdateForm({
         <div id="editable-instructions">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Instructions*</label>
-            <GenerateButton field="instructions" loading={loading} generateField={generateField} />  // Replaced with reusable component
+            <GenerateButton field="instructions" loading={loading} generateField={generateField} />
           </div>
-          <SuggestionBox  // Replaced with reusable component
+          <SuggestionBox
             field="instructions"
             suggestions={suggestions}
             copySuggestion={copySuggestion}
@@ -240,9 +240,9 @@ export default function UpdateForm({
         <div id="editable-steps">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Steps*</label>
-            <GenerateButton field="steps" loading={loading} generateField={generateField} />  // Replaced with reusable component
+            <GenerateButton field="steps" loading={loading} generateField={generateField} />
           </div>
-          <SuggestionBox  // Replaced with reusable component
+          <SuggestionBox
             field="steps"
             suggestions={suggestions}
             copySuggestion={copySuggestion}

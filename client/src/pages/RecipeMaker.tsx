@@ -431,9 +431,9 @@ const { userStatus } = useContext(userContext);
         <div id="maker-input-title">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Title*</label>
-            <GenerateButton field="title" loading={loading} generateField={generateField} />  // Replaced with reusable component
+            <GenerateButton field="title" loading={loading} generateField={generateField} />
           </div>
-          <SuggestionBox  // Replaced with reusable component
+          <SuggestionBox
             field="title"
             suggestions={suggestions}
             copySuggestion={copySuggestion}
@@ -461,9 +461,9 @@ const { userStatus } = useContext(userContext);
         <div id="maker-input-summary">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Summary*</label>
-            <GenerateButton field="summary" loading={loading} generateField={generateField} />  // Replaced with reusable component
+            <GenerateButton field="summary" loading={loading} generateField={generateField} />
           </div>
-          <SuggestionBox  // Replaced with reusable component
+          <SuggestionBox
             field="summary"
             suggestions={suggestions}
             copySuggestion={copySuggestion}
