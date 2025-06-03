@@ -114,8 +114,8 @@ export default function runMakerTests(){
     it("Generates steps without a premature submit", () => {
 
       cy.intercept('POST', '**/open/ask/component', {
-        "component": "Title",
-        "value": "chochoCake"
+        "component": "Steps",
+        "value": "step 1;step 2;step 3"
       }).as('mockedAskComponentSuccess');
 
       // go to the recipe maker page:
@@ -128,15 +128,15 @@ export default function runMakerTests(){
         .first()
         .click()
         .wait(100);
-      cy.get("#editable-recipe-title").should('exist');
+      cy.get('#maker-input-steps p').should('not.exist');
 
     });
 
     it("Generates steps with the correct values", () => {
       cy.intercept('POST', '**/open/ask/component', {
-        "component": "Title",
-        "value": "chochoCake"
-      }).as('mockedAskComponentSuccess');
+        "component": "Steps",
+        "value": "step 1;step 2;step 3"
+      }).as('mockedStepsComponentSuccess');
 
       // go to the recipe maker page:
       cy.visit("/");
@@ -159,8 +159,8 @@ export default function runMakerTests(){
     it("Copies the steps without a premature submit", () => {
 
       cy.intercept('POST', '**/open/ask/component', {
-        "component": "Title",
-        "value": "chochoCake"
+        "component": "Steps",
+        "value": "step 1;step 2;step 3"
       }).as('mockedAskComponentSuccess');
 
       // go to the recipe maker page:
@@ -175,15 +175,15 @@ export default function runMakerTests(){
 
       // check that clicking the copy-to-clipboard button doesn't trigger a submit
       cy.get('#maker-input-steps button').eq(1).click();
-      cy.get("#editable-recipe-title").should('exist');
+      cy.get('#maker-input-steps p').should('not.exist');
 
     });
 
     it("Replaces the steps without a premature submit", () => {
 
       cy.intercept('POST', '**/open/ask/component', {
-        "component": "Title",
-        "value": "chochoCake"
+        "component": "Steps",
+        "value": "step 1;step 2;step 3"
       }).as('mockedAskComponentSuccess');
 
       // go to the recipe maker page:
@@ -198,15 +198,15 @@ export default function runMakerTests(){
 
       // validating the replace button
       cy.get('#maker-input-steps button').eq(2).click();
-      cy.get("#editable-recipe-title").should('exist');
+      cy.get('#maker-input-steps p').should('not.exist');
 
     });
 
     it("Replaces the steps correctly", () => {
 
       cy.intercept('POST', '**/open/ask/component', {
-        "component": "Title",
-        "value": "chochoCake"
+        "component": "Steps",
+        "value": "step 1;step 2;step 3"
       }).as('mockedAskComponentSuccess');
 
       // go to the recipe maker page:
@@ -222,9 +222,8 @@ export default function runMakerTests(){
 
       // validating the replace button
       cy.get('#maker-input-steps button').eq(2).click();
-      cy.get("#editable-recipe-title").should('exist');
-      cy.get("#maker-input-steps li")
-        .find("input")
+      cy.get('#maker-input-steps p').should('not.exist');
+      cy.get("#maker-input-steps input")
         .should("have.value", "step 1;step 2;step 3");
 
     });
