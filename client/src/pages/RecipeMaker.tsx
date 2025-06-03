@@ -19,7 +19,7 @@ import SuggestionBox from "@/components/recipe-ai/SuggestionBox";
 const LOCAL_STORAGE_KEY = "recipeFormProgress";
 
 const RecipeMaker = () => {
-  const currentRecipeDetails = localData.getCurrentRecipe() || defaultRecipe;
+  // const currentRecipeDetails = localData.getCurrentRecipe() || defaultRecipe;
   const { isEditing, setIsEditing } = useContext(editingContext);
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
@@ -56,18 +56,23 @@ const { userStatus } = useContext(userContext);
   const [recipe, setRecipe] = useState<RecipeDetails>(emptyRecipe);
 
   // Load saved form data from localStorage on component mount
+  // Only if we're not editing an existing recipe
   useEffect(() => {
+    // Skip loading from localStorage if we're editing a recipe
+    if (isEditing) {
+      return;
+    }
+    
     const savedFormData = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (savedFormData) {
       try {
         const parsedData = JSON.parse(savedFormData);
         setRecipe(parsedData);
-        // Remove the part that sets the prompt
       } catch (error) {
         console.error("Error parsing saved form data:", error);
       }
     }
-  }, []);
+  }, [isEditing]);
 
   // Save form data to localStorage whenever recipe state changes
   useEffect(() => {
@@ -88,12 +93,17 @@ const { userStatus } = useContext(userContext);
       return;
     }
 
+    // Get the current recipe from local storage instead of context
+    const currentRecipeDetails = localData.getCurrentRecipe() || defaultRecipe;
+    
     // grab profile information
     const userProfile = Auth.getProfile();
 
     // if the user is the author of the recipe, import normally
     if (userProfile._id == currentRecipeDetails.author) {
       setRecipe(currentRecipeDetails);
+      // Clear saved form data when importing a recipe to edit
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
 
     // if the user is adapting someone else's recipe, add their username
@@ -102,11 +112,14 @@ const { userStatus } = useContext(userContext);
         ...currentRecipeDetails,
         title: `${userProfile.userName}'s ${currentRecipeDetails.title}`,
       });
+      // Clear saved form data when adapting a recipe
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
 
     // turn off editing
     setIsEditing(false);
   }, []);
+
 
   const listFields = ['ingredients', 'steps', 'diets'];
 
