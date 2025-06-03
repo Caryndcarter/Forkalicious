@@ -2,7 +2,7 @@ import { useState, useContext, useLayoutEffect, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { defaultRecipe, type RecipeDetails } from "@/types";
 import askService from "../api/askService";
-import { editingContext, userContext } from "@/App";
+import { userContext } from "@/App";
 import Auth from "@/utils_graphQL/auth";
 
 import { Button } from "@/components/ui/button";
@@ -20,8 +20,8 @@ const LOCAL_STORAGE_KEY = "recipeFormProgress";
 
 const RecipeMaker = () => {
   const currentRecipeDetails = localData.getCurrentRecipe() || defaultRecipe;
-  const { isEditing, setIsEditing } = useContext(editingContext);
   const navigate = useNavigate();
+  const isEditing = localData.getIsEditing();
   const [errorMessage, setErrorMessage] = useState("");
   const [prompt, setPrompt] = useState<string>("");
   const [AILoading, setAILoading] = useState<boolean>(false);
@@ -55,19 +55,21 @@ const { userStatus } = useContext(userContext);
 
   const [recipe, setRecipe] = useState<RecipeDetails>(emptyRecipe);
 
-  // Load saved form data from localStorage on component mount
+  // In the useEffect for loading saved form data, add a check
   useEffect(() => {
-    const savedFormData = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (savedFormData) {
-      try {
-        const parsedData = JSON.parse(savedFormData);
-        setRecipe(parsedData);
-        // Remove the part that sets the prompt
-      } catch (error) {
-        console.error("Error parsing saved form data:", error);
+    // Only load saved form if we're not in editing mode
+    if (!isEditing) {
+      const savedFormData = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (savedFormData) {
+        try {
+          const parsedData = JSON.parse(savedFormData);
+          setRecipe(parsedData);
+        } catch (error) {
+          console.error("Error parsing saved form data:", error);
+        }
       }
     }
-  }, []);
+  }, [isEditing]);
 
   // Save form data to localStorage whenever recipe state changes
   useEffect(() => {
@@ -83,30 +85,32 @@ const { userStatus } = useContext(userContext);
 
   // If the user is editing an existing recipe, import that recipe's information
   useLayoutEffect(() => {
-    // exits if the user isn't editing
-    if (!isEditing) {
-      return;
+    // If we're in editing mode and have a current recipe
+    if (isEditing && currentRecipeDetails) {
+      // Clear any existing form progress to avoid conflicts
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      
+      // grab profile information
+      const userProfile = Auth.getProfile();
+      
+      // if the user is the author of the recipe, import normally
+      if (userProfile?._id === currentRecipeDetails.author) {
+        setRecipe(currentRecipeDetails);
+      } 
+      // if the user is adapting someone else's recipe, add their username
+      else if (userProfile?.userName) {
+        setRecipe({
+          ...currentRecipeDetails,
+          title: `${userProfile.userName}'s ${currentRecipeDetails.title}`,
+          _id: null, // Ensure we're creating a new recipe
+          author: userProfile._id
+        });
+      }
+      
+      // Clear the editing flag
+      localData.removeIsEditing();
     }
-
-    // grab profile information
-    const userProfile = Auth.getProfile();
-
-    // if the user is the author of the recipe, import normally
-    if (userProfile._id == currentRecipeDetails.author) {
-      setRecipe(currentRecipeDetails);
-    }
-
-    // if the user is adapting someone else's recipe, add their username
-    else {
-      setRecipe({
-        ...currentRecipeDetails,
-        title: `${userProfile.userName}'s ${currentRecipeDetails.title}`,
-      });
-    }
-
-    // turn off editing
-    setIsEditing(false);
-  }, []);
+  }, [isEditing, currentRecipeDetails]);
 
   const listFields = ['ingredients', 'steps', 'diets'];
 

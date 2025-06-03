@@ -11,6 +11,7 @@ const queryID = "Query";
 const filterValueID = "Search Filter";
 const savedRecipesID = "Saved Recipes",
   savedRecipesTimeStampID = `${savedRecipesID} Timestamp`;
+const isEditingID = "Is Editing";
 
 // holds logic for managing variables in local storage
 class LocalStorageService {
@@ -200,6 +201,22 @@ class LocalStorageService {
     localStorage.removeItem(savedRecipesID);
     localStorage.removeItem(savedRecipesTimeStampID);
   }
+
+  // Add these methods to the class
+  getIsEditing(): boolean {
+    const isEditing = localStorage.getItem(isEditingID);
+    return isEditing === "true";
+  }
+
+  setIsEditing(value: boolean): void {
+    localStorage.setItem(isEditingID, value.toString());
+  }
+
+  removeIsEditing(): void {
+    localStorage.removeItem(isEditingID);
+  }
 }
+
+
 
 export default new LocalStorageService();

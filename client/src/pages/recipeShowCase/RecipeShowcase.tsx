@@ -1,7 +1,6 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useCallback, useContext, useLayoutEffect } from "react";
 import { currentRecipeContext } from "@/App";
-import { editingContext } from "@/App";
 import { useState, useEffect } from "react";
 import UpdateForm from "./updateRecipeForm/UpdateForm";
 import ButtonManager from "./ButtonManager";
@@ -30,7 +29,6 @@ export default function RecipeShowcase() {
   const { currentRecipeDetails, setCurrentRecipeDetails } =
     useContext(currentRecipeContext);
   const navigate = useNavigate();
-  const { setIsEditing } = useContext(editingContext);
 
   const [loginCheck, setLoginCheck] = useState(false);
   const [updateVisible, setUpdateVisible] = useState<boolean>(false);
@@ -182,7 +180,16 @@ export default function RecipeShowcase() {
   };
 
   const editRecipe = () => {
-    setIsEditing(true);
+    // Clear any existing form progress
+    localStorage.removeItem("recipeFormProgress");
+    
+    // Set the current recipe for editing
+    localData.setCurrentRecipe(currentRecipeDetails);
+    
+    // Set editing flag
+    localData.setIsEditing(true);
+    
+    // Navigate to recipe maker
     navigate("/recipe-maker");
   };
 
