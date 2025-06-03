@@ -1,6 +1,6 @@
 import credentials from "../testingAssets/accountCredentials";
 
-export function runP2PTests() {
+export function runUnitTests() {
   describe("The page works as it did before the edits", () => {
 
     it("Logs in", () => {
@@ -21,4 +21,4 @@ export function runP2PTests() {
   });
 }
 
-runP2PTests();
+runUnitTests();
