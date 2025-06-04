@@ -5,7 +5,7 @@ export default function createRecipe() {
   cy.get("#maker-input-title input").type("title"); // title
   cy.get("#maker-input-summary textarea").type("summary");  // summary
   cy.get("#maker-input-ready-in-minutes input").type("30"); // ready-in-minutes
-  cy.get("#maker-input-servings input").type("4");  // servings
+  cy.get("#maker-input-servings input").type("7");  // servings
 
   // ingredients
   cy.get("#maker-input-ingredients input").eq(0).type("1 cup lettuce")
