@@ -28,9 +28,8 @@
     * Note down the `email` and `password` associated with the testing credentials
     * Run the full app as seen in the previous step 
     * Navigate to the `Account Settings` page and sign up using the credientials you noted down
-    * Navigate to the `Recipe Maker` page, fill in the fields, and click on `Create Recipe`
-    * Navigate to the `Recipe Book` page, and confirm that the recipe has been saved to your account
-    * **IMPORTANT:** your recipe book should have exactly 1 recipe that you created
+    * Navigate to the `Home` page, fill in the fields, and click `Save Recipe`
+    * **IMPORTANT:** your recipe book should have exactly 1 saved recipe
 
 6.  **Running Tests**
     * testing: `./run_tests.sh`
