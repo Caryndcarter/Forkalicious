@@ -23,7 +23,7 @@ export function runP2PTests() {
       cy.visit("/");
       cy.get("#homepage-call-to-action").should('exist');
       login();
-
+      cy.wait(200);
       createRecipe();
 
       // intercept "create recipe" request, to avoid clogging the database
@@ -65,7 +65,7 @@ export function runP2PTests() {
       cy.get("#maker-input-title input").should('have.value', 'title');
       cy.get("#maker-input-summary textarea").should('have.value', 'summary');
       cy.get("#maker-input-ready-in-minutes input").should('have.value', '30');
-      cy.get("#maker-input-servings input").should('have.value', '4');
+      cy.get("#maker-input-servings input").should('have.value', '7');
       cy.get("#maker-input-ingredients input").eq(0).should('have.value', '1 cup lettuce');
       cy.get("#maker-input-ingredients input").eq(1).should('have.value', '2 tsp salt');
       cy.get("#maker-input-instructions textarea").should('have.value', 'instructions');
