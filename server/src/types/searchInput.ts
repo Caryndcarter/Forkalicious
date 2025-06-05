@@ -5,6 +5,7 @@ interface searchInput {
   query: string;
   cuisine?: cuisine;
   diet?: diet;
+  number?: number;
 }
 
 export default searchInput;
