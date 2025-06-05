@@ -13,6 +13,7 @@ interface recipe {
   sourceUrl?: string;
   spoonacularId?: number;
   spoonacularSourceUrl?: string;
+  edamamId?: string;
   reviews?: string[];
 }
 
