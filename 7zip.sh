@@ -6,4 +6,5 @@
   -xr!*node_modules\* \
   -xr!*dist\* \
   -xr!zip.sh \
-  -xr!run_my_docker.sh
+  -xr!run_my_docker.sh \
+  -xr!*.zip
