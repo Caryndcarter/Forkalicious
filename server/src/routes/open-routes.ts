@@ -13,10 +13,10 @@ function mixRecipes(spoonacularRecipes: any[], edamamRecipes: any[]) {
 
   for (let i = 0; i < maxLength; i++) {
     if (i < spoonacularRecipes.length) {
-      mixed.push({ ...spoonacularRecipes[i], source: "spoonacular" });
+      mixed.push({ ...spoonacularRecipes[i] });
     }
     if (i < edamamRecipes.length) {
-      mixed.push({ ...edamamRecipes[i], source: "edamam" });
+      mixed.push({ ...edamamRecipes[i] });
     }
   }
 
@@ -53,10 +53,8 @@ router.get("/information/:id", async (req: Request, res: Response) => {
     let information;
 
     if (edamamRegex.test(id)) {
-      console.log("edamam detected!");
       information = await edamamService.findInformation(id);
     } else if (spoonacularRegex.test(id)) {
-      console.log("spoonacular detected!");
       information = await spoonacularService.findInformation(parseInt(id));
     } else {
       res.status(400).json({ error: "Unrecognized ID value" });
@@ -81,6 +79,7 @@ router.post("/recipes", async (req: Request, res: Response) => {
     const spoonacularResults = await spoonacularService.findRecipes({
       ...searchTerms,
     });
+
     const edamamResults = await edamamService.findRecipes(searchTerms.query);
 
     // // Take first 5 from each
