@@ -9,4 +9,4 @@ docker run \
   -e JWT_SECRET_KEY="randomString" \
   -e OPENAI_API_KEY="" \
   -p 3001:3001 \
-  my-app:latest
+  forkalicious:latest
