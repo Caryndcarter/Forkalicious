@@ -18,11 +18,24 @@ router.get("/random", async (_req: Request, res: Response) => {
 // GET /open/information/:id - GET specific recipe information
 router.get("/information/:id", async (req: Request, res: Response) => {
   try {
-    const id: number = parseInt(req.params.id);
-    const information = await spoonacularService.findInformation(id);
-    res.status(200).json(information);
+    const { source, id } = req.params;
+    let information;
+
+    if (source === "spoonacular") {
+      information = await spoonacularService.findInformation(parseInt(id));
+    } else if (source === "edamam") {
+      information = await edamamService.findInformation(id);
+    } else {
+      return res.status(400).json({ error: "Invalid source specified" });
+    }
+
+    if (!information) {
+      return res.status(404).json({ error: "Recipe not found" });
+    }
+
+    return res.status(200).json(information);
   } catch (error) {
-    res.status(500).json(error);
+    return res.status(500).json(error);
   }
 });
 
