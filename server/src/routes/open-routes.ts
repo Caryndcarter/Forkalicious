@@ -15,27 +15,34 @@ router.get("/random", async (_req: Request, res: Response) => {
   }
 });
 
-// GET /open/information/:id - GET specific recipe information
+// GET /open/information/:source/:id - GET specific recipe information
 router.get("/information/:id", async (req: Request, res: Response) => {
+  // uses regular expressions to differentiat between the different ID formats:
+  const edamamRegex = /^[0-9a-fA-F]{32}$/;
+  const spoonacularRegex = /^\d+$/;
+
   try {
-    const { source, id } = req.params;
+    const { id } = req.params;
+
     let information;
 
-    if (source === "spoonacular") {
-      information = await spoonacularService.findInformation(parseInt(id));
-    } else if (source === "edamam") {
+    if (edamamRegex.test(id)) {
+      console.log("edamam detected!");
       information = await edamamService.findInformation(id);
+    } else if (spoonacularRegex.test(id)) {
+      console.log("spoonacular detected!");
+      information = await spoonacularService.findInformation(parseInt(id));
     } else {
-      return res.status(400).json({ error: "Invalid source specified" });
+      res.status(400).json({ error: "Unrecognized ID value" });
     }
 
     if (!information) {
-      return res.status(404).json({ error: "Recipe not found" });
+      res.status(404).json({ error: "Recipe not found" });
     }
 
-    return res.status(200).json(information);
+    res.status(200).json(information);
   } catch (error) {
-    return res.status(500).json(error);
+    res.status(500).json(error);
   }
 });
 
@@ -43,9 +50,22 @@ router.get("/information/:id", async (req: Request, res: Response) => {
 router.post("/recipes", async (req: Request, res: Response) => {
   try {
     const searchTerms: searchInput = req.body;
-    console.log(searchTerms);
-    const recipes = await spoonacularService.findRecipes(searchTerms);
-    res.status(200).json(recipes);
+
+    // // Get 5 from each to make up to 10, then limit to 9 after mixing
+    const spoonacularResults = await spoonacularService.findRecipes({
+      ...searchTerms,
+    });
+    const edamamResults = await edamamService.findRecipes(searchTerms.query);
+
+    // // Take first 5 from each
+    const limitedSpoonacular = spoonacularResults.slice(0, 5);
+    const limitedEdamam = edamamResults.slice(0, 5);
+
+    const mixedResults = mixRecipes(limitedSpoonacular, limitedEdamam).slice(
+      0,
+      9
+    );
+    res.status(200).json(mixedResults);
   } catch (error) {
     res.status(500).json(error);
   }

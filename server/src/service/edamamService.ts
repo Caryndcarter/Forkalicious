@@ -2,7 +2,7 @@
 import dotenv from "dotenv";
 import recipe from "../types/recipe.js";
 dotenv.config({ path: "../.env" });
-import searchInput from "../types/searchInput";
+// import searchInput from "../types/searchInput";
 
 class EdamamService {
   private baseURL?: string;
@@ -15,72 +15,69 @@ class EdamamService {
     this.appKey = process.env.EDAMAM_APP_KEY || "";
   }
 
-  async findRecipes(input: searchInput) {
+  async findRecipes(searchQuery: string) {
     try {
-      let searchURL = `${this.baseURL}/search?app_id=${this.appId}&app_key=${this.appKey}&from=0&to=9`;
-
-      if (input.query) {
-        searchURL += `&q=${encodeURIComponent(input.query)}`;
-      }
-      // Add other parameters as needed
-      Object.entries(input).forEach(([key, value]) => {
-        searchURL += `&${key}=${value}`;
-      });
-
+      const fieldParams = "field=image&field=uri&field=label";
+      const searchURL = `${this.baseURL}/api/recipes/v2?type=public&${fieldParams}&q=${searchQuery}&app_id=${this.appId}&app_key=${this.appKey}`;
       const response = await fetch(searchURL);
-      const recipes = await response.json();
-      const parsedRecipes = recipes.hits.map((hit: any) => {
-        return {
-          edamamId: hit.recipe.uri.split("_")[1], // Extract ID from URI
-          image: hit.recipe.image,
-          title: hit.recipe.label,
-          source: "edamam",
-        };
-      });
 
-      return parsedRecipes;
-    } catch (error) {
-      console.log(error);
-      return null;
-    }
-  }
-
-  async findRandomRecipes() {
-    try {
-      // Edamam doesn't have a direct random endpoint, so we'll use a generic search
-      const searchURL = `${this.baseURL}/search?q=popular&app_id=${this.appId}&app_key=${this.appKey}&from=0&to=12`;
-      const response = await fetch(searchURL);
       const recipesData = await response.json();
 
       const parsedRecipes = recipesData.hits.map((hit: any) => {
-        return {
-          edamamId: hit.recipe.uri.split("_")[1],
-          image: hit.recipe.image,
-          title: hit.recipe.label,
-          source: "edamam",
-        };
+        return this.parseRandom(hit);
       });
 
       return parsedRecipes;
     } catch (error) {
-      console.log(error);
-      return error;
+      console.error("Error fetching random recipes from Edamam API:", error);
+      return []; // Return an empty array on error for consistency
     }
+  }
+
+  async findRandomRecipes(): Promise<any> {
+    try {
+      const fieldParams = "field=image&field=uri&field=label";
+      const searchURL = `${this.baseURL}/api/recipes/v2?type=public&${fieldParams}&q=food&random=true&app_id=${this.appId}&app_key=${this.appKey}`;
+      const response = await fetch(searchURL);
+
+      const recipesData = await response.json();
+
+      const parsedRecipes = recipesData.hits.map((hit: any) => {
+        return this.parseRandom(hit);
+      });
+
+      return parsedRecipes;
+    } catch (error) {
+      console.error("Error fetching random recipes from Edamam API:", error);
+      return []; // Return an empty array on error for consistency
+    }
+  }
+
+  parseRandom(hit: any): any {
+    if (!hit || !hit.recipe) {
+      console.warn("Invalid hit object provided for parsing:", hit);
+      return { spoonacularId: "", image: "", title: "" };
+    }
+
+    const uriParts = hit.recipe.uri.split("_");
+    const id = uriParts.length > 1 ? uriParts[uriParts.length - 1] : "";
+
+    return {
+      spoonacularId: id,
+      image: hit.recipe.image,
+      title: hit.recipe.label,
+    };
   }
 
   async findInformation(id: string): Promise<recipe | null> {
     try {
-      // Edamam uses recipe URI for details, but since we extracted ID, we need to reconstruct
-      const recipeUri = `http://www.edamam.com/ontologies/edamam.owl#recipe_${id}`;
-      const searchURL = `${this.baseURL}/search?r=${encodeURIComponent(
-        recipeUri
-      )}&app_id=${this.appId}&app_key=${this.appKey}`;
+      const searchURL = `${this.baseURL}/api/recipes/v2/${id}?app_id=${this.appId}&app_key=${this.appKey}`;
       const response = await fetch(searchURL);
-      const [recipeData] = await response.json();
+      const recipeData = await response.json();
 
       if (!recipeData) return null;
 
-      return this.parseInformation(recipeData);
+      return this.parseInformation(recipeData.recipe);
     } catch (error) {
       console.log(error);
       return null;
