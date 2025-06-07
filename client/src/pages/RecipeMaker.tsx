@@ -17,7 +17,7 @@ import localData from "@/utils_graphQL/localStorageService";
 const LOCAL_STORAGE_KEY = "recipeFormProgress";
 
 const RecipeMaker = () => {
-  const currentRecipeDetails = localData.getCurrentRecipe() || defaultRecipe;
+  // const currentRecipeDetails = localData.getCurrentRecipe() || defaultRecipe;
   const { isEditing, setIsEditing } = useContext(editingContext);
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
@@ -26,14 +26,14 @@ const RecipeMaker = () => {
   const [createRecipe] = useMutation(CREATE_RECIPE);
   const [saveRecipe] = useMutation(SAVE_RECIPE);
   const isLoggedIn = Auth.loggedIn();
-const [validationErrors, setValidationErrors] = useState<
-  Record<string, boolean>
->({});
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, boolean>
+  >({});
 
-const [suggestions, setSuggestions] = useState<Record<string, string>>({});
-const [loading, setLoading] = useState<Record<string, boolean>>({});
+  const [suggestions, setSuggestions] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState<Record<string, boolean>>({});
 
-const { userStatus } = useContext(userContext);
+  const { userStatus } = useContext(userContext);
   const loggedIn = userStatus !== "visiter";
 
   // Initialize recipe state with empty values
@@ -54,18 +54,23 @@ const { userStatus } = useContext(userContext);
   const [recipe, setRecipe] = useState<RecipeDetails>(emptyRecipe);
 
   // Load saved form data from localStorage on component mount
+  // Only if we're not editing an existing recipe
   useEffect(() => {
+    // Skip loading from localStorage if we're editing a recipe
+    if (isEditing) {
+      return;
+    }
+
     const savedFormData = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (savedFormData) {
       try {
         const parsedData = JSON.parse(savedFormData);
         setRecipe(parsedData);
-        // Remove the part that sets the prompt
       } catch (error) {
         console.error("Error parsing saved form data:", error);
       }
     }
-  }, []);
+  }, [isEditing]);
 
   // Save form data to localStorage whenever recipe state changes
   useEffect(() => {
@@ -86,12 +91,17 @@ const { userStatus } = useContext(userContext);
       return;
     }
 
+    // Get the current recipe from local storage instead of context
+    const currentRecipeDetails = localData.getCurrentRecipe() || defaultRecipe;
+
     // grab profile information
     const userProfile = Auth.getProfile();
 
     // if the user is the author of the recipe, import normally
     if (userProfile._id == currentRecipeDetails.author) {
       setRecipe(currentRecipeDetails);
+      // Clear saved form data when importing a recipe to edit
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
 
     // if the user is adapting someone else's recipe, add their username
@@ -100,13 +110,15 @@ const { userStatus } = useContext(userContext);
         ...currentRecipeDetails,
         title: `${userProfile.userName}'s ${currentRecipeDetails.title}`,
       });
+      // Clear saved form data when adapting a recipe
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
 
     // turn off editing
     setIsEditing(false);
   }, []);
 
-  const listFields = ['ingredients', 'steps', 'diets'];
+  const listFields = ["ingredients", "steps", "diets"];
 
   const generateField = async (field: string) => {
     setLoading((prev) => ({ ...prev, [field]: true }));
@@ -116,10 +128,10 @@ const { userStatus } = useContext(userContext);
       summary: recipe.summary,
       readyInMinutes: recipe.readyInMinutes.toString(),
       servings: recipe.servings.toString(),
-      ingredients: recipe.ingredients.join('; '),
+      ingredients: recipe.ingredients.join("; "),
       instructions: recipe.instructions,
-      steps: recipe.steps?.join('; ') || '',
-      diets: recipe.diets?.join('; ') || '',
+      steps: recipe.steps?.join("; ") || "",
+      diets: recipe.diets?.join("; ") || "",
     };
 
     try {
@@ -137,9 +149,12 @@ const { userStatus } = useContext(userContext);
     if (listFields.includes(field)) {
       setRecipe((prev) => ({
         ...prev,
-        [field]: value.split('; ').map((s) => s.trim()).filter((s) => s),
+        [field]: value
+          .split("; ")
+          .map((s) => s.trim())
+          .filter((s) => s),
       }));
-    } else if (['readyInMinutes', 'servings'].includes(field)) {
+    } else if (["readyInMinutes", "servings"].includes(field)) {
       setRecipe((prev) => ({ ...prev, [field]: parseInt(value) || 0 }));
     } else {
       setRecipe((prev) => ({ ...prev, [field]: value }));
@@ -425,37 +440,37 @@ const { userStatus } = useContext(userContext);
         onSubmit={handleSubmit}
         className="max-w-3xl mx-auto bg-[#fadaae] p-6 shadow-lg rounded-lg space-y-4 border border-gray-200"
       >
-        <div>
+        <section id="title-section">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Title*</label>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => generateField('title')}
-              disabled={loading['title']}
+              onClick={() => generateField("title")}
+              disabled={loading["title"]}
             >
-              {loading['title'] ? (
+              {loading["title"] ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Sparkles className="h-4 w-4" />
               )}
             </Button>
           </div>
-          {suggestions['title'] && (
+          {suggestions["title"] && (
             <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['title']}</span>
+              <span>{suggestions["title"]}</span>
               <div className="flex gap-2">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => copySuggestion('title')}
+                  onClick={() => copySuggestion("title")}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => applySuggestion('title')}
+                  onClick={() => applySuggestion("title")}
                 >
                   Replace
                 </Button>
@@ -463,6 +478,7 @@ const { userStatus } = useContext(userContext);
             </div>
           )}
           <input
+            id="title-input"
             type="text"
             value={recipe.title}
             onChange={(e) => {
@@ -479,39 +495,39 @@ const { userStatus } = useContext(userContext);
           {validationErrors.title && (
             <p className="text-red-500 text-sm mt-1">Title is required</p>
           )}
-        </div>
+        </section>
 
-        <div>
+        <section id="summary-section">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Summary*</label>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => generateField('summary')}
-              disabled={loading['summary']}
+              onClick={() => generateField("summary")}
+              disabled={loading["summary"]}
             >
-              {loading['summary'] ? (
+              {loading["summary"] ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Sparkles className="h-4 w-4" />
               )}
             </Button>
           </div>
-          {suggestions['summary'] && (
+          {suggestions["summary"] && (
             <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['summary']}</span>
+              <span>{suggestions["summary"]}</span>
               <div className="flex gap-2">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => copySuggestion('summary')}
+                  onClick={() => copySuggestion("summary")}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => applySuggestion('summary')}
+                  onClick={() => applySuggestion("summary")}
                 >
                   Replace
                 </Button>
@@ -519,6 +535,7 @@ const { userStatus } = useContext(userContext);
             </div>
           )}
           <textarea
+            id="summary-textArea"
             value={recipe.summary}
             onChange={(e) => {
               handleChange("summary", e.target.value);
@@ -534,39 +551,39 @@ const { userStatus } = useContext(userContext);
           {validationErrors.summary && (
             <p className="text-red-500 text-sm mt-1">Summary is required</p>
           )}
-        </div>
+        </section>
 
-        <div>
+        <section id="ready-in-minutes-section">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Ready In Minutes*</label>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => generateField('readyInMinutes')}
-              disabled={loading['readyInMinutes']}
+              onClick={() => generateField("readyInMinutes")}
+              disabled={loading["readyInMinutes"]}
             >
-              {loading['readyInMinutes'] ? (
+              {loading["readyInMinutes"] ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Sparkles className="h-4 w-4" />
               )}
             </Button>
           </div>
-          {suggestions['readyInMinutes'] && (
+          {suggestions["readyInMinutes"] && (
             <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['readyInMinutes']}</span>
+              <span>{suggestions["readyInMinutes"]}</span>
               <div className="flex gap-2">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => copySuggestion('readyInMinutes')}
+                  onClick={() => copySuggestion("readyInMinutes")}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => applySuggestion('readyInMinutes')}
+                  onClick={() => applySuggestion("readyInMinutes")}
                 >
                   Replace
                 </Button>
@@ -574,6 +591,7 @@ const { userStatus } = useContext(userContext);
             </div>
           )}
           <input
+            id="ready-in-minutes-input"
             type="number"
             min="0"
             value={recipe.readyInMinutes}
@@ -619,39 +637,39 @@ const { userStatus } = useContext(userContext);
               Ready in minutes must be greater than 0
             </p>
           )}
-        </div>
+        </section>
 
-        <div>
+        <section id="servings-section">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Servings*</label>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => generateField('servings')}
-              disabled={loading['servings']}
+              onClick={() => generateField("servings")}
+              disabled={loading["servings"]}
             >
-              {loading['servings'] ? (
+              {loading["servings"] ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Sparkles className="h-4 w-4" />
               )}
             </Button>
           </div>
-          {suggestions['servings'] && (
+          {suggestions["servings"] && (
             <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['servings']}</span>
+              <span>{suggestions["servings"]}</span>
               <div className="flex gap-2">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => copySuggestion('servings')}
+                  onClick={() => copySuggestion("servings")}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => applySuggestion('servings')}
+                  onClick={() => applySuggestion("servings")}
                 >
                   Replace
                 </Button>
@@ -659,6 +677,7 @@ const { userStatus } = useContext(userContext);
             </div>
           )}
           <input
+            id="servings-input"
             type="number"
             min="0"
             value={recipe.servings}
@@ -701,39 +720,39 @@ const { userStatus } = useContext(userContext);
               Servings must be greater than 0
             </p>
           )}
-        </div>
+        </section>
 
-        <div>
+        <section id="ingredients-section">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Ingredients*</label>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => generateField('ingredients')}
-              disabled={loading['ingredients']}
+              onClick={() => generateField("ingredients")}
+              disabled={loading["ingredients"]}
             >
-              {loading['ingredients'] ? (
+              {loading["ingredients"] ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Sparkles className="h-4 w-4" />
               )}
             </Button>
           </div>
-          {suggestions['ingredients'] && (
+          {suggestions["ingredients"] && (
             <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['ingredients']}</span>
+              <span>{suggestions["ingredients"]}</span>
               <div className="flex gap-2">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => copySuggestion('ingredients')}
+                  onClick={() => copySuggestion("ingredients")}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => applySuggestion('ingredients')}
+                  onClick={() => applySuggestion("ingredients")}
                 >
                   Replace
                 </Button>
@@ -770,6 +789,7 @@ const { userStatus } = useContext(userContext);
             </div>
           ))}
           <button
+            id="add-ingredient-button"
             type="button"
             onClick={() => handleAddItem("ingredients")}
             className="text-blue-500"
@@ -781,39 +801,39 @@ const { userStatus } = useContext(userContext);
               At least one ingredient is required
             </p>
           )}
-        </div>
+        </section>
 
-        <div>
+        <section id="instructions-section">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Instructions*</label>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => generateField('instructions')}
-              disabled={loading['instructions']}
+              onClick={() => generateField("instructions")}
+              disabled={loading["instructions"]}
             >
-              {loading['instructions'] ? (
+              {loading["instructions"] ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Sparkles className="h-4 w-4" />
               )}
             </Button>
           </div>
-          {suggestions['instructions'] && (
+          {suggestions["instructions"] && (
             <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['instructions']}</span>
+              <span>{suggestions["instructions"]}</span>
               <div className="flex gap-2">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => copySuggestion('instructions')}
+                  onClick={() => copySuggestion("instructions")}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => applySuggestion('instructions')}
+                  onClick={() => applySuggestion("instructions")}
                 >
                   Replace
                 </Button>
@@ -821,6 +841,7 @@ const { userStatus } = useContext(userContext);
             </div>
           )}
           <textarea
+            id="instructions-textarea"
             value={recipe.instructions}
             onChange={(e) => {
               handleChange("instructions", e.target.value);
@@ -841,40 +862,39 @@ const { userStatus } = useContext(userContext);
               Instructions are required
             </p>
           )}
-        </div>
+        </section>
 
-        {/* Diets Section */}
-        <div>
+        <section id="diet-section">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Diets</label>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => generateField('diets')}
-              disabled={loading['diets']}
+              onClick={() => generateField("diets")}
+              disabled={loading["diets"]}
             >
-              {loading['diets'] ? (
+              {loading["diets"] ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Sparkles className="h-4 w-4" />
               )}
             </Button>
           </div>
-          {suggestions['diets'] && (
+          {suggestions["diets"] && (
             <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['diets']}</span>
+              <span>{suggestions["diets"]}</span>
               <div className="flex gap-2">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => copySuggestion('diets')}
+                  onClick={() => copySuggestion("diets")}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => applySuggestion('diets')}
+                  onClick={() => applySuggestion("diets")}
                 >
                   Replace
                 </Button>
@@ -884,7 +904,7 @@ const { userStatus } = useContext(userContext);
           {(recipe.diets ?? []).map((diet, index) => (
             <div key={index} className="flex items-center space-x-2 mb-2">
               <select
-                id="diet"
+                id="diet-select"
                 className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm rounded-md"
                 onChange={(e) =>
                   handleListChange("diets", index, e.target.value)
@@ -914,46 +934,46 @@ const { userStatus } = useContext(userContext);
             </div>
           ))}
           <button
+            id="add-diet-button"
             type="button"
             onClick={() => handleAddItem("diets")}
             className="text-blue-500"
           >
             Add Diet
           </button>
-        </div>
+        </section>
 
-        {/* Steps Section */}
-        <div>
+        <section id="steps-section">
           <div className="flex justify-between items-center mb-1">
             <label className="font-bold">Steps*</label>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => generateField('steps')}
-              disabled={loading['steps']}
+              onClick={() => generateField("steps")}
+              disabled={loading["steps"]}
             >
-              {loading['steps'] ? (
+              {loading["steps"] ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Sparkles className="h-4 w-4" />
               )}
             </Button>
           </div>
-          {suggestions['steps'] && (
+          {suggestions["steps"] && (
             <div className="mb-2 p-2 bg-white/80 rounded border border-[#e7890c]/30 flex justify-between items-center">
-              <span>{suggestions['steps']}</span>
+              <span>{suggestions["steps"]}</span>
               <div className="flex gap-2">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => copySuggestion('steps')}
+                  onClick={() => copySuggestion("steps")}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => applySuggestion('steps')}
+                  onClick={() => applySuggestion("steps")}
                 >
                   Replace
                 </Button>
@@ -987,6 +1007,7 @@ const { userStatus } = useContext(userContext);
             </div>
           ))}
           <button
+            id="add-step-button"
             type="button"
             onClick={() => handleAddItem("steps")}
             className="text-blue-500"
@@ -998,11 +1019,12 @@ const { userStatus } = useContext(userContext);
               At least one step is required
             </p>
           )}
-        </div>
+        </section>
 
-        <div>
+        <section id="image-section">
           <label className="block font-bold mb-1">Image URL</label>
           <input
+            id="image-input"
             type="text"
             value={recipe.image ?? ""} // Handle null value
             onClick={(event: any) => {
@@ -1019,7 +1041,7 @@ const { userStatus } = useContext(userContext);
             }}
             className="p-2 border rounded w-full"
           />
-        </div>
+        </section>
 
         <p className="text-red-500 font-medium mt-2 text-sm">{errorMessage}</p>
         {isLoggedIn ? (

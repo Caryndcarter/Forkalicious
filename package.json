@@ -23,12 +23,11 @@
     "build:lambda": "cd server && npm run build:lambda",
     "builder": "concurrently \"cd server && npm run build\" \"cd client && npm run build\"",
     "seed": "cd server && npm run seed",
-    "render-build": "npm install && npm run clean:all && npm run install && npm run build",
+    "render-build": "npm install && npm run clean && npm run install && npm run build",
     "render-build:lambda": "cd server && npm install && npm run build:lambda",
-    "clean": "rm -rf node_modules package-lock.json",
-    "clean:client": "cd client && rm -rf node_modules package-lock.json",
-    "clean:server": "cd server && rm -rf node_modules package-lock.json",
-    "clean:all": "npm run clean && npm run clean:client && npm run clean:server"
+    "clean": "rm -rf node_modules && npm run clean:client && npm run clean:server",
+    "clean:client": "cd client && rm -rf node_modules dist",
+    "clean:server": "cd server && rm -rf node_modules dist"
   },
   "keywords": [],
   "author": "",
