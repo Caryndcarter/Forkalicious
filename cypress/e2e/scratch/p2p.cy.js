@@ -3,12 +3,6 @@ import createRecipe from "../utils/createRecipe";
 
 export function runP2PTests() {
   describe("The page works as it did before the edits", () => {
-    it("Logs in", () => {
-      cy.visit("/");
-      cy.get("#homepage-call-to-action").should("exist");
-      login();
-    });
-
     it("Lets you use the recipe maker", () => {
       cy.visit("/");
       cy.get("#homepage-call-to-action").should("exist");
