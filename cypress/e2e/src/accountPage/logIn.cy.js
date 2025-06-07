@@ -1,5 +1,5 @@
-import credentials from "../testingAssets/accountCredentials";
-import login from "../utils/login";
+import credentials from "../../assets/accountCredentials";
+import login from "../../utils/login";
 
 export default function runLogInTest() {
   describe("Login page works as expected", () => {

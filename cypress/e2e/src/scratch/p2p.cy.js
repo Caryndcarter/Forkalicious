@@ -1,5 +1,5 @@
-import login from "../utils/login";
-import createRecipe from "../utils/createRecipe";
+import login from "../../utils/login";
+import createRecipe from "../../utils/createRecipe";
 
 export function runP2PTests() {
   describe("The page works as it did before the edits", () => {

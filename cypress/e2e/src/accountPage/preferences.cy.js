@@ -1,4 +1,4 @@
-import credentials from "../testingAssets/accountCredentials";
+import credentials from "../../assets/accountCredentials";
 
 export default function runPreferencesTest() {
   describe("account preferences work as expected", () => {

@@ -1,4 +1,4 @@
-import { foodQueryResults } from "./../testingAssets/expectedSearchResults";
+import { foodQueryResults } from "../../assets/expectedSearchResults";
 
 export function runBasicSearches() {
   describe("Searches give the right output", () => {

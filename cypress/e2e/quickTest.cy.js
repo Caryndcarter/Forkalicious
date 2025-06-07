@@ -1,4 +1,4 @@
-import { foodQueryResults } from "./testingAssets/expectedSearchResults";
+import { foodQueryResults } from "./assets/expectedSearchResults";
 
 const EMAIL = "test@example.com"; // ensure this is a valid login
 const PASSWORD = "test"; // ensure this is a valid login

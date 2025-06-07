@@ -1,4 +1,4 @@
-import credentials from "../testingAssets/accountCredentials";
+import credentials from "../../assets/accountCredentials";
 
 export default function runSignUpTest() {
   describe("Sign up page works as expected", () => {

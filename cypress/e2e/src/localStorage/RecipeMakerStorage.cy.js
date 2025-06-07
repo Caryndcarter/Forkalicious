@@ -1,7 +1,7 @@
-import createRecipe from "../utils/createRecipe";
-import login from "../utils/login";
-import credentials from "../testingAssets/accountCredentials";
-import copyRecipeData from "../utils/copyRecipeData";
+import createRecipe from "../../utils/createRecipe";
+import login from "../../utils/login";
+import credentials from "../../assets/accountCredentials";
+import copyRecipeData from "../../utils/copyRecipeData";
 
 function rawHtmlRenderer(htmlString) {
   return htmlString.replace(/<\/?[^>]+(>|$)/g, "");
