@@ -1,29 +1,28 @@
-export default function createRecipe() {
+export default function createRecipe(recipe) {
   cy.get("#nav-recipe-maker-link").click();
 
   // fill in the recipe:
-  cy.get("#maker-input-title input").type("title"); // title
-  cy.get("#maker-input-summary textarea").type("summary");  // summary
-  cy.get("#maker-input-ready-in-minutes input").type("30"); // ready-in-minutes
-  cy.get("#maker-input-servings input").type("7");  // servings
+  cy.get("#title-input").type(recipe.title);
+  cy.get("#summary-textArea").type(recipe.summary);
+  cy.get("#ready-in-minutes-input").type(recipe.readyInMinutes);
+  cy.get("#servings-input").type(recipe.servings);
 
-  // ingredients
-  cy.get("#maker-input-ingredients input").eq(0).type("1 cup lettuce")
-  cy.get("#maker-input-ingredients button").eq(2).click();
-  cy.get("#maker-input-ingredients input").eq(1).type("2 tsp salt")
+  recipe.ingredients.forEach((ingredient, index) => {
+    index > 0 ? cy.get("#add-ingredient-button").click() : null;
+    cy.get("#ingredients-section input").eq(index).type(ingredient);
+  });
 
-  cy.get("#maker-input-instructions textarea").type("instructions"); // instrutions
+  cy.get("#instructions-textarea").type(recipe.instructions);
 
-  // diets
-  cy.get("#maker-input-diets button").eq(1).click();
-  cy.get("#maker-input-diets select").select("Vegan");
+  recipe.diets.forEach((diet, index) => {
+    cy.get("#add-diet-button").click();
+    cy.get("#diet-section select").eq(index).select(diet);
+  });
 
-  // steps
-  cy.get("#maker-input-steps button").eq(1).click();
-  cy.get("#maker-input-steps input").eq(0).type("step 1");
-  cy.get("#maker-input-steps button").eq(2).click();
-  cy.get("#maker-input-steps input").eq(1).type("step 2");
+  recipe.steps.forEach((step, index) => {
+    cy.get("#add-step-button").click();
+    cy.get("#steps-section input").eq(index).type(step);
+  });
 
-  // image
-  cy.get('#maker-input-image input').type("https://restaurants.com");
+  cy.get("#image-input").type(recipe.image);
 }
