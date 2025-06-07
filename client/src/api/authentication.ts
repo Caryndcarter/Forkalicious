@@ -20,7 +20,6 @@ class AuthService {
       const data = await response.json();
       console.log(data);
       localStorage.setItem("id_token", data.token);
-      window.location.assign("/");
       return data;
     } catch (error) {
       return { error: error };
