@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import spoonacularService from "../service/spoonacularService.js";
 import { searchInput } from "../types/index.js";
 import { askQuestion, generateComponent } from "../service/langChainService.js";
+import edamamService from "../service/edamamService.js";
 
 const router = Router();
 
