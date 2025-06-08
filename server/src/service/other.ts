@@ -66,6 +66,7 @@ class EdamamService {
 
     const uriParts = hit.recipe.uri.split("_");
     const id = uriParts.length > 1 ? uriParts[uriParts.length - 1] : "";
+
     // Process the image URL through our image service
     const processedImageUrl = await imageService.processImageUrl(
       hit.recipe.image
