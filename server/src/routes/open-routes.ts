@@ -26,8 +26,16 @@ function mixRecipes(spoonacularRecipes: any[], edamamRecipes: any[]) {
 // GET /open/random/ - GET random recipes from both sources
 router.get("/random", async (_req: Request, res: Response) => {
   try {
-    const recipes = await spoonacularService.findRandomRecipes();
-    res.status(200).json(recipes);
+    // Get 6 from each to make 12 total after mixing
+    const spoonacularRecipes = await spoonacularService.findRandomRecipes();
+    const edamamRecipes = await edamamService.findRandomRecipes();
+
+    // Take first 6 from each
+    const limitedSpoonacular = spoonacularRecipes.slice(0, 6);
+    const limitedEdamam = edamamRecipes.slice(0, 6);
+
+    const mixedRecipes = mixRecipes(limitedSpoonacular, limitedEdamam);
+    res.status(200).json(mixedRecipes);
   } catch (error) {
     res.status(500).json(error);
   }
