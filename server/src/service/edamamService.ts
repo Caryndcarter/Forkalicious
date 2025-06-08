@@ -66,14 +66,10 @@ class EdamamService {
 
     const uriParts = hit.recipe.uri.split("_");
     const id = uriParts.length > 1 ? uriParts[uriParts.length - 1] : "";
-    // Process the image URL through our image service
-    const processedImageUrl = await imageService.processImageUrl(
-      hit.recipe.image
-    );
 
     return {
       spoonacularId: id,
-      image: processedImageUrl,
+      image: hit.recipe.image,
       title: hit.recipe.label,
     };
   }
@@ -95,6 +91,7 @@ class EdamamService {
 
   async parseInformation(information: any): Promise<recipe> {
     // Process the image URL through our image service
+    console.log(information.image);
     const processedImageUrl = await imageService.processImageUrl(
       information.image
     );

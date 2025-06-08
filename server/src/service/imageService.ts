@@ -16,7 +16,6 @@ dotenv.config();
 class ImageService {
   private s3Client: S3Client;
   private bucketName: string;
-  private imageCache: Map<string, string>; // Cache to track original URL -> our S3 URL
 
   constructor() {
     this.s3Client = new S3Client({
@@ -27,7 +26,6 @@ class ImageService {
       },
     });
     this.bucketName = process.env.AWS_S3_BUCKET_NAME || "";
-    this.imageCache = new Map();
   }
 
   /**
@@ -37,9 +35,6 @@ class ImageService {
    */
   async processImageUrl(imageUrl: string): Promise<string> {
     // Check if we've already processed this image
-    if (this.imageCache.has(imageUrl)) {
-      return this.imageCache.get(imageUrl) || "";
-    }
 
     try {
       // Generate a unique key for the image
@@ -68,9 +63,6 @@ class ImageService {
 
       // Generate a URL for the uploaded image
       const s3Url = `https://${this.bucketName}.s3.amazonaws.com/${key}`;
-
-      // Cache the URL mapping
-      this.imageCache.set(imageUrl, s3Url);
 
       return s3Url;
     } catch (error) {
