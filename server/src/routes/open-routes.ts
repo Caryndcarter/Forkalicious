@@ -27,8 +27,10 @@ function mixRecipes(spoonacularRecipes: any[], edamamRecipes: any[]) {
 router.get("/random", async (_req: Request, res: Response) => {
   try {
     // Get 6 from each to make 12 total after mixing
-    const spoonacularRecipes = await spoonacularService.findRandomRecipes();
-    const edamamRecipes = await edamamService.findRandomRecipes();
+    const [spoonacularRecipes, edamamRecipes] = await Promise.all([
+      spoonacularService.findRandomRecipes(),
+      edamamService.findRandomRecipes(6),
+    ]);
 
     // Take first 6 from each
     const limitedSpoonacular = spoonacularRecipes.slice(0, 6);
@@ -76,11 +78,10 @@ router.post("/recipes", async (req: Request, res: Response) => {
     const searchTerms: searchInput = req.body;
 
     // // Get 5 from each to make up to 10, then limit to 9 after mixing
-    const spoonacularResults = await spoonacularService.findRecipes({
-      ...searchTerms,
-    });
-
-    const edamamResults = await edamamService.findRecipes(searchTerms.query);
+    const [spoonacularResults, edamamResults] = await Promise.all([
+      spoonacularService.findRecipes({ ...searchTerms }),
+      edamamService.findRecipes(searchTerms.query),
+    ]);
 
     // // Take first 5 from each
     const limitedSpoonacular = spoonacularResults.slice(0, 5);

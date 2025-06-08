@@ -3,15 +3,20 @@ import {
   S3Client,
   PutObjectCommand,
   //   GetObjectCommand,
+  HeadObjectCommand,
   ObjectCannedACL,
 } from "@aws-sdk/client-s3";
 // import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import fetch from "node-fetch";
-import crypto from "crypto";
 import dotenv from "dotenv";
 import path from "path";
 
 dotenv.config();
+
+interface ImageInfo {
+  image: string;
+  spoonacularId: string;
+}
 
 class ImageService {
   private s3Client: S3Client;
@@ -30,20 +35,29 @@ class ImageService {
 
   /**
    * Processes an image URL by downloading it and storing in S3 if needed
-   * @param imageUrl The original image URL
+   * @param originalURL The original image URL
    * @returns A permanent S3 URL for the image
    */
-  async processImageUrl(imageUrl: string): Promise<string> {
+  async processImageUrl(originalURL: string, id: string): Promise<string> {
+    // Generate the target URL for the image
+    const fileExtension = path.extname(new URL(originalURL).pathname) || ".jpg";
+    const key = `images/${id}${fileExtension}`;
+    const s3Url = `https://${this.bucketName}.s3.amazonaws.com/${key}`;
+
     // Check if we've already processed this image
+    try {
+      await this.s3Client.send(
+        new HeadObjectCommand({ Bucket: this.bucketName, Key: key })
+      );
+      // If exists, return a URL (public or presigned)
+      return s3Url;
+    } catch (headError: any) {
+      if (headError.name !== "NotFound") throw headError; // Only proceed if truly missing
+    }
 
     try {
-      // Generate a unique key for the image
-      const fileExtension = path.extname(new URL(imageUrl).pathname) || ".jpg";
-      const hash = crypto.createHash("md5").update(imageUrl).digest("hex");
-      const key = `recipes/${hash}${fileExtension}`;
-
       // Download the image
-      const response = await fetch(imageUrl);
+      const response = await fetch(originalURL);
       if (!response.ok) {
         throw new Error(`Failed to download image: ${response.statusText}`);
       }
@@ -60,15 +74,11 @@ class ImageService {
       };
 
       await this.s3Client.send(new PutObjectCommand(uploadParams));
-
-      // Generate a URL for the uploaded image
-      const s3Url = `https://${this.bucketName}.s3.amazonaws.com/${key}`;
-
       return s3Url;
     } catch (error) {
       console.error("Error processing image:", error);
       // Return the original URL if processing fails
-      return imageUrl;
+      return originalURL;
     }
   }
 
@@ -77,8 +87,10 @@ class ImageService {
    * @param imageUrls Array of image URLs to process
    * @returns Array of processed S3 URLs
    */
-  async processMultipleImages(imageUrls: string[]): Promise<string[]> {
-    const promises = imageUrls.map((url) => this.processImageUrl(url));
+  async processMultipleImages(imageKeys: ImageInfo[]): Promise<string[]> {
+    const promises = imageKeys.map((imageKey) =>
+      this.processImageUrl(imageKey.image, imageKey.spoonacularId)
+    );
     return Promise.all(promises);
   }
 }

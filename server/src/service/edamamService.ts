@@ -16,7 +16,7 @@ class EdamamService {
     this.appKey = process.env.EDAMAM_APP_KEY || "";
   }
 
-  async findRecipes(searchQuery: string) {
+  async findRecipes(searchQuery: string, maxHits = 5) {
     try {
       const fieldParams = "field=image&field=uri&field=label";
       const searchURL = `${this.baseURL}/api/recipes/v2?type=public&${fieldParams}&q=${searchQuery}&app_id=${this.appId}&app_key=${this.appKey}`;
@@ -24,34 +24,56 @@ class EdamamService {
 
       const recipesData = await response.json();
 
+      const slicedHits = recipesData.hits.slice(0, maxHits);
+
       const parsedRecipes = await Promise.all(
-        recipesData.hits.map(async (hit: any) => {
+        slicedHits.map(async (hit: any) => {
           return await this.parseRandom(hit);
         })
       );
 
-      return parsedRecipes;
+      const imageUrls = await imageService.processMultipleImages(parsedRecipes);
+
+      const finishedRecipies = parsedRecipes.map((recipe, index) => {
+        return { ...recipe, image: imageUrls[index] };
+      });
+
+      return finishedRecipies;
     } catch (error) {
       console.error("Error fetching random recipes from Edamam API:", error);
-      return []; // Return an empty array on error for consistency
+      return [];
     }
   }
 
-  async findRandomRecipes(): Promise<any> {
+  async findRandomRecipes(maxHits = 5): Promise<any> {
     try {
       const fieldParams = "field=image&field=uri&field=label";
       const searchURL = `${this.baseURL}/api/recipes/v2?type=public&${fieldParams}&q=food&random=true&app_id=${this.appId}&app_key=${this.appKey}`;
       const response = await fetch(searchURL);
 
+      console.log("recieved response from edamamn");
+
       const recipesData = await response.json();
 
+      const slicedHits = recipesData.hits.slice(0, maxHits);
+
       const parsedRecipes = await Promise.all(
-        recipesData.hits.map(async (hit: any) => {
+        slicedHits.map(async (hit: any) => {
           return await this.parseRandom(hit);
         })
       );
 
-      return parsedRecipes;
+      console.log("parsed the recipies");
+
+      const imageUrls = await imageService.processMultipleImages(parsedRecipes);
+
+      console.log("stored the images in my bucket");
+
+      const finishedRecipies = parsedRecipes.map((recipe, index) => {
+        return { ...recipe, image: imageUrls[index] };
+      });
+
+      return finishedRecipies;
     } catch (error) {
       console.error("Error fetching random recipes from Edamam API:", error);
       return []; // Return an empty array on error for consistency
@@ -90,10 +112,11 @@ class EdamamService {
   }
 
   async parseInformation(information: any): Promise<recipe> {
+    const id = information.uri.split("_")[1];
     // Process the image URL through our image service
-    console.log(information.image);
     const processedImageUrl = await imageService.processImageUrl(
-      information.image
+      information.image,
+      id
     );
 
     return {
@@ -113,7 +136,7 @@ class EdamamService {
       sourceUrl: information.url,
       spoonacularSourceUrl: "", // Not applicable for Edamam
       spoonacularId: undefined, // Not applicable
-      edamamId: information.uri.split("_")[1],
+      edamamId: id,
     };
   }
 }
