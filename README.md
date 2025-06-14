@@ -20,8 +20,8 @@ This project is built using a state-of-the-art stack to ensure scalability, perf
 
 ## 📁 Table of Contents
 
-- [Installation](#installation)
 - [Usage](#usage)
+- [Installation](#installation)
 - [Contributing](#contributing)
 
 ## Usage
@@ -96,12 +96,16 @@ This project is built using a state-of-the-art stack to ensure scalability, perf
 
 please visit [our deployed site](https://forkalicious.onrender.com) to access the application. If you want to run the application from your local machine, follow these instructions:
 
-Ensure you have the Node Package Manager and MongoDB installed on your machine. You will need a JWT Secret Key, a Spoonacular API key, and optionally an OpenAI API key.
+Ensure you have the Node Package Manager and MongoDB installed on your machine. You will need a `JWT Secret Key,` a `Spoonacular API key,` an `Edamam API Key,` a `Mongo Database URI,` connection to an `Amazon S3 Bucket,` and optionally an `OpenAI API key.`
+
+Currently, this app only works with port 3001, so do not change the `PORT` variable. Do not change the `API_BASE_URL` or `EDAMAM_BASE_URL`, or else the API calls will break. `JWT_SECRET_KEY` can be any value, so change it to a random string if necessary.
 
 - [Node.js](https://nodejs.org)
 - [MongoDB installation guide](https://www.mongodb.com/docs/manual/installation/)
 - [Generate a JWT Secret Key](https://pinetools.com/random-string-generator)
 - [Spoonacular API Key](https://spoonacular.com/food-api/console#Dashboard)
+- [Edamam API Key](https://developer.edamam.com/edamam-recipe-api)
+- [Amazon S3 Bucket](https://aws.amazon.com/certification/)
 - [OpenAI API Key](https://platform.openai.com/settings/organization/api-keys)
 
 ```shell
