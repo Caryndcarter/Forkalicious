@@ -18,62 +18,182 @@ class EdamamService {
 
   async findRecipes(searchQuery: string, maxHits = 5) {
     try {
+      // Validate required configuration
+      if (!this.appId || !this.appKey || !this.baseURL) {
+        console.error("Edamam API configuration missing");
+        return [];
+      }
+
       const fieldParams = "field=image&field=uri&field=label";
-      const searchURL = `${this.baseURL}/api/recipes/v2?type=public&${fieldParams}&q=${searchQuery}&app_id=${this.appId}&app_key=${this.appKey}`;
-      const response = await fetch(searchURL);
+      const searchURL = `${
+        this.baseURL
+      }/api/recipes/v2?type=public&${fieldParams}&q=${encodeURIComponent(
+        searchQuery
+      )}&app_id=${this.appId}&app_key=${this.appKey}`;
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+      const response = await fetch(searchURL, {
+        signal: controller.signal,
+        headers: {
+          "User-Agent": "Dockalicious-Recipe-App/1.0",
+        },
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        console.error(
+          `Edamam API error: ${response.status} ${response.statusText}`
+        );
+        return [];
+      }
 
       const recipesData = await response.json();
+
+      // Validate response structure
+      if (
+        !recipesData ||
+        !recipesData.hits ||
+        !Array.isArray(recipesData.hits)
+      ) {
+        console.error("Invalid response structure from Edamam API");
+        return [];
+      }
 
       const slicedHits = recipesData.hits.slice(0, maxHits);
 
       const parsedRecipes = await Promise.all(
         slicedHits.map(async (hit: any) => {
-          return await this.parseRandom(hit);
+          try {
+            return await this.parseRandom(hit);
+          } catch (parseError) {
+            console.error("Error parsing individual recipe:", parseError);
+            return null;
+          }
         })
       );
 
-      const imageUrls = await imageService.processMultipleImages(parsedRecipes);
+      // Filter out null results from failed parsing
+      const validRecipes = parsedRecipes.filter((recipe) => recipe !== null);
 
-      const finishedRecipies = parsedRecipes.map((recipe, index) => {
-        return { ...recipe, image: imageUrls[index] };
-      });
+      if (validRecipes.length === 0) {
+        console.warn("No valid recipes parsed from Edamam response");
+        return [];
+      }
 
-      return finishedRecipies;
+      try {
+        const imageUrls = await imageService.processMultipleImages(
+          validRecipes
+        );
+        const finishedRecipies = validRecipes.map((recipe, index) => {
+          return { ...recipe, image: imageUrls[index] || recipe.image };
+        });
+        return finishedRecipies;
+      } catch (imageError) {
+        console.error(
+          "Error processing images, returning recipes with original images:",
+          imageError
+        );
+        return validRecipes;
+      }
     } catch (error) {
-      console.error("Error fetching random recipes from Edamam API:", error);
+      console.error("Error fetching recipes from Edamam API:", error);
       return [];
     }
   }
 
   async findRandomRecipes(maxHits = 5): Promise<any> {
     try {
+      // Validate required configuration
+      if (!this.appId || !this.appKey || !this.baseURL) {
+        console.error("Edamam API configuration missing for random recipes");
+        return [];
+      }
+
       const fieldParams = "field=image&field=uri&field=label";
       const searchURL = `${this.baseURL}/api/recipes/v2?type=public&${fieldParams}&q=food&random=true&app_id=${this.appId}&app_key=${this.appKey}`;
-      const response = await fetch(searchURL);
 
-      console.log("recieved response from edamamn");
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+      const response = await fetch(searchURL, {
+        signal: controller.signal,
+        headers: {
+          "User-Agent": "Dockalicious-Recipe-App/1.0",
+        },
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        console.error(
+          `Edamam API error for random recipes: ${response.status} ${response.statusText}`
+        );
+        return [];
+      }
+
+      console.log("received response from edamam");
 
       const recipesData = await response.json();
+
+      // Validate response structure
+      if (
+        !recipesData ||
+        !recipesData.hits ||
+        !Array.isArray(recipesData.hits)
+      ) {
+        console.error(
+          "Invalid response structure from Edamam API for random recipes"
+        );
+        return [];
+      }
 
       const slicedHits = recipesData.hits.slice(0, maxHits);
 
       const parsedRecipes = await Promise.all(
         slicedHits.map(async (hit: any) => {
-          return await this.parseRandom(hit);
+          try {
+            return await this.parseRandom(hit);
+          } catch (parseError) {
+            console.error(
+              "Error parsing individual random recipe:",
+              parseError
+            );
+            return null;
+          }
         })
       );
 
-      console.log("parsed the recipies");
+      // Filter out null results from failed parsing
+      const validRecipes = parsedRecipes.filter((recipe) => recipe !== null);
 
-      const imageUrls = await imageService.processMultipleImages(parsedRecipes);
+      if (validRecipes.length === 0) {
+        console.warn("No valid random recipes parsed from Edamam response");
+        return [];
+      }
 
-      console.log("stored the images in my bucket");
+      console.log("parsed the recipes");
 
-      const finishedRecipies = parsedRecipes.map((recipe, index) => {
-        return { ...recipe, image: imageUrls[index] };
-      });
+      try {
+        const imageUrls = await imageService.processMultipleImages(
+          validRecipes
+        );
+        console.log("stored the images in my bucket");
 
-      return finishedRecipies;
+        const finishedRecipies = validRecipes.map((recipe, index) => {
+          return { ...recipe, image: imageUrls[index] || recipe.image };
+        });
+
+        return finishedRecipies;
+      } catch (imageError) {
+        console.error(
+          "Error processing images for random recipes, returning recipes with original images:",
+          imageError
+        );
+        return validRecipes;
+      }
     } catch (error) {
       console.error("Error fetching random recipes from Edamam API:", error);
       return []; // Return an empty array on error for consistency
@@ -98,15 +218,55 @@ class EdamamService {
 
   async findInformation(id: string): Promise<recipe | null> {
     try {
-      const searchURL = `${this.baseURL}/api/recipes/v2/${id}?app_id=${this.appId}&app_key=${this.appKey}`;
-      const response = await fetch(searchURL);
+      // Validate required configuration and input
+      if (!this.appId || !this.appKey || !this.baseURL) {
+        console.error(
+          "Edamam API configuration missing for recipe information"
+        );
+        return null;
+      }
+
+      if (!id || typeof id !== "string") {
+        console.error("Invalid recipe ID provided to Edamam findInformation");
+        return null;
+      }
+
+      const searchURL = `${this.baseURL}/api/recipes/v2/${encodeURIComponent(
+        id
+      )}?app_id=${this.appId}&app_key=${this.appKey}`;
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+      const response = await fetch(searchURL, {
+        signal: controller.signal,
+        headers: {
+          "User-Agent": "Dockalicious-Recipe-App/1.0",
+        },
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        console.error(
+          `Edamam API error for recipe information: ${response.status} ${response.statusText}`
+        );
+        return null;
+      }
+
       const recipeData = await response.json();
 
-      if (!recipeData) return null;
+      if (!recipeData || !recipeData.recipe) {
+        console.error("Invalid recipe data structure from Edamam API");
+        return null;
+      }
 
       return this.parseInformation(recipeData.recipe);
     } catch (error) {
-      console.log(error);
+      console.error(
+        "Error fetching recipe information from Edamam API:",
+        error
+      );
       return null;
     }
   }
