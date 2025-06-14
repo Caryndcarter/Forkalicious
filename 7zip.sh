@@ -1,6 +1,6 @@
 #!/bin/sh
 
-7z a -r forktastic_rewrite.zip . \
+7z a -r forktastic.zip . \
   -xr!*.env \
   -xr!.git\* \
   -xr!*node_modules\* \
